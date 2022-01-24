@@ -1,3 +1,9 @@
+//*******************************************************************************
+//
+// IMPORTANT: Make sure to check package.json to have those dependecies installed.
+//
+//*******************************************************************************
+
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';

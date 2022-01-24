@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase'
 import {
@@ -13,37 +13,39 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user) {
-                navigation.replace("Home")
-            }
-        })
-        return unsubscribe;
-    }, [])
+    // // Don't need the following but this is included in the tutorial
+    // useEffect(() => {
+    //     const unsubscribe = auth.onAuthStateChanged(user => {
+    //         if (user) {
+    //             navigation.replace("Home")
+    //         }
+    //     })
+    //     return unsubscribe;
+    // }, [])
 
 
     const handleSignUp = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log('Registered with:', user.email);
+                console.log('A new user just registered:', user.email);
+                Alert.alert('Great!', 'You just created a new acount. Now it\'s time to login!');
             })
             .catch(error => alert(error.message))
     }
 
     const handleLogin = () => {
-
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log('Logged in with:', user.email);
+                console.log('User just logged in with:', user.email);
                 // If login is successful, navigate to home screen
                 navigation.replace("Home");
             })
             .catch(error => alert(error.message))
     }
 
+    // Login Screen GUI
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -92,6 +94,7 @@ const LoginScreen = () => {
 
 export default LoginScreen;
 
+// Login screen style sheet
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     button: {
-        backgroundColor: '#0782F9',
+        backgroundColor: '#0782F8',
         width: '100%',
         padding: 15,
         borderRadius: 10,
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
     buttonOutline: {
         backgroundColor: 'white',
         marginTop: 5,
-        borderColor: '#0782F9',
+        borderColor: '#0782F8',
         borderWidth: 2,
     },
     buttonText: {
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     buttonOutlineText: {
-        color: '#0782F9',
+        color: '#0782F8',
         fontWeight: '700',
         fontSize: 16,
     },

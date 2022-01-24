@@ -1,2 +1,3 @@
-https://www.youtube.com/watch?v=ql4J6SpLXZA
+Resources using:
+https://www.youtube.com/watch?v=ql4J6SpLXZA For the general structure of the login and signup
 https://github.com/mattfrances/FirebaseExpoAuthentication/blob/main/screens/HomeScreen.js
