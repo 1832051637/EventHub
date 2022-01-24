@@ -1,0 +1,2 @@
+https://www.youtube.com/watch?v=ql4J6SpLXZA
+https://github.com/mattfrances/FirebaseExpoAuthentication/blob/main/screens/HomeScreen.js
