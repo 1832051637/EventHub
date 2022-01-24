@@ -1,6 +1,6 @@
 //*******************************************************************************
 //
-// IMPORTANT: Make sure to check package.json to have those dependecies installed.
+// IMPORTANT: Make sure to check package.json to have all required dependecies installed.
 //
 //*******************************************************************************
 
