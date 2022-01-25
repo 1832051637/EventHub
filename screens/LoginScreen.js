@@ -45,6 +45,10 @@ const LoginScreen = () => {
             .catch(error => alert(error.message))
     }
 
+    const handleForgot = () => {
+        navigation.replace("ForgotPassword");
+    }
+
     // Login Screen GUI
     return (
         <KeyboardAvoidingView
@@ -86,7 +90,17 @@ const LoginScreen = () => {
                 >
                     <Text style={styles.buttonOutlineText}>Sign up</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={handleForgot}
+                    style={styles.resetButton}
+                >
+                    <Text style={styles.resetButtonText}>Forgot Password?</Text>
+                </TouchableOpacity>
+
+
             </View>
+            
 
         </KeyboardAvoidingView>
     );
@@ -145,4 +159,15 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
+    resetButton: {
+        width: '100%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    resetButtonText: {
+        color: 'red',
+        fontWeight: '400',
+        fontSize: 14,
+    }
 });
