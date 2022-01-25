@@ -6,10 +6,18 @@ import { auth } from '../firebase';
 
 const CreateScreen = () => {
     return (
-        <View>
+        <View style={styles.container}>
             <Text>Create an Event</Text>
         </View>
     );
 };
 
 export default CreateScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+});

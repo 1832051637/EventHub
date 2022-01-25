@@ -6,10 +6,18 @@ import { auth } from '../firebase';
 
 const SettingsScreen = () => {
     return (
-        <View>
-            <Text>Settings</Text>
+        <View style={styles.container}>
+            <Text>User & Profile Settings Here</Text>
         </View>
     );
 };
 
 export default SettingsScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+});

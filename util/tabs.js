@@ -1,200 +1,70 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-
+import { StyleSheet, Text, View, Image, Button } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import MyEventsScreen from '../screens/MyEventsScreen';
 
-
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { auth } from '../firebase';
+import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
 
 function Tabs() {
+  const navigation = useNavigation();
+
+  const handleSignOut = () => {
+    auth.signOut().then(() => {
+        navigation.replace("Login")
+    }).catch(error => alert(error.message))
+  }
+
+  const signOutButton = () => (
+    <Button onPress={handleSignOut} title="Sign Out" color="#0782F8"/>
+  )
+
   return (
     <Tab.Navigator
-      tabBarOptions = {{
-        showLabel: true,
-        style: {
-          position: 'absolute',
-          bottom: 25,
-          left: 20,
-          right: 20,
-          elevation: 0,
-          backGroundColor: '#ffffff',
-          borerRadius: 15,
-          height: 90,
-          ...StyleSheet.shadow
-        }
+      screenOptions={{
+        tabBarStyle: { position: 'absolute' },
+        tabBarActiveTintColor: '#008EFF',
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen}options={{
-        tabBarIcon: ({focused}) => {
-          <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-            <Image
-              source={require('../assets/icon.png')}
-              resizeMode='contain'
-              style={{
-                width: 25,
-                height: 25,
-                tintColor: focused ? '#e32F45' : '#748c94'
-              }}
-            />
-            <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>HOME</Text>
-          </View>
-        },
+      <Tab.Screen name="Home" component={HomeScreen} options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="home" color={color} size={size} />
+        ),
+        headerRight: signOutButton
       }}/>
       <Tab.Screen name="Search" component={SearchScreen} options={{
-        tabBarIcon: ({focused}) => {
-          <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-            <Image
-              source={require('../assets/icon.png')}
-              resizeMode='contain'
-              style={{
-                width: 25,
-                height: 25,
-                tintColor: focused ? '#e32F45' : '#748c94'
-              }}
-            />
-            <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>SEARCH</Text>
-          </View>
-        },
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="magnify" color={color} size={size} />
+        ),
+        headerRight: signOutButton
       }}/>
       <Tab.Screen name="Create" component={CreateScreen} options={{
-        tabBarIcon: ({focused}) => {
-          <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-            <Image
-              source={require('../assets/icon.png')}
-              resizeMode='contain'
-              style={{
-                width: 25,
-                height: 25,
-                tintColor: focused ? '#e32F45' : '#748c94'
-              }}
-            />
-            <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>CREATE</Text>
-          </View>
-        },
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="plus-box-outline" color={color} size={size} />
+        ),
+        headerRight: signOutButton  
+      }}/>
+      <Tab.Screen name="My Events" component={MyEventsScreen} options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="calendar" color={color} size={size} />
+        ),
+        headerRight: signOutButton  
       }}/>
       <Tab.Screen name="Settings" component={SettingsScreen} options={{
-        tabBarIcon: ({focused}) => {
-          <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-            <Image
-              source={require('../assets/icon.png')}
-              resizeMode='contain'
-              style={{
-                width: 25,
-                height: 25,
-                tintColor: focused ? '#e32F45' : '#748c94'
-              }}
-            />
-            <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>SETTINGS</Text>
-          </View>
-        },
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="cog" color={color} size={size} />
+        ),
+        headerRight: signOutButton
       }}/>
     </Tab.Navigator>
   );
 }
-
-
-// const Tabs = () => {
-//   return {
-//     <Tab.Navigator
-//       tabBarOptions = {{
-//         showLabel: true,
-//         style: {
-//           position: 'absolute',
-//           bottom: 25,
-//           left: 20,
-//           right: 20,
-//           elevation: 0,
-//           backGroundColor: '#ffffff',
-//           borerRadius: 15,
-//           height: 90,
-//           ...StyleSheet.shadow
-//         }
-//       }}
-//     >
-//       <Tab.Screen name="Home" component={HomeScreen} options={{
-//         tabBarIcon: ({focused}) => {
-//           <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-//             <Image
-//               source={require('../assets/icon.png')}
-//               resizeMode='contain'
-//               style={{
-//                 width: 25,
-//                 height: 25,
-//                 tintColor: focused ? '#e32F45' : '#748c94'
-//               }}
-//             />
-//             <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>HOME</Text>
-//           </View>
-//         },
-//       }}/>
-//       <Tab.Screen name="Search" component={SearchScreen} options={{
-//         tabBarIcon: ({focused}) => {
-//           <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-//             <Image
-//               source={require('../assets/icon.png')}
-//               resizeMode='contain'
-//               style={{
-//                 width: 25,
-//                 height: 25,
-//                 tintColor: focused ? '#e32F45' : '#748c94'
-//               }}
-//             />
-//             <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>SEARCH</Text>
-//           </View>
-//         },
-//       }}/>
-//       <Tab.Screen name="Create" component={CreateScreen} options={{
-//         tabBarIcon: ({focused}) => {
-//           <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-//             <Image
-//               source={require('../assets/icon.png')}
-//               resizeMode='contain'
-//               style={{
-//                 width: 25,
-//                 height: 25,
-//                 tintColor: focused ? '#e32F45' : '#748c94'
-//               }}
-//             />
-//             <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>CREATE</Text>
-//           </View>
-//         },
-//       }}/>
-//       <Tab.Screen name="Settings" component={SettingsScreen} options={{
-//         tabBarIcon: ({focused}) => {
-//           <View style= {{alignItems: 'center', justifyContent: 'center', top: 10}}>
-//             <Image
-//               source={require('../assets/icon.png')}
-//               resizeMode='contain'
-//               style={{
-//                 width: 25,
-//                 height: 25,
-//                 tintColor: focused ? '#e32F45' : '#748c94'
-//               }}
-//             />
-//             <Text style={{color: focused ? '#e32F45' : '#748c94', fontSize: 12}}>SETTINGS</Text>
-//           </View>
-//         },
-//       }}/>
-//     </Tab.Navigator>
-//   };
-// }
-
-const style = StyleSheet.create({
-  shadow: {
-    shadowColor: '#7F5DF0',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
-});
 
 export default Tabs;

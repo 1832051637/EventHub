@@ -4,15 +4,15 @@ import React from 'react';
 import { auth } from '../firebase';
 
 
-const SearchScreen = () => {
+const MyEventsScreen = () => {
     return (
         <View style={styles.container}>
-            <Text>Search for an event</Text>
+            <Text>View the events you are attending/created here</Text>
         </View>
     );
 };
 
-export default SearchScreen;
+export default MyEventsScreen;
 
 const styles = StyleSheet.create({
     container: {

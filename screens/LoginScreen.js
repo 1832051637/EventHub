@@ -6,13 +6,10 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword
 } from "firebase/auth"
-
-
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
-
     // // Don't need the following but this is included in the tutorial
     // useEffect(() => {
     //     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -22,8 +19,6 @@ const LoginScreen = () => {
     //     })
     //     return unsubscribe;
     // }, [])
-
-
     const handleSignUp = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
@@ -33,7 +28,6 @@ const LoginScreen = () => {
             })
             .catch(error => alert(error.message))
     }
-
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
@@ -66,7 +60,6 @@ const LoginScreen = () => {
                     value={email}
                     onChangeText={text => setEmail(text)}
                     style={styles.input}
-
                 ></TextInput>
                 <TextInput
                     placeholder='Password'
@@ -83,7 +76,6 @@ const LoginScreen = () => {
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                     onPress={handleSignUp}
                     style={[styles.button, styles.buttonOutline]}
@@ -100,14 +92,12 @@ const LoginScreen = () => {
 
 
             </View>
-            
+
 
         </KeyboardAvoidingView>
     );
 };
-
 export default LoginScreen;
-
 // Login screen style sheet
 const styles = StyleSheet.create({
     container: {
