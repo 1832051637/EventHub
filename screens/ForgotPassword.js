@@ -2,12 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from '../firebase';
 import styles from '../styles/styles.js';
 
 const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
     const [email, setEmail] = useState('');
-    const auth = getAuth();
+    //const auth = getAuth();
 
     const handleSendEmail = () => {
         sendPasswordResetEmail(auth, email)

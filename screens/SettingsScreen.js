@@ -5,7 +5,7 @@ import { auth } from '../firebase';
 import styles from '../styles/styles.js';
 import { sendEmailVerification } from "firebase/auth";
 
-const SettingsScreen = () => {
+const VerifyEmailButton = () => {
     const handleVerifyEmail = () => {
         sendEmailVerification(auth.currentUser)
         .then(() => {
@@ -14,16 +14,26 @@ const SettingsScreen = () => {
         .catch(error => alert(error.message));
     }
 
+    if (auth.currentUser.emailVerified) {
+      return null;
+    }
+  
+    return (
+        <TouchableOpacity
+            onPress={handleVerifyEmail}
+            style={styles.button}
+        >
+            <Text style={styles.buttonText}>Verify Email Address</Text>
+        </TouchableOpacity>
+    );
+}
+
+const SettingsScreen = () => {
     return (
         <View style={styles.container}>
             <Text>User & Profile Settings Here</Text>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={handleVerifyEmail}
-                    style={styles.button}
-                >
-                    <Text style={styles.buttonText}>Verify Email Address</Text>
-                </TouchableOpacity>
+                <VerifyEmailButton />
             </View>
         </View>
     );
