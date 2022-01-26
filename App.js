@@ -19,13 +19,16 @@ const Stack = createNativeStackNavigator();
 
 
 export default function App() {
+  const backButton = (navigation) => (
+    <Button onPress={navigation.replace("Login")} title="Sign Out" color="#0782F8"/>
+  )
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={Tabs} options={{ headerShown: false}}/>
-        <Stack.Screen options={{ headerShown: false }} name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: ""}}/>
       </Stack.Navigator>
       {/* <Tabs /> */}
     </NavigationContainer>
