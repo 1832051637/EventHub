@@ -11,6 +11,21 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         paddingVertical: 20,
     },
+    calender: {
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 20,
+        marginBottom: 30,
+        marginLeft: 25,
+        marginRight: 25
+    },
+    calenderText: {
+        color: 'black',
+        fontWeight: '700',
+        fontSize: 16,
+        marginLeft: 25,
+        marginRight: 25
+    },
     inputContainer: {
         width: '80%'
     },

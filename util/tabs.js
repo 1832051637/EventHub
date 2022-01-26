@@ -18,12 +18,12 @@ function Tabs() {
 
   const handleSignOut = () => {
     auth.signOut().then(() => {
-        navigation.replace("Login")
+      navigation.replace("Login")
     }).catch(error => alert(error.message))
   }
 
   const signOutButton = () => (
-    <Button onPress={handleSignOut} title="Sign Out" color="#0782F8"/>
+    <Button onPress={handleSignOut} title="Sign Out" color="#0782F8" />
   )
 
   return (
@@ -33,36 +33,36 @@ function Tabs() {
         tabBarActiveTintColor: '#008EFF',
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{
+      <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="home" color={color} size={size} />
         ),
         headerRight: signOutButton
-      }}/>
+      }} />
       <Tab.Screen name="Search" component={SearchScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="magnify" color={color} size={size} />
         ),
         headerRight: signOutButton
-      }}/>
+      }} />
       <Tab.Screen name="Create" component={CreateScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="plus-box-outline" color={color} size={size} />
         ),
-        headerRight: signOutButton  
-      }}/>
+        headerRight: signOutButton
+      }} />
       <Tab.Screen name="My Events" component={MyEventsScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="calendar" color={color} size={size} />
         ),
-        headerRight: signOutButton  
-      }}/>
+        headerRight: signOutButton
+      }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="cog" color={color} size={size} />
         ),
         headerRight: signOutButton
-      }}/>
+      }} />
     </Tab.Navigator>
   );
 }
