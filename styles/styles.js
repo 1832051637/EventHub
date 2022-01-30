@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -75,7 +75,13 @@ const styles = StyleSheet.create({
         color: 'red',
         fontWeight: '400',
         fontSize: 14,
-    }
+    },
+    map: {
+        flex: 1,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height * 0.8,
+        marginTop: '5%'
+    },
 });
 
 export default styles;

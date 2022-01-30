@@ -13,11 +13,25 @@ const HomeScreen = () => {
             .catch(error => alert(error.message))
     }
 
+    const handleMap = () => {
+        navigation.navigate("Map");
+    }
+
     // Home screen GUI
     return (
         <View style={styles.container}>
             <Text>Hello, email: {auth.currentUser?.email}</Text>
             <Text>Welcome to EventHub</Text>
+
+            <TouchableOpacity
+                style={styles.button}
+                onPress={handleMap}
+            >
+                <Text
+                    style={styles.buttonText}
+                >View Map</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
                 style={styles.button}
                 onPress={handleSignOut}

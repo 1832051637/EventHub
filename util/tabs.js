@@ -33,7 +33,7 @@ function Tabs() {
         tabBarActiveTintColor: '#008EFF',
       }}
     >
-      <Tab.Screen name="HomeScreen" component={HomeScreen} options={{
+      <Tab.Screen name="Home Screen" component={HomeScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="home" color={color} size={size} />
         ),
