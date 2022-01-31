@@ -13,7 +13,7 @@ const ForgotPasswordScreen = () => {
         sendPasswordResetEmail(auth, email)
         .then(() => {
             Alert.alert("An email to reset your password has been sent!");
-            navigation.replace("Login")
+            navigation.replace("Login");
         })
         .catch(error => alert(error.message));
     }

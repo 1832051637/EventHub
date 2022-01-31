@@ -1,3 +1,6 @@
 Resources using:
 https://www.youtube.com/watch?v=ql4J6SpLXZA For the general structure of the login and signup
 https://github.com/mattfrances/FirebaseExpoAuthentication/blob/main/screens/HomeScreen.js
+
+
+https://www.youtube.com/watch?v=qlELLikT3FU React Native Maps Mini Course
