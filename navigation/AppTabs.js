@@ -1,25 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {  Button } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+
+import { auth } from '../firebase';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import MyEventsScreen from '../screens/MyEventsScreen';
 
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { auth } from '../firebase';
-import { useNavigation } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 const Tab = createBottomTabNavigator();
 
-function Tabs() {
+AppTabs = ()  => {
   const navigation = useNavigation();
 
   const handleSignOut = () => {
-    auth.signOut().then(() => {
-      navigation.replace("Login")
-    }).catch(error => alert(error.message))
+    auth.signOut().catch(error => alert(error.message))
   }
 
   const signOutButton = () => (
@@ -67,4 +65,4 @@ function Tabs() {
   );
 }
 
-export default Tabs;
+export default AppTabs;
