@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import React from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import styles from '../styles/styles.js';
