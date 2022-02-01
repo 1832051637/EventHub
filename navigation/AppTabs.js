@@ -12,7 +12,7 @@ import MyEventsScreen from '../screens/MyEventsScreen';
 
 const Tab = createBottomTabNavigator();
 
-AppTabs = ()  => {
+AppTabs = () => {
   const navigation = useNavigation();
 
   return (

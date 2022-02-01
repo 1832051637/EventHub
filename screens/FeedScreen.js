@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, FlatList} from 'react-native';
+import { Text, TouchableOpacity, View, FlatList, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as Location from 'expo-location'
 
 import { collection, getDocs } from "firebase/firestore";
 
@@ -16,16 +17,43 @@ const EventCard = ({ item }) => {
     );
 }
 
+
 const FeedScreen = () => {
     const [data, setData] = useState([]);
+    const [location, setLocation] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    return;
+                }
+
+                let userLocation = await Location.getLastKnownPositionAsync();
+
+                let userLocations = [];
+                let userCords = userLocation.coords;
+
+                userLocations.push({ longitude: JSON.stringify(userCords.longitude), latitude: JSON.stringify(userCords.latitude) });
+                setLocation(JSON.stringify(userLocations[0]));
+                //alert("User's Location is " + JSON.stringify(location[0]));
+
+            }
+            catch (error) {
+                console.log("error " + error);
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         getDocs(collection(db, "events")).then(docs => {
             let events = [];
-    
+
             docs.forEach((doc) => {
                 let docData = doc.data();
-        
+
                 events.push({
                     id: doc.id,
                     name: docData.name,
@@ -60,7 +88,6 @@ const FeedScreen = () => {
                     style={styles.buttonText}
                 >View Map</Text>
             </TouchableOpacity>
-
             <FlatList
                 data={data}
                 renderItem={EventCard}

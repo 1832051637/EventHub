@@ -7,6 +7,7 @@ import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handl
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from '../styles/styles.js';
+import * as Location from 'expo-location'
 
 const today = new Date();
 
@@ -22,6 +23,30 @@ const CreateScreen = () => {
         setShowDate(false);
         setDate(newDate);
     }
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    return;
+                }
+
+                let userLocation = await Location.getLastKnownPositionAsync();
+
+                let userLocations = [];
+                let userCords = userLocation.coords;
+
+                userLocations.push({ longitude: JSON.stringify(userCords.longitude), latitude: JSON.stringify(userCords.latitude) });
+                //alert("User's Location is " + JSON.stringify(location[0]));
+                setEventLocation(JSON.stringify(userLocations[0]))
+
+            }
+            catch (error) {
+                console.log("error " + error);
+            }
+        })();
+    }, []);
 
     return (
         <KeyboardAwareScrollView>
