@@ -7,16 +7,26 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { auth, db } from '../firebase';
 import styles from '../styles/homeStyle.js';
+import feedStyle from '../styles/feedStyle';
 
 const EventCard = ({ item }) => {
     return (
-        <TouchableOpacity style={[styles.container]}>
-            <Text>{item.name}</Text>
+        <TouchableOpacity style={feedStyle.card}>
+            <Text style={feedStyle.title}>{item.name}</Text>
             <Text>{item.description}</Text>
+            <Text>Start time: {item.startTime.toString()}</Text>
+            <Text>End time: {item.endTime.toString()}</Text>
         </TouchableOpacity>
     );
 }
 
+const Separator = () => {
+    return (
+        <View
+            style={feedStyle.separator}
+        />
+    );
+}
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
@@ -58,8 +68,8 @@ const FeedScreen = () => {
                     id: doc.id,
                     name: docData.name,
                     description: docData.description,
-                    startTime: docData.startTime,
-                    endTime: docData.endTime,
+                    startTime: new Date(docData.startTime.seconds * 1000),
+                    endTime: new Date(docData.endTime.seconds * 1000),
                     location: docData.location
                 });
             });
@@ -88,12 +98,14 @@ const FeedScreen = () => {
                     style={styles.buttonText}
                 >View Map</Text>
             </TouchableOpacity>
-            <FlatList
+
+            <FlatList style={feedStyle.feed}
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
+                ItemSeparatorComponent={Separator}
             />
-        </View>
+        </View >
 
         /*
         <View style={styles.container}>
