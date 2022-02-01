@@ -35,21 +35,16 @@ const FeedScreen = () => {
     useEffect(() => {
         (async () => {
             try {
-
+                let userLocations = [];
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
-                    return;
+                    setLocation({longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
+                } else {
+                    let userLocation = await Location.getLastKnownPositionAsync();
+                    let userCords = userLocation.coords;
+                    userLocations.push({ longitude: userCords.longitude, latitude: userCords.latitude });
+                    setLocation(userLocations[0]);
                 }
-
-                let userLocation = await Location.getLastKnownPositionAsync();
-
-                let userLocations = [];
-                let userCords = userLocation.coords;
-
-                userLocations.push({ longitude: JSON.stringify(userCords.longitude), latitude: JSON.stringify(userCords.latitude) });
-                setLocation(JSON.stringify(userLocations[0]));
-                //alert("User's Location is " + JSON.stringify(location[0]));
-
             }
             catch (error) {
                 console.log("error " + error);
@@ -84,7 +79,7 @@ const FeedScreen = () => {
     }
 
     const handleMap = () => {
-        navigation.navigate("Map");
+        navigation.navigate("Map", location);
     }
 
     // Home screen GUI

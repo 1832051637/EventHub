@@ -36,6 +36,20 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 5,
     },
+    textInput: {
+        marginVertical: 5,
+        width: '90%',
+        fontSize: 20,
+        backgroundColor: 'white',
+        borderRadius: 5,
+    },
+    searchButton: {
+        marginTop: 100,
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
     buttonContainer: {
         width: '60%',
         justifyContent: 'center',

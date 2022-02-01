@@ -1,29 +1,79 @@
-import { Text, View } from 'react-native';
+import { Text, View, TextInput, Button, TouchableHighlight } from 'react-native';
 import React from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import styles from '../styles/styles.js';
+import { MAP_KEY } from '../utils/API_KEYS';
 
+const MapScreen = ({ route, navigation}) => {
+    let API_KEY = MAP_KEY();
 
-const MapScreen = () => {
     const [currLocation, setCurrLocation] = React.useState({
-        latitude: 36.9881,
-        longitude: -122.0582,
+        latitude: route.params.latitude,
+        longitude: route.params.longitude
     })
+    const [address, setAddress] = React.useState({
+        streetAddress: "",
+        city: "",
+        stateZip: "",
+        // fullAddress: ""
+    });
+
+    const [fullAddress, setFullAddress] = React.useState("");
+
+    const searchInitial = () => {
+        let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
+        let gc_end = ".json?country=US&access_token=";
+        let geocoding_request = gc_start.concat(currLocation.longitude, ',', currLocation.latitude, gc_end, API_KEY);
+        
+        fetch(geocoding_request).then( function (response) {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return Promise.reject(response);
+            }
+        }).then( function (result) {
+            // console.log(result);
+            let addressResult = result.features[0].place_name;
+            console.log("Is this your address? " + addressResult);
+            const addressArray = addressResult.split(", ");
+            setAddress({
+                streetAddress: addressArray[0],
+                city: addressArray[1],
+                stateZip: addressArray[2],
+                // fullAddress: addressResult
+            });
+            setFullAddress(addressResult);
+        }).catch( function (error) {
+            console.warn(error);
+        });
+    }
+
+    
+
+    const searchAddress = () => {
+        console.log("Sanity check");
+        console.log(address.fullAddress);
+    }
+    
+
+    React.useEffect(() => {
+        searchInitial()
+    }, [])
 
     return (
         <View style={styles.container}>
             <Text>This is the map screen. The pin location on the map is hardcoded, you can press and hold, then drag it around.</Text>
+            
             <MapView style={styles.map}
-                // The initial Location is hard-coded to
-                // University of California Santa Cruz
+                // The initial Location is set to user's location or UCSC if not given permission
                 initialRegion={{
-                    latitude: 36.9881,
-                    longitude: -122.0582,
+                    latitude: currLocation.latitude,
+                    longitude: currLocation.longitude,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
             >
-                <Marker coordinate={currLocation}
+                <Marker coordinate={currLocation} //Probably should have a special marker for user
                     currLocationColor='red'
                     draggable={true}
                     onDragStart={(e) => {
@@ -38,8 +88,11 @@ const MapScreen = () => {
                 >
                     <Callout>
                         <Text style={styles.container}>
-                            This is a hardcoded initial location!
+                            Some random person lives at
                         </Text>
+                        <Text> {address.streetAddress} </Text>
+                        <Text> {address.city} </Text>
+                        <Text> {address.stateZip} </Text>
                     </Callout>
                 </Marker>
 
