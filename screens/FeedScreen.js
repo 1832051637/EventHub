@@ -9,17 +9,6 @@ import { auth, db } from '../firebase';
 import styles from '../styles/homeStyle.js';
 import feedStyle from '../styles/feedStyle';
 
-const EventCard = ({ item }) => {
-    return (
-        <TouchableOpacity style={feedStyle.card}>
-            <Text style={feedStyle.title}>{item.name}</Text>
-            <Text>{item.description}</Text>
-            <Text>Start time: {item.startTime.toString()}</Text>
-            <Text>End time: {item.endTime.toString()}</Text>
-        </TouchableOpacity>
-    );
-}
-
 const Separator = () => {
     return (
         <View
@@ -38,7 +27,7 @@ const FeedScreen = () => {
                 let userLocations = [];
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
-                    setLocation({longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
+                    setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
                     let userCords = userLocation.coords;
@@ -74,6 +63,7 @@ const FeedScreen = () => {
 
     const navigation = useNavigation();
 
+
     const handleSignOut = () => {
         auth.signOut().catch(error => alert(error.message))
     }
@@ -81,6 +71,29 @@ const FeedScreen = () => {
     const handleMap = () => {
         navigation.navigate("Map", location);
     }
+
+
+    // IMPORTANT Update
+    // Move eventCard function into screen function to use navigation props
+    const EventCard = ({ item }) => {
+        return (
+            <TouchableOpacity style={feedStyle.card}>
+                <Text style={feedStyle.title}>{item.name}</Text>
+                <Text>{item.description}</Text>
+                <Text>Start time: {item.startTime.toString()}</Text>
+                <Text>End time: {item.endTime.toString()}</Text>
+                <TouchableOpacity
+                    style={feedStyle.button}
+                    onPress={() => {
+                        navigation.navigate("Event Details", item)
+                    }}
+                >
+                    <Text style={feedStyle.buttonText}>More Details</Text>
+                </TouchableOpacity>
+            </TouchableOpacity >
+        );
+    }
+
 
     // Home screen GUI
     return (
@@ -128,5 +141,7 @@ const FeedScreen = () => {
         */
     );
 };
+
+
 
 export default FeedScreen;
