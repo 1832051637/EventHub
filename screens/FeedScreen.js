@@ -1,32 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, FlatList, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import * as Location from 'expo-location'
 
+import * as Location from 'expo-location'
 import { collection, getDocs } from "firebase/firestore";
 
 import { auth, db } from '../firebase';
+import EventCard from '../components/EventCard.js';
+import FeedSeparator from '../components/FeedSeparator.js';
 import styles from '../styles/homeStyle.js';
 import feedStyle from '../styles/feedStyle';
-
-const EventCard = ({ item }) => {
-    return (
-        <TouchableOpacity style={feedStyle.card}>
-            <Text style={feedStyle.title}>{item.name}</Text>
-            <Text>{item.description}</Text>
-            <Text>Start time: {item.startTime.toString()}</Text>
-            <Text>End time: {item.endTime.toString()}</Text>
-        </TouchableOpacity>
-    );
-}
-
-const Separator = () => {
-    return (
-        <View
-            style={feedStyle.separator}
-        />
-    );
-}
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
@@ -98,7 +81,7 @@ const FeedScreen = () => {
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={Separator}
+                ItemSeparatorComponent={FeedSeparator}
             />
         </View >
 
