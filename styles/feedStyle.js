@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 const feedStyle = StyleSheet.create({
     feed: {
         paddingTop: 20,
-        paddingBottom: 100,
         alignSelf: 'stretch',
     },
     card: {
@@ -28,11 +27,6 @@ const feedStyle = StyleSheet.create({
         flexGrow: 3,
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    timestamp: {
-        flexGrow: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
     },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',

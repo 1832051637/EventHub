@@ -5,7 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location'
 import { collection, getDocs } from "firebase/firestore";
 
-import { auth, db } from '../firebase';
+import { db, storage } from '../firebase';
+import { getDownloadURL, ref } from 'firebase/storage';
 import EventCard from '../components/EventCard.js';
 import FeedSeparator from '../components/FeedSeparator.js';
 import styles from '../styles/homeStyle.js';
@@ -14,6 +15,7 @@ import feedStyle from '../styles/feedStyle';
 const FeedScreen = () => {
     const [data, setData] = useState([]);
     const [location, setLocation] = useState([]);
+    const navigation = useNavigation();
 
     useEffect(() => {
         (async () => {
@@ -21,7 +23,7 @@ const FeedScreen = () => {
                 let userLocations = [];
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
-                    setLocation({longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
+                    setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
                     let userCords = userLocation.coords;
@@ -41,25 +43,39 @@ const FeedScreen = () => {
 
             docs.forEach((doc) => {
                 let docData = doc.data();
+                const gsReference = ref(storage, docData.image);
 
-                events.push({
-                    id: doc.id,
-                    name: docData.name,
-                    description: docData.description,
-                    startTime: new Date(docData.startTime.seconds * 1000),
-                    endTime: new Date(docData.endTime.seconds * 1000),
-                    location: docData.location
-                });
+                events.push(new Promise((resolve, reject) => {
+                    getDownloadURL(gsReference)
+                    .then((url) => {
+                        resolve({
+                            id: doc.id,
+                            name: docData.name,
+                            description: docData.description,
+                            startTime: new Date(docData.startTime.seconds * 1000),
+                            endTime: new Date(docData.endTime.seconds * 1000),
+                            location: docData.location,
+                            image: url,
+                            navigation: navigation
+                        });
+                    })
+                    .catch(() => {
+                        resolve({
+                            id: doc.id,
+                            name: docData.name,
+                            description: docData.description,
+                            startTime: new Date(docData.startTime.seconds * 1000),
+                            endTime: new Date(docData.endTime.seconds * 1000),
+                            location: docData.location,
+                            navigation: navigation
+                        });
+                    });
+                }));
             });
-            setData(events);
-        })
+            
+            Promise.all(events).then((values) => setData(values));
+        });
     }, []);
-
-    const navigation = useNavigation();
-
-    const handleSignOut = () => {
-        auth.signOut().catch(error => alert(error.message))
-    }
 
     const handleMap = () => {
         navigation.navigate("Map", location);
@@ -84,32 +100,9 @@ const FeedScreen = () => {
                 ItemSeparatorComponent={FeedSeparator}
             />
         </View >
-
-        /*
-        <View style={styles.container}>
-            <Text>Hello, email: {auth.currentUser?.email}</Text>
-            <Text>Welcome to EventHub</Text>
-
-            <TouchableOpacity
-                style={styles.button}
-                onPress={handleMap}
-            >
-                <Text
-                    style={styles.buttonText}
-                >View Map</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.button}
-                onPress={handleSignOut}
-            >
-                <Text
-                    style={styles.buttonText}
-                >Sign Out</Text>
-            </TouchableOpacity>
-        </View>
-        */
     );
 };
+
+
 
 export default FeedScreen;

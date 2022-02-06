@@ -29,6 +29,7 @@ function getTwelveHourTime(time) {
     let minutes = time.getMinutes();
     const ampm = hours < 12 ? 'am' : 'pm';
     hours %= 12;
+    hours = hours === 0 ? 12 : hours;
     minutes = minutes < 10 ? '0' + minutes : minutes;
 
     return hours + ':' + minutes + ampm;
@@ -39,24 +40,26 @@ const EventCard = ({ item }) => {
     const displayTime = getTwelveHourTime(item.startTime) + ' - ' + getTwelveHourTime(item.endTime);
 
     return (
-        <TouchableOpacity style={feedStyle.card}>
+        <TouchableOpacity 
+            style={feedStyle.card}
+            onPress={() => {
+                item.navigation.navigate("Event Details", item)
+            }}
+        >
             <Image
                 source={{
-                    uri: 'https://www.history.com/.image/t_share/MTg2NDg3ODM4NjIyMDk4NTYx/lunarnewyearfestival.jpg',
+                    uri: item.image
                 }}
                 style={feedStyle.image}
                 resizeMode={'cover'}
             />
             <View style={feedStyle.heading}>
                 <Text style={feedStyle.title}>{item.name}</Text>
-                <View style={feedStyle.timestamp}>
-                    <MaterialCommunityIcons name="calendar-clock" size='16'/>
-                    <Text>
-                        {displayDate}
-                    </Text>
-                    <Text>{displayTime}</Text>
-                </View>
-            </View>
+                <Text>
+                    <MaterialCommunityIcons name="clock-outline" size={16}/>
+                    {' '} {displayDate} at {displayTime}
+                </Text>
+            </View>  
             <Text>{item.description}</Text>
         </TouchableOpacity>
     );
