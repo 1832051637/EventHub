@@ -5,7 +5,7 @@ const eventStyles = StyleSheet.create({
         flex: 1,
         // display: "flex",
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     textContainer: {
         flex: 5,
@@ -14,32 +14,38 @@ const eventStyles = StyleSheet.create({
         // padding: 40,
         width: '80%',
         // borderRadius: 10
+
     },
     title: {
         textAlign: 'center',
-        fontSize: 20,
+        fontSize: 28,
         fontWeight: 'bold',
-        // paddingBottom: 10
     },
     separator: {
-        // flex: 1,
         borderColor: 'rgba(200, 200, 200, 1.0)',
         borderBottomWidth: 1,
-        margin: 10,
-        minWidth: '80%'
+        marginVertical: 10,
+        width: '100%',
+        alignItems: 'center'
     },
     image: {
-        // flex: 1,
-        // justifyContent: 'space-between',
-        // flexDirection: 'row',
-        // alignItems: 'center',
-        // top: '-30%',
-        maxWidth: '20%',
-        maxHeight: '20%',
+        width: '90%',
+        minHeight: '20%',
+        maxHeight: '60%',
+        marginTop: '5%',
+        marginBottom: '3%',
+        resizeMode: 'cover',
+        borderRadius: 10,
     },
     category: {
+        fontSize: 20,
         fontWeight: 'bold',
-    }
+        // margin: '5%'
+    },
+    info: {
+        fontSize: 20,
+        // fontWeight: 'bold',
+    },
 });
 
 export default eventStyles;
