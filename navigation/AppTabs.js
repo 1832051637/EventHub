@@ -32,19 +32,19 @@ AppTabs = () => {
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="magnify" color={color} size={size} />
         ),
-        headerRight: SignOutButton
+        // headerRight: SignOutButton
       }} />
       <Tab.Screen name="Create" component={CreateScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="plus-box-outline" color={color} size={size} />
         ),
-        headerRight: SignOutButton
+        // headerRight: SignOutButton
       }} />
       <Tab.Screen name="My Events" component={MyEventsScreen} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="calendar" color={color} size={size} />
         ),
-        headerRight: SignOutButton
+        // headerRight: SignOutButton
       }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{
         tabBarIcon: ({ color, size }) => (
