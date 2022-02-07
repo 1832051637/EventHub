@@ -45,8 +45,12 @@ const FeedScreen = () => {
 
             docs.forEach((doc) => {
                 let docData = doc.data();
-                const gsReference = ref(storage, docData.image);
 
+                if (new Date() > new Date(docData.endTime.seconds * 1000)) {
+                    return;
+                }
+
+                const gsReference = ref(storage, docData.image);
                 const isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
 
                 let event = {
@@ -71,7 +75,7 @@ const FeedScreen = () => {
                 }));
             });
             
-            Promise.all(events).then((values) => setData(values));
+            Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
     }, []);
 
