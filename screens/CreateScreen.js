@@ -55,7 +55,8 @@ const CreateScreen = () => {
                 eventDate: date,
                 startTime: startTime,
                 endTime: endTime,
-                image: imageURL
+                image: imageURL,
+                attendees: [],
             }
 
             await addDoc(collection(db, "events"), eventData).then(resetFields);
