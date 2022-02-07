@@ -1,10 +1,15 @@
 import {
+    View,
     StyleSheet,
     Text,
     SafeAreaView,
     FlatList,
+    TouchableOpacity,
+    Image,
+    KeyboardAvoidingView
   } from "react-native";
 import React, { useState, useEffect } from "react";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { 
     arrayUnion, 
     arrayRemove, 
@@ -172,7 +177,8 @@ const SearchScreen = () => {
             clicked={clicked}
             setClicked={setClicked}
         />
-        <FlatList
+        <FlatList 
+            style={feedStyle.feed}
             data={eventData}
             renderItem={EventCard}
             keyExtractor={(item) => item.id}

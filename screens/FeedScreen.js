@@ -181,7 +181,8 @@ const FeedScreen = () => {
                 >View Map</Text>
             </TouchableOpacity>
 
-            <FlatList style={feedStyle.feed}
+            <FlatList 
+                style={feedStyle.feed}
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
