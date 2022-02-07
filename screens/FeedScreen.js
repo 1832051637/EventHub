@@ -51,7 +51,7 @@ const FeedScreen = () => {
                 }
 
                 const gsReference = ref(storage, docData.image);
-                const isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
+                const isAttending = docData.attendees.some((value) => { return value.id === userRef.id });
 
                 let event = {
                     id: doc.id,
@@ -60,22 +60,23 @@ const FeedScreen = () => {
                     startTime: new Date(docData.startTime.seconds * 1000),
                     endTime: new Date(docData.endTime.seconds * 1000),
                     location: docData.location,
-                    isAttending: isAttending
+                    isAttending: isAttending,
+                    total: docData.total,
                 };
 
                 events.push(new Promise((resolve, reject) => {
                     getDownloadURL(gsReference)
-                    .then((url) => {
-                        event.image = url;
-                        resolve(event);
-                    })
-                    .catch(() => {
-                        resolve(event);
-                    });
+                        .then((url) => {
+                            event.image = url;
+                            resolve(event);
+                        })
+                        .catch(() => {
+                            resolve(event);
+                        });
                 }));
             });
-            
-            Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
+
+            Promise.all(events).then((values) => setData(values.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
     }, []);
 
@@ -91,8 +92,8 @@ const FeedScreen = () => {
             attending: arrayUnion(eventRef)
         });
 
-        const newData = data.map( item => {
-            if (item.id === eventId ) {
+        const newData = data.map(item => {
+            if (item.id === eventId) {
                 item.isAttending = true;
                 return item
             }
@@ -113,8 +114,8 @@ const FeedScreen = () => {
             attending: arrayRemove(eventRef)
         });
 
-        const newData = data.map( item => {
-            if (item.id === eventId ) {
+        const newData = data.map(item => {
+            if (item.id === eventId) {
                 item.isAttending = false;
                 return item
             }
@@ -130,9 +131,9 @@ const FeedScreen = () => {
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
         const displayTime = getTimeString(item.startTime) + ' - ' + getTimeString(item.endTime);
-    
+
         return (
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
                     navigation.navigate("Event Details", item)
@@ -153,16 +154,16 @@ const FeedScreen = () => {
                                 item.isAttending ? unattendEvent(item.id) : attendEvent(item.id);
                             }}
                         >
-                            {item.isAttending 
-                                ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)'/>
-                                : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)'/>
+                            {item.isAttending
+                                ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)' />
+                                : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)' />
                             }
                         </TouchableOpacity>
                     </View>
                     <Text style={feedStyle.timestamp}>
-                        <MaterialCommunityIcons name="clock-outline" size={16}/>
+                        <MaterialCommunityIcons name="clock-outline" size={16} />
                         {' '}{displayDate} at {displayTime}
-                    </Text> 
+                    </Text>
                     <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
             </TouchableOpacity>
@@ -181,12 +182,12 @@ const FeedScreen = () => {
                 >View Map</Text>
             </TouchableOpacity>
 
-            <FlatList 
+            <FlatList
                 style={feedStyle.feed}
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
+                ItemSeparatorComponent={() => (<View style={feedStyle.separator} />)}
             />
         </View >
     );

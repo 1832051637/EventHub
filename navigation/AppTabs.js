@@ -5,7 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import SignOutButton from '../components/SignOutButton';
 import HomeStack from './HomeStack';
-import SearchScreen from '../screens/SearchScreen';
+import SearchStack from './SearchStack';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import MyEventsScreen from '../screens/MyEventsScreen';
@@ -28,11 +28,11 @@ AppTabs = () => {
         ),
         headerShown: false
       }} />
-      <Tab.Screen name="Search" component={SearchScreen} options={{
+      <Tab.Screen name="Search" component={SearchStack} options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="magnify" color={color} size={size} />
         ),
-        // headerRight: SignOutButton
+        headerShown: false
       }} />
       <Tab.Screen name="Create" component={CreateScreen} options={{
         tabBarIcon: ({ color, size }) => (

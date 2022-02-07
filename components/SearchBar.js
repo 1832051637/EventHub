@@ -1,4 +1,3 @@
-// SearchBar.js
 import React from "react";
 import { StyleSheet, TextInput, View, Keyboard, Button } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
@@ -54,7 +53,6 @@ const SearchBar = (props) => {
 };
 export default SearchBar;
 
-// styles
 const styles = StyleSheet.create({
   container: {
     margin: 15,
