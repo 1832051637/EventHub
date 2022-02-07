@@ -40,40 +40,46 @@ const FeedScreen = () => {
     useEffect(() => {
         getDocs(collection(db, "events")).then(docs => {
             let events = [];
+            let todayDate = new Date();
 
             docs.forEach((doc) => {
                 let docData = doc.data();
                 const gsReference = ref(storage, docData.image);
-
-                events.push(new Promise((resolve, reject) => {
-                    getDownloadURL(gsReference)
-                    .then((url) => {
-                        resolve({
-                            id: doc.id,
-                            name: docData.name,
-                            description: docData.description,
-                            startTime: new Date(docData.startTime.seconds * 1000),
-                            endTime: new Date(docData.endTime.seconds * 1000),
-                            location: docData.location,
-                            image: url,
-                            navigation: navigation
+                
+                if(new Date() > new Date(docData.endTime.seconds * 1000)){
+                    return;
+                }
+                
+                
+                    events.push(new Promise((resolve, reject) => {
+                        getDownloadURL(gsReference)
+                        .then((url) => {
+                            resolve({
+                                id: doc.id,
+                                name: docData.name,
+                                description: docData.description,
+                                startTime: new Date(docData.startTime.seconds * 1000),
+                                endTime: new Date(docData.endTime.seconds * 1000),
+                                location: docData.location,
+                                image: url,
+                                navigation: navigation
+                            });
+                        })
+                        .catch(() => {
+                            resolve({
+                                id: doc.id,
+                                name: docData.name,
+                                description: docData.description,
+                                startTime: new Date(docData.startTime.seconds * 1000),
+                                endTime: new Date(docData.endTime.seconds * 1000),
+                                location: docData.location,
+                                navigation: navigation
+                            });
                         });
-                    })
-                    .catch(() => {
-                        resolve({
-                            id: doc.id,
-                            name: docData.name,
-                            description: docData.description,
-                            startTime: new Date(docData.startTime.seconds * 1000),
-                            endTime: new Date(docData.endTime.seconds * 1000),
-                            location: docData.location,
-                            navigation: navigation
-                        });
-                    });
-                }));
+                    }));
             });
             
-            Promise.all(events).then((values) => setData(values));
+            Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
     }, []);
 

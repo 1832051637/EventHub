@@ -2,12 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 
 import { KeyboardAvoidingView, Keyboard, StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { auth } from '../firebase'
+import { auth, db } from '../firebase'
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from '../styles/styles.js';
-import * as Location from 'expo-location'
+import * as Location from 'expo-location';
+import { collection, addDoc } from 'firebase/firestore';
 
 const today = new Date();
 
@@ -17,11 +18,57 @@ const CreateScreen = () => {
     const [totalUsers, setTotalUsers] = useState('');
     const [eventLocation, setEventLocation] = useState('');
     const [date, setDate] = useState(today);
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
     const [showDate, setShowDate] = useState(false);
+    const [imageURL, setImageURL] = useState("gs://event-hub-29d5a.appspot.com/IMG_7486.jpg"); // Default Value
 
     const dateChange = (event, newDate) => {
         setShowDate(false);
+        setEndTime(newDate);
+        setStartTime(newDate);
         setDate(newDate);
+    }
+
+    const setDay = (check, newTime) => {
+        let day = date.getDate();
+        newTime.setDate(day);
+
+        check ? setEndTime(newTime) : setStartTime(newTime);
+    }
+
+    const startTimeChange = (event, newTime) => {
+        setDay(0, newTime);
+    }
+
+    const endTimeChange = (event, newTime) => {
+        setDay(1, newTime);
+    }
+
+    const addEvent = async () => {
+        try {
+            const eventData = {
+                name: eventName,
+                description: eventDescription,
+                total: totalUsers,
+                location: '{Latitude: 36.9881� N, Longitude: 122.0582� W}',
+                eventDate: date,
+                startTime: startTime,
+                endTime: endTime,
+                image: imageURL
+            }
+
+            await addDoc(collection(db, "events"), eventData).then(resetFields);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const resetFields = () => {
+        setEventName('');
+        setEventDescription('');
+        setTotalUsers('');
     }
 
     useEffect(() => {
@@ -97,7 +144,26 @@ const CreateScreen = () => {
                     <RNDateTimePicker style={styles.calender} value={date} onChange={dateChange} />
                 </View> : null
             }
-        </KeyboardAwareScrollView>
+            <View style={{ marginBottom: 20, marginTop: 10, flexDirection: 'row' }}>
+                <View>
+                    <Text style={styles.calenderText}>Event Start Time</Text>
+                    <RNDateTimePicker style={styles.time} value={startTime} mode="time" onChange={startTimeChange} />
+                </View>
+                <View>
+                    <Text style={styles.calenderText}>Event End Time</Text>
+                    <RNDateTimePicker style={styles.time} value={endTime} mode="time" onChange={endTimeChange} />
+                </View>
+            </View>
+
+            <TouchableOpacity
+                style={styles.button}
+                onPress={addEvent}
+            >
+                <Text
+                    style={styles.buttonText}
+                >Create Event</Text>
+            </TouchableOpacity>
+        </KeyboardAwareScrollView >
     );
 };
 
