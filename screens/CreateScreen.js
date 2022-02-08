@@ -97,7 +97,7 @@ const CreateScreen = () => {
     }, []);
 
     return (
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView contentContainerStyle={{backgroundColor: 'white'}}>
             <TextInput
                 placeholder='Event Name'
                 value={eventName}

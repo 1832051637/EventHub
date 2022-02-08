@@ -1,10 +1,15 @@
 import {
+    View,
     StyleSheet,
     Text,
     SafeAreaView,
     FlatList,
+    TouchableOpacity,
+    Image,
+    KeyboardAvoidingView
   } from "react-native";
 import React, { useState, useEffect } from "react";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { 
     arrayUnion, 
     arrayRemove, 
@@ -14,6 +19,7 @@ import {
     doc,
 } from "firebase/firestore";
 
+import { useNavigation } from '@react-navigation/native';
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
@@ -27,14 +33,15 @@ const SearchScreen = () => {
     const [clicked, setClicked] = useState(false);
     const [eventData, setEventData] = useState([]);
     const [data, setData] = useState([]);
+    const navigation = useNavigation();
 
     useEffect(() => {
         if (searchPhrase === '') {
-            console.log("No Search Input");
             setEventData([]);
         } else {
+            let searchPhraseLower = searchPhrase.toLowerCase();
             getDocs(collection(db, "events")).then(docs => {
-                // const userRef = doc(db, 'users', auth.currentUser.uid);
+                const userRef = doc(db, 'users', auth.currentUser.uid);
                 let events = [];
 
                 docs.forEach((doc) => {
@@ -55,11 +62,14 @@ const SearchScreen = () => {
                         location: docData.location,
                         isAttending: true
                     };
+                    let eventName = event.name.toLowerCase();
+                    let eventDescription = event.description.toLowerCase()
 
-                    if (event.name.includes(searchPhrase) || event.description.includes(searchPhrase)) {
-                        console.log("Event name: " + event.name);
-                        console.log("Description: " + event.description);
+                    if (eventName.includes(searchPhraseLower) || 
+                        eventDescription.includes(searchPhraseLower)) {
 
+                        // console.log("Event name: " + event.name);
+                        // console.log("Description: " + event.description);
                         events.push(new Promise((resolve, reject) => {
                             getDownloadURL(gsReference)
                             .then((url) => {
@@ -71,8 +81,8 @@ const SearchScreen = () => {
                             });
                         }));
                     }
-                    
                 });
+                // May want to sort by distance or something
                 Promise.all(events).then((values) => setEventData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
             });
         }
@@ -164,39 +174,40 @@ const SearchScreen = () => {
         );
     }
 
-  return (
-    <SafeAreaView style={styles.root}>
-        <SearchBar
-            searchPhrase={searchPhrase}
-            setSearchPhrase={setSearchPhrase}
-            clicked={clicked}
-            setClicked={setClicked}
-        />
-        <FlatList
-            data={eventData}
-            renderItem={EventCard}
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
-        />
-    </SafeAreaView>
-  );
+    return (
+        <SafeAreaView style={styles.root}>
+            <SearchBar
+                searchPhrase={searchPhrase}
+                setSearchPhrase={setSearchPhrase}
+                clicked={clicked}
+                setClicked={setClicked}
+            />
+            <FlatList 
+                style={feedStyle.feed}
+                data={eventData}
+                renderItem={EventCard}
+                keyExtractor={(item) => item.id}
+                ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
+            />
+        </SafeAreaView>
+    );
 };
 
 
 export default SearchScreen;
 
 const styles = StyleSheet.create({
-  root: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    width: "100%",
-    marginTop: 20,
-    fontSize: 25,
-    fontWeight: "bold",
-    marginLeft: "10%",
-  },
+    root: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    title: {
+        width: "100%",
+        marginTop: 20,
+        fontSize: 25,
+        fontWeight: "bold",
+        marginLeft: "10%",
+    },
 });
 
 

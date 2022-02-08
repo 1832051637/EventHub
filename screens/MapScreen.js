@@ -1,22 +1,44 @@
-import { Text, View, TextInput, Button, TouchableHighlight } from 'react-native';
+import { Text, View, TextInput, Button, TouchableHighlight, SafeAreaView, } from 'react-native';
 import React from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import styles from '../styles/styles.js';
 import { MAP_KEY } from '../utils/API_KEYS';
+import * as Location from 'expo-location';
 
-const MapScreen = ({ route, navigation}) => {
+const MapScreen = ({ route }) => {
     let API_KEY = MAP_KEY();
 
     const [currLocation, setCurrLocation] = React.useState({
-        latitude: route.params.latitude,
-        longitude: route.params.longitude
-    })
+        longitude: -122.0582,
+        latitude: 36.9881
+    });
     const [address, setAddress] = React.useState({
         streetAddress: "",
         city: "",
         stateZip: "",
         // fullAddress: ""
     });
+
+    React.useEffect(async () => {
+        await (async () => {
+            try {
+                let userLocations = [];
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setCurrLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
+                } else {
+                    let userLocation = await Location.getLastKnownPositionAsync();
+                    let userCoords = userLocation.coords;
+                    userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                    setCurrLocation(userLocations[0]);
+                }
+
+            }
+            catch (error) {
+                console.log("error " + error);
+            }
+        })();
+    }, []);
 
     const [fullAddress, setFullAddress] = React.useState("");
 
@@ -48,25 +70,20 @@ const MapScreen = ({ route, navigation}) => {
         });
     }
 
-    
+    React.useEffect(() => {
+        searchInitial();
+    }, [currLocation])
 
     const searchAddress = () => {
         console.log("Sanity check");
         console.log(address.fullAddress);
     }
-    
-
-    React.useEffect(() => {
-        searchInitial()
-    }, [])
 
     return (
-        <View style={styles.container}>
-            <Text>This is the map screen. The pin location on the map is hardcoded, you can press and hold, then drag it around.</Text>
-            
+        <SafeAreaView style={styles.container}>
             <MapView style={styles.map}
                 // The initial Location is set to user's location or UCSC if not given permission
-                initialRegion={{
+                region={{
                     latitude: currLocation.latitude,
                     longitude: currLocation.longitude,
                     latitudeDelta: 0.0922,
@@ -100,9 +117,8 @@ const MapScreen = ({ route, navigation}) => {
                     // Draw a circle around the marked location
                     radius={2000}
                 ></Circle>
-
             </MapView>
-        </View >
+        </SafeAreaView>
     );
 };
 

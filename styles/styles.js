@@ -5,11 +5,22 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'white'
     },
-    title: {
+    heading: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        paddingVertical: 30,
+    },
+    titleEvent: {
         fontSize: 32,
         fontWeight: '800',
-        paddingVertical: 20,
+        color: '#303030'
+    },
+    titleHub: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#0782F8'
     },
     calender: {
         paddingVertical: 10,
@@ -27,6 +38,7 @@ const styles = StyleSheet.create({
         marginRight: 25
     },
     inputContainer: {
+        paddingBottom: 20,
         width: '80%'
     },
     input: {
@@ -35,6 +47,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 5,
+        borderWidth: 1,
+        borderColor: 'grey'
     },
     textInput: {
         marginVertical: 5,
@@ -51,15 +65,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     buttonContainer: {
-        width: '60%',
+        width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 30,
     },
     button: {
         backgroundColor: '#0782F8',
         width: '100%',
-        padding: 15,
+        padding: 10,
         borderRadius: 10,
         alignItems: 'center',
     },
@@ -86,9 +99,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     resetButtonText: {
-        color: 'red',
+        color: '#0782F8',
         fontWeight: '400',
-        fontSize: 14,
+        fontSize: 16,
     },
     map: {
         flex: 1,

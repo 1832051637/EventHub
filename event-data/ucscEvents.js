@@ -2,6 +2,7 @@
 
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
+let events = [];
 
 async function getPage(yearNum = 2022, monthNum = 3) {
     const url = `https://calendar.ucsc.edu/calendar/month/${yearNum}/${monthNum}`;
@@ -13,7 +14,10 @@ async function getPage(yearNum = 2022, monthNum = 3) {
         let eventAnchors = $('.event_item > a');
         
         eventAnchors.each((index, el) => {
-            getEvent($(el).attr('href'));
+            const url = $(el).attr('href');
+            if (!events.some((value) => {return url === value.url})) {
+                getEvent();
+            }
         })
     })
     .catch(err => console.error(err));
@@ -23,7 +27,9 @@ async function getEvent(url) {
     fetch(url)
     .then(res => res.text())
     .then(html => {
-        let event = {};
+        let event = {
+            url: url
+        };
 
         const $ = cheerio.load(html);
 
@@ -37,6 +43,8 @@ async function getEvent(url) {
 
         console.log($('.dateright abbr.dtstart').attr('title'));
         console.log($('.dateright abbr.dtend').attr('title'));
+
+        $('#x-all-dates > .dateright').text().split('at');
 
         //event.startTime = new Date($('.dateright abbr.dtstart').attr('title'));
         //event.endTime = new Date($('.dateright abbr.dtend').attr('title'));
@@ -52,4 +60,4 @@ function main() {
     getPage(2022, 3);
 }
 
-main()
+main();

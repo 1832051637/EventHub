@@ -33,6 +33,24 @@ function getTwelveHourTime(time) {
     return hours + ':' + minutes + ampm;
 }
 
+function has_property(object, key) {
+    return object ? hasOwnProperty.call(object, key) : false;
+}
+
+function handleGeopoint(location) {
+    if (has_property(location, '_lat')) {
+        return 'Lat: ' + location._lat.toString() + ', long: ' + location._long.toString();
+    }
+    return location.toString();
+}
+
+function handleDescription(description) {
+    if (description == '') {
+        return 'This event has no description.'
+    }
+    return description.toString();
+}
+
 const EventScreen = ({ route, navigation }) => {
     const event = route.params;
     const displayDate = getDateString(event.startTime, event.endTime);
@@ -62,15 +80,16 @@ const EventScreen = ({ route, navigation }) => {
                 </Text>
                 <Text>
                     <Text style={eventStyles.category}>Location: </Text>
+                    <Text style={eventStyles.info}>{handleGeopoint(event.location)}</Text>
                 </Text>
                 <Text>
                     <Text style={eventStyles.category}>Total users: </Text>
-                    <Text style={eventStyles.info}>{event.totalUsers}</Text>
+                    <Text style={eventStyles.info}>{event.total}</Text>
                 </Text>
                 <View style={eventStyles.separator}></View>
                 <Text>
                     <Text style={eventStyles.category}>Description: </Text>
-                    <Text style={eventStyles.info}>{event.description}</Text>
+                    <Text style={eventStyles.info}>{handleDescription(event.description)}</Text>
                 </Text>
             </View>
         </View>

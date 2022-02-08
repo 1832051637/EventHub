@@ -12,17 +12,6 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
-    const handleSignUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
-                const user = userCredentials.user;
-                console.log('A new user just registered:', user.email);
-                Alert.alert('Great!', 'You just created a new acount. Now it\'s time to login!');
-
-                return db.collection('users').doc(user.uid);
-            })
-            .catch(error => alert(error.message))
-    }
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
@@ -32,21 +21,29 @@ const LoginScreen = () => {
             .catch(error => alert(error.message))
     }
 
-    const handleForgot = () => {
-        navigation.push("ForgotPassword");
-    }
-
     // Login Screen GUI
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior='padding'
         >
-            <View>
-                <Text
-                    style={styles.title}
-                >Event Hub</Text>
+            <View style={styles.heading}>
+                <Text style={styles.titleEvent}>
+                    Event
+                </Text>
+                <Text style={styles.titleHub}>
+                    Hub
+                </Text>
             </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                        onPress={() => {navigation.push("Signup")}}
+                        style={[styles.button, styles.buttonOutline]}
+                    >
+                        <Text style={styles.buttonOutlineText}>Sign up</Text>
+                </TouchableOpacity>
+            </View>
+            <Text style={{padding: 25}}>——— OR ———</Text>
             <View style={styles.inputContainer}>
                 <TextInput
                     placeholder='Email'
@@ -69,15 +66,9 @@ const LoginScreen = () => {
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={handleSignUp}
-                    style={[styles.button, styles.buttonOutline]}
-                >
-                    <Text style={styles.buttonOutlineText}>Sign up</Text>
-                </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={handleForgot}
+                    onPress={() => {navigation.push("ForgotPassword")}}
                     style={styles.resetButton}
                 >
                     <Text style={styles.resetButtonText}>Forgot Password?</Text>
