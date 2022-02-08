@@ -27,11 +27,23 @@ const LoginScreen = () => {
             style={styles.container}
             behavior='padding'
         >
-            <View>
-                <Text
-                    style={styles.title}
-                >Event Hub</Text>
+            <View style={styles.heading}>
+                <Text style={styles.titleEvent}>
+                    Event
+                </Text>
+                <Text style={styles.titleHub}>
+                    Hub
+                </Text>
             </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                        onPress={() => {navigation.push("Signup")}}
+                        style={[styles.button, styles.buttonOutline]}
+                    >
+                        <Text style={styles.buttonOutlineText}>Sign up</Text>
+                </TouchableOpacity>
+            </View>
+            <Text style={{padding: 25}}>——— OR ———</Text>
             <View style={styles.inputContainer}>
                 <TextInput
                     placeholder='Email'
@@ -53,14 +65,6 @@ const LoginScreen = () => {
                     style={styles.button}
                 >
                     <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-
-
-                <TouchableOpacity
-                    onPress={() => {navigation.push("Signup")}}
-                    style={[styles.button, styles.buttonOutline]}
-                >
-                    <Text style={styles.buttonOutlineText}>Sign up</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

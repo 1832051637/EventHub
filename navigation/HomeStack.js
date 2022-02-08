@@ -12,13 +12,9 @@ export default HomeStack = () => {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Feed" component={FeedScreen} options={{
-                // headerRight: SignOutButton
-            }} />
-            <Stack.Screen name="Map" component={MapScreen} options={{
-                // headerRight: SignOutButton
+                headerShown: false
             }} />
             <Stack.Screen name="Event Details" component={EventScreen} options={{
-                // headerRight: SignOutButton
             }} />
         </Stack.Navigator>
     );

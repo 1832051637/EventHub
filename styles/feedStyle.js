@@ -3,12 +3,13 @@ import { StyleSheet } from 'react-native';
 const feedStyle = StyleSheet.create({
     feed: {
         paddingTop: 20,
+        marginBottom: 40,
         alignSelf: 'stretch',
+        backgroundColor: 'white'
     },
     card: {
         flex: 1,
         justifyContent: 'space-between',
-        backgroundColor: 'rgb(250, 250, 250)',
         paddingHorizontal: 10,
     },
     image: {
@@ -34,14 +35,14 @@ const feedStyle = StyleSheet.create({
     timestamp: {
         marginBottom: 5,
     },
-    description: {
-    },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',
         borderBottomWidth: 1,
-        marginTop: 15,
-        marginBottom: 15,
+        marginVertical: 15,
     },
+    footer: {
+        marginVertical: 20,
+    }
 });
 
 export default feedStyle;
