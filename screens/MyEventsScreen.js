@@ -10,7 +10,7 @@ import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
-import styles from '../styles/homeStyle.js';
+import styles from '../styles/styles.js';
 import myEventsStyle from '../styles/myEventsStyle';
 
 
