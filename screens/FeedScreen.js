@@ -3,6 +3,7 @@ import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, KeyboardAv
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
@@ -13,6 +14,7 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import styles from '../styles/styles.js';
 import feedStyle from '../styles/feedStyle';
 import Geohash from 'latlon-geohash';
+
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
@@ -76,6 +78,7 @@ const FeedScreen = () => {
                     isAttending: isAttending,
                     eventGeo: docData.geoLocation,
                     total: docData.total,
+                    hostToken: docData.hostToken,
                 };
                 
                 let eventName = event.name.toLowerCase();
@@ -103,7 +106,7 @@ const FeedScreen = () => {
         });
     }, [searchPhrase])
 
-    const attendEvent = (eventId) => {
+    const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);
         const userRef = doc(db, 'users', auth.currentUser.uid);
 
@@ -121,7 +124,9 @@ const FeedScreen = () => {
                 return item
             }
             return item;
-        })
+        });
+
+        sendNotifications(hostToken, eventName);
         setData(newData);
     }
 
@@ -170,7 +175,7 @@ const FeedScreen = () => {
                         <Text style={feedStyle.title}>{item.name}</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id);
+                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
                             }}
                         >
                             {item.isAttending
@@ -187,6 +192,24 @@ const FeedScreen = () => {
                 </View>
             </TouchableOpacity>
         );
+    }
+
+    const sendNotifications = async (token, eventName) => {
+        let message = "Someone has joined your event: " + eventName + "!";
+
+        await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            body: JSON.stringify({ 
+                "to": token, 
+                "title":"A New Attendee", 
+                "body": message 
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        }).then((response) => {
+            console.log(response.status);
+        });
     }
 
     // Home screen GUI

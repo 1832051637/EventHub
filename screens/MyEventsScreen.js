@@ -48,7 +48,8 @@ const MyEventsScreen = () => {
                         description: docData.description,
                         startTime: new Date(docData.startTime.seconds * 1000),
                         endTime: new Date(docData.endTime.seconds * 1000),
-                        isAttending: isAttending
+                        isAttending: isAttending,
+                        hostToken: docData.hostToken,
                     };
 
                     events.push(new Promise((resolve, reject) => {
@@ -70,7 +71,7 @@ const MyEventsScreen = () => {
 
 
 
-    const attendEvent = (eventId) => {
+    const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);
         const userRef = doc(db, 'users', auth.currentUser.uid);
 
@@ -82,13 +83,15 @@ const MyEventsScreen = () => {
             attending: arrayUnion(eventRef)
         });
 
-        const newData = data.map( item => {
-            if (item.id === eventId ) {
+        const newData = data.map(item => {
+            if (item.id === eventId) {
                 item.isAttending = true;
                 return item
             }
             return item;
-        })
+        });
+
+        sendNotifications(hostToken, eventName);
         setData(newData);
     }
 
@@ -137,7 +140,7 @@ const MyEventsScreen = () => {
                         <Text style={myEventsStyle.title}>{item.name}</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id);
+                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
                             }}
                         >
                             {item.isAttending 
@@ -154,6 +157,24 @@ const MyEventsScreen = () => {
                 </View>
             </TouchableOpacity>
         );
+    }
+
+    const sendNotifications = async (token, eventName) => {
+        let message = "Someone has joined your event: " + eventName + "!";
+
+        await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            body: JSON.stringify({ 
+                "to": token, 
+                "title":"A New Attendee", 
+                "body": message 
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        }).then((response) => {
+            console.log(response.status);
+        });
     }
     
     // MyEvent screen GUI

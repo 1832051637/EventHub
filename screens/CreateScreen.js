@@ -8,10 +8,12 @@ import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from '../styles/styles.js';
 import * as Location from 'expo-location';
-import { collection, addDoc} from 'firebase/firestore';
-//import {geofire} from 'geofire-common'
+import { collection, addDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import * as Permissions from 'expo-permissions';
+import Constants from 'expo-constants';
 import Geohash from 'latlon-geohash';
-
 
 const today = new Date();
 
@@ -24,8 +26,47 @@ const CreateScreen = () => {
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [showDate, setShowDate] = useState(false);
+    const [pushToken, setPushToken] = useState('');
     const [imageURL, setImageURL] = useState("gs://event-hub-29d5a.appspot.com/IMG_7486.jpg"); // Default Value
     const [eventCoord, setEventCoord] = useState("");
+
+    useEffect(() => {
+        registerForPushNotificationsAsync();
+    }, []);
+
+    const registerForPushNotificationsAsync = async () => {
+        console.log("Registering token");
+        if (Device.isDevice) {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+            const token = (await Notifications.getExpoPushTokenAsync()).data;
+            // console.log(token);
+            setPushToken(token);
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            updateDoc(userRef, {
+                hostToken: token
+            });
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+    };
 
     const dateChange = (event, newDate) => {
         setShowDate(false);
@@ -62,14 +103,27 @@ const CreateScreen = () => {
                 image: imageURL,
                 geoLocation: Geohash.encode(eventCoord.latitude,eventCoord.longitude, [3]),
                 attendees: [],
+                host: auth.currentUser.uid,
             }
-
-            await addDoc(collection(db, "events"), eventData).then(resetFields);
-
+          
+            await addDoc(collection(db, "events"), eventData)
+            .then((eventRef) => {
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                updateDoc(userRef, {
+                    hosting: arrayUnion(eventRef.id)
+                });
+                updateDoc(eventRef, {
+                    hostToken: pushToken
+                });
+            })
+            .then(resetFields);
+        
         } catch (error) {
             console.log(error);
         }
     }
+
+    
 
     const resetFields = () => {
         setEventName('');

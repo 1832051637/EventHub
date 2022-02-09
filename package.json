@@ -17,7 +17,11 @@
     "@react-navigation/native-stack": "^6.2.5",
     "cheerio": "^1.0.0-rc.10",
     "expo": "~44.0.0",
+    "expo-constants": "^13.0.2",
+    "expo-device": "^4.1.1",
     "expo-location": "~14.0.1",
+    "expo-notifications": "^0.14.1",
+    "expo-permissions": "^13.1.1",
     "expo-status-bar": "~1.2.0",
     "firebase": "^9.6.4",
     "geo-common": "^0.0.1",
@@ -37,7 +41,8 @@
     "react-native-screens": "~3.10.1",
     "react-native-vector-icons": "^9.0.0",
     "react-native-web": "0.17.1",
-    "react-navigation": "^4.4.4"
+    "react-navigation": "^4.4.4",
+    "react-scripts": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
