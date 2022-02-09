@@ -60,7 +60,7 @@ const SearchScreen = () => {
                         startTime: new Date(docData.startTime.seconds * 1000),
                         endTime: new Date(docData.endTime.seconds * 1000),
                         location: docData.location,
-                        isAttending: true
+                        isAttending: isAttending,
                     };
                     let eventName = event.name.toLowerCase();
                     let eventDescription = event.description.toLowerCase()
