@@ -2,6 +2,20 @@
 # yarn lockfile v1
 
 
+"@angular/common@^7.2.0":
+  "integrity" "sha512-lPo2Vt5zmKeKTdMxHMUuViouMiK4QsmO6dGTIhJ7QAx9mov0QYb4sUVKN9Ix32Aeeznaa97qJnhevyDncJqvSA=="
+  "resolved" "https://registry.npmjs.org/@angular/common/-/common-7.2.16.tgz"
+  "version" "7.2.16"
+  dependencies:
+    "tslib" "^1.9.0"
+
+"@angular/core@^7.2.0", "@angular/core@7.2.16":
+  "integrity" "sha512-z1RuBinuYeC4KLv8Z95YOgIQLd4nkoApdxkIZaWALwSkgeBuHJn4bCBn2cL0gJ/KO2x18TiTU5HuC+uyBt0AVQ=="
+  "resolved" "https://registry.npmjs.org/@angular/core/-/core-7.2.16.tgz"
+  "version" "7.2.16"
+  dependencies:
+    "tslib" "^1.9.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.16.7":
   "integrity" "sha512-iAXqUn8IIeBTNd72xsFlgaXHkMBMt6y4HJp1tIaK465CWLT/fG1aqB7ykr95gHHmlBdGbFeWWfyB4NJJ0nmeIg=="
   "resolved" "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.16.7.tgz"
@@ -3422,6 +3436,23 @@
   "resolved" "https://registry.npmjs.org/gensync/-/gensync-1.0.0-beta.2.tgz"
   "version" "1.0.0-beta.2"
 
+"geo-common@^0.0.1":
+  "integrity" "sha512-xAoys+u3MTNdXte/B3X+T1P+4zKoGUMRsfvZUmxruSpf0Q4GVFTvknfoFdau539i8ew+zzsJnU7o4tZTcL4meg=="
+  "resolved" "https://registry.npmjs.org/geo-common/-/geo-common-0.0.1.tgz"
+  "version" "0.0.1"
+  dependencies:
+    "tslib" "^1.9.0"
+
+"geofire-common@^5.2.0":
+  "integrity" "sha512-b3RCXxzdc/ZAoNag/F8n4myWYiBPI1eeQ/gtjLvBKKeILNnYb6Qw0GL/AVfYUKk3Z19Pw+xVBSlYcjqy5OHVzg=="
+  "resolved" "https://registry.npmjs.org/geofire-common/-/geofire-common-5.2.0.tgz"
+  "version" "5.2.0"
+
+"geolib@^3.3.3":
+  "integrity" "sha512-YO704pzdB/8QQekQuDmFD5uv5RAwAf4rOUPdcMhdEOz+HoPWD0sC7Qqdwb+LAvwIjXVRawx0QgZlocKYh8PFOQ=="
+  "resolved" "https://registry.npmjs.org/geolib/-/geolib-3.3.3.tgz"
+  "version" "3.3.3"
+
 "get-caller-file@^2.0.1", "get-caller-file@^2.0.5":
   "integrity" "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="
   "resolved" "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz"
@@ -4095,6 +4126,11 @@
   "integrity" "sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w=="
   "resolved" "https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz"
   "version" "3.0.3"
+
+"latlon-geohash@^2.0.0":
+  "integrity" "sha512-OKBswTwrvTdtenV+9C9euBmvgGuqyjJNAzpQCarRz1m8/pYD2nz9fKkXmLs2S3jeXaLi3Ry76twQplKKUlgS/g=="
+  "resolved" "https://registry.npmjs.org/latlon-geohash/-/latlon-geohash-2.0.0.tgz"
+  "version" "2.0.0"
 
 "leven@^3.1.0":
   "integrity" "sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A=="
@@ -5610,6 +5646,13 @@
   dependencies:
     "queue-microtask" "^1.2.2"
 
+"rxjs@^6.0.0":
+  "integrity" "sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ=="
+  "resolved" "https://registry.npmjs.org/rxjs/-/rxjs-6.6.7.tgz"
+  "version" "6.6.7"
+  dependencies:
+    "tslib" "^1.9.0"
+
 "safe-buffer@>=5.1.0", "safe-buffer@~5.1.0", "safe-buffer@~5.1.1", "safe-buffer@5.1.2":
   "integrity" "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="
   "resolved" "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz"
@@ -6159,6 +6202,11 @@
   "resolved" "https://registry.npmjs.org/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz"
   "version" "0.1.13"
 
+"tslib@^1.9.0":
+  "integrity" "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="
+  "resolved" "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
+  "version" "1.14.1"
+
 "tslib@^2.0.1", "tslib@^2.1.0", "tslib@^2.2.0":
   "integrity" "sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw=="
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz"
@@ -6567,3 +6615,8 @@
   "integrity" "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
   "resolved" "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   "version" "0.1.0"
+
+"zone.js@~0.8.26":
+  "integrity" "sha512-mla2acNCMkWXBD+c+yeUrBUrzOxYMNFdQ6FGfigGGtEVBPJx07BQeJekjt9DmH1FtZek4E9rE1eRR9qQpxACOQ=="
+  "resolved" "https://registry.npmjs.org/zone.js/-/zone.js-0.8.29.tgz"
+  "version" "0.8.29"

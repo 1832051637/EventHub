@@ -8,7 +8,10 @@ import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from '../styles/styles.js';
 import * as Location from 'expo-location';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc} from 'firebase/firestore';
+//import {geofire} from 'geofire-common'
+import Geohash from 'latlon-geohash';
+
 
 const today = new Date();
 
@@ -22,6 +25,7 @@ const CreateScreen = () => {
     const [endTime, setEndTime] = useState(new Date());
     const [showDate, setShowDate] = useState(false);
     const [imageURL, setImageURL] = useState("gs://event-hub-29d5a.appspot.com/IMG_7486.jpg"); // Default Value
+    const [eventCoord, setEventCoord] = useState("");
 
     const dateChange = (event, newDate) => {
         setShowDate(false);
@@ -56,6 +60,7 @@ const CreateScreen = () => {
                 startTime: startTime,
                 endTime: endTime,
                 image: imageURL,
+                geoLocation: Geohash.encode(eventCoord.latitude,eventCoord.longitude, [3]),
                 attendees: [],
             }
 
@@ -84,6 +89,7 @@ const CreateScreen = () => {
 
                 let userLocations = [];
                 let userCords = userLocation.coords;
+                setEventCoord(userCords);
 
                 userLocations.push({ longitude: JSON.stringify(userCords.longitude), latitude: JSON.stringify(userCords.latitude) });
                 //alert("User's Location is " + JSON.stringify(location[0]));

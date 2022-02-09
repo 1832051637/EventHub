@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import * as Location from 'expo-location';
-import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 
@@ -12,12 +12,14 @@ import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import styles from '../styles/styles.js';
 import feedStyle from '../styles/feedStyle';
+import Geohash from 'latlon-geohash';
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
     const [location, setLocation] = useState([]);
+    const [myGeo, setMyGeo] = useState(""); // Geo is short for a geohash (a string used to represent a position based on lat and long)
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -32,6 +34,10 @@ const FeedScreen = () => {
                     let userCords = userLocation.coords;
                     userLocations.push({ longitude: userCords.longitude, latitude: userCords.latitude });
                     setLocation(userLocations[0]);
+                    //let geoLoc = geofire.geohashForLocation([userLocation.coords.latitude,userLocation.coords.longitude]);
+                    let geoLoc = Geohash.encode(userCords.latitude,userCords.longitude, [3]);
+                    //alert(geoLoc);
+                    setMyGeo(geoLoc);
                 }
             }
             catch (error) {
@@ -42,9 +48,13 @@ const FeedScreen = () => {
 
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
+        let viewEvents = collection(db,"events");
+        const eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
 
-        getDocs(collection(db, "events")).then(docs => {
+        //alert(myGeo);
+        getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
+            
             let events = [];
 
             docs.forEach((doc) => {
@@ -64,9 +74,10 @@ const FeedScreen = () => {
                     endTime: new Date(docData.endTime.seconds * 1000),
                     location: docData.location,
                     isAttending: isAttending,
+                    eventGeo: docData.geoLocation,
                     total: docData.total,
                 };
-
+                
                 let eventName = event.name.toLowerCase();
                 let eventDescription = event.description.toLowerCase()
 
