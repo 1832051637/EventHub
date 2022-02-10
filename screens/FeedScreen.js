@@ -36,9 +36,7 @@ const FeedScreen = () => {
                     let userCords = userLocation.coords;
                     userLocations.push({ longitude: userCords.longitude, latitude: userCords.latitude });
                     setLocation(userLocations[0]);
-                    //let geoLoc = geofire.geohashForLocation([userLocation.coords.latitude,userLocation.coords.longitude]);
                     let geoLoc = Geohash.encode(userCords.latitude,userCords.longitude, [3]);
-                    //alert(geoLoc);
                     setMyGeo(geoLoc);
                 }
             }
@@ -51,9 +49,15 @@ const FeedScreen = () => {
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db,"events");
-        const eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        let eventQuery;
 
-        //alert(myGeo);
+        if(myGeo == "") {
+            eventQuery = viewEvents;
+        }
+        else {
+            eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        }
+
         getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
             
@@ -104,7 +108,7 @@ const FeedScreen = () => {
             // May want to sort by distance or something
             Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
-    }, [searchPhrase])
+    }, [searchPhrase, myGeo])
 
     const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);
