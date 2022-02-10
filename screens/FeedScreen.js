@@ -3,8 +3,9 @@ import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, KeyboardAv
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import * as Device from 'expo-device';
 import * as Location from 'expo-location';
-import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 
@@ -12,12 +13,15 @@ import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import styles from '../styles/styles.js';
 import feedStyle from '../styles/feedStyle';
+import Geohash from 'latlon-geohash';
+
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
     const [location, setLocation] = useState([]);
+    const [myGeo, setMyGeo] = useState(""); // Geo is short for a geohash (a string used to represent a position based on lat and long)
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -29,9 +33,12 @@ const FeedScreen = () => {
                     setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
-                    let userCords = userLocation.coords;
-                    userLocations.push({ longitude: userCords.longitude, latitude: userCords.latitude });
+                    let userCoords = userLocation.coords;
+                    userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
                     setLocation(userLocations[0]);
+                    //let geoLoc = geofire.geohashForLocation([userLocation.coords.latitude,userLocation.coords.longitude]);
+                    let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
+                    setMyGeo(geoLoc);
                 }
             }
             catch (error) {
@@ -42,9 +49,12 @@ const FeedScreen = () => {
 
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
+        let viewEvents = collection(db, "events");
+        const eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
 
-        getDocs(collection(db, "events")).then(docs => {
+        getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
+            
             let events = [];
 
             docs.forEach((doc) => {
@@ -64,9 +74,11 @@ const FeedScreen = () => {
                     endTime: new Date(docData.endTime.seconds * 1000),
                     location: docData.location,
                     isAttending: isAttending,
+                    eventGeo: docData.geoLocation,
                     total: docData.total,
+                    hostToken: docData.hostToken,
                 };
-
+                
                 let eventName = event.name.toLowerCase();
                 let eventDescription = event.description.toLowerCase()
 
@@ -90,9 +102,9 @@ const FeedScreen = () => {
             // May want to sort by distance or something
             Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
-    }, [searchPhrase])
+    }, [searchPhrase, myGeo])
 
-    const attendEvent = (eventId) => {
+    const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);
         const userRef = doc(db, 'users', auth.currentUser.uid);
 
@@ -110,7 +122,9 @@ const FeedScreen = () => {
                 return item
             }
             return item;
-        })
+        });
+
+        sendNotifications(hostToken, eventName);
         setData(newData);
     }
 
@@ -159,7 +173,7 @@ const FeedScreen = () => {
                         <Text style={feedStyle.title}>{item.name}</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id);
+                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
                             }}
                         >
                             {item.isAttending
@@ -176,6 +190,24 @@ const FeedScreen = () => {
                 </View>
             </TouchableOpacity>
         );
+    }
+
+    const sendNotifications = async (token, eventName) => {
+        let message = "Someone has joined your event: " + eventName + "!";
+
+        await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            body: JSON.stringify({ 
+                "to": token, 
+                "title":"A New Attendee", 
+                "body": message 
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        }).then((response) => {
+            console.log(response.status);
+        });
     }
 
     // Home screen GUI
