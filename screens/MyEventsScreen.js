@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, FlatList, Image, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import { useIsFocused } from '@react-navigation/native'
 
 import { arrayUnion, arrayRemove, collection, getDocs, getDoc, updateDoc, doc, exists } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
@@ -18,11 +18,10 @@ const MyEventsScreen = () => {
     const [data, setData] = useState([]);
     const navigation = useNavigation();
 
+    const isFocused = useIsFocused()
 
     useEffect(() => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
- 
-        
         getDoc(userRef).then(docSnap => {
             
             let events = [];
@@ -48,7 +47,9 @@ const MyEventsScreen = () => {
                         description: docData.description,
                         startTime: new Date(docData.startTime.seconds * 1000),
                         endTime: new Date(docData.endTime.seconds * 1000),
-                        isAttending: isAttending
+                        location: docData.location,
+                        isAttending: isAttending,
+                        total: docData.total,
                     };
 
                     events.push(new Promise((resolve, reject) => {
@@ -66,7 +67,7 @@ const MyEventsScreen = () => {
                 })  
             });  
         })
-    }, []);
+    }, [isFocused]);
 
 
 

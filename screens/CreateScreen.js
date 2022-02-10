@@ -8,7 +8,7 @@ import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from '../styles/styles.js';
 import * as Location from 'expo-location';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc } from 'firebase/firestore';
 
 const today = new Date();
 
@@ -57,6 +57,7 @@ const CreateScreen = () => {
                 endTime: endTime,
                 image: imageURL,
                 attendees: [],
+                host: doc(db, 'users', auth.currentUser.uid)
             }
 
             await addDoc(collection(db, "events"), eventData).then(resetFields);

@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 const feedStyle = StyleSheet.create({
     feed: {
         paddingTop: 20,
-        marginBottom: 40,
         alignSelf: 'stretch',
         backgroundColor: 'white'
     },
@@ -41,7 +40,7 @@ const feedStyle = StyleSheet.create({
         marginVertical: 15,
     },
     footer: {
-        marginVertical: 20,
+        marginVertical: 40,
     }
 });
 
