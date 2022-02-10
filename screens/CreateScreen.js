@@ -145,7 +145,7 @@ const CreateScreen = () => {
                 let userCoords = userLocation.coords;
                 setEventCoord(userCoords);
 
-                userLocations.push({ longitude: JSON.stringify(userCords.longitude), latitude: JSON.stringify(userCords.latitude) });
+                userLocations.push({ longitude: JSON.stringify(userCoords.longitude), latitude: JSON.stringify(userCoords.latitude) });
                 //alert("User's Location is " + JSON.stringify(location[0]));
                 setEventLocation(JSON.stringify(userLocations[0]))
 

@@ -21,7 +21,7 @@ const FeedScreen = () => {
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
     const [location, setLocation] = useState([]);
-    const [myGeo, setMyGeo] = useState(""); // Geo is short for a geohash (a string used to represent a position based on lat and long)
+    const [myGeo, setMyGeo] = useState(null); // Geo is short for a geohash (a string used to represent a position based on lat and long)
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -36,7 +36,6 @@ const FeedScreen = () => {
                     let userCoords = userLocation.coords;
                     userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
                     setLocation(userLocations[0]);
-                    //let geoLoc = geofire.geohashForLocation([userLocation.coords.latitude,userLocation.coords.longitude]);
                     let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
                     setMyGeo(geoLoc);
                 }
@@ -49,8 +48,14 @@ const FeedScreen = () => {
 
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
-        let viewEvents = collection(db, "events");
-        const eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        let viewEvents = collection(db,"events");
+        let eventQuery;
+
+        if (!myGeo) {
+            eventQuery = viewEvents;
+        } else {
+            eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        }
 
         getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
