@@ -92,6 +92,7 @@ const CreateScreen = () => {
 
     const addEvent = async () => {
         try {
+            const userRef = doc(db, 'users', auth.currentUser.uid);
             const eventData = {
                 name: eventName,
                 description: eventDescription,
@@ -102,15 +103,16 @@ const CreateScreen = () => {
                 endTime: endTime,
                 image: imageURL,
                 geoLocation: Geohash.encode(eventCoord.latitude,eventCoord.longitude, [3]),
-                attendees: [],
-                host: doc(db, 'users', auth.currentUser.uid)
+                attendees: [userRef],
+                host: auth.currentUser.uid,
+                attendeeTokens: [],
             }
           
             await addDoc(collection(db, "events"), eventData)
             .then((eventRef) => {
-                const userRef = doc(db, 'users', auth.currentUser.uid);
                 updateDoc(userRef, {
-                    hosting: arrayUnion(eventRef.id)
+                    hosting: arrayUnion(eventRef),
+                    attending: arrayUnion(eventRef),
                 });
                 updateDoc(eventRef, {
                     hostToken: pushToken

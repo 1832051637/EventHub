@@ -62,7 +62,6 @@ const MapScreen = ({ route }) => {
                 streetAddress: addressArray[0],
                 city: addressArray[1],
                 stateZip: addressArray[2],
-                // fullAddress: addressResult
             });
             setFullAddress(addressResult);
         }).catch( function (error) {

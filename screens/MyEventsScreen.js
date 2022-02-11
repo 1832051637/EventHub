@@ -1,11 +1,11 @@
 //import React from 'react';
 import React, { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, FlatList, Image, Linking } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, FlatList, Image, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused } from '@react-navigation/native'
 
-import { arrayUnion, arrayRemove, collection, getDocs, getDoc, updateDoc, doc, exists } from "firebase/firestore";
+import { arrayUnion, arrayRemove, collection, getDocs, getDoc, updateDoc, doc, exists, deleteDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 
@@ -13,9 +13,13 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import styles from '../styles/styles.js';
 import myEventsStyle from '../styles/myEventsStyle';
 
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
 
 const MyEventsScreen = () => {
     const [data, setData] = useState([]);
+    const [pushToken, setPushToken] = useState('');
     const navigation = useNavigation();
 
     const isFocused = useIsFocused()
@@ -37,7 +41,7 @@ const MyEventsScreen = () => {
                     }
     
                     const gsReference = ref(storage, docData.image);
-                    const isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
+                    let isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
 
                     let event = {
                         id: ds.id,
@@ -49,6 +53,7 @@ const MyEventsScreen = () => {
                         isAttending: isAttending,
                         total: docData.total,
                         hostToken: docData.hostToken,
+                        host: docData.host
                     };
 
                     events.push(new Promise((resolve, reject) => {
@@ -68,14 +73,51 @@ const MyEventsScreen = () => {
         })
     }, [isFocused]);
 
+    useEffect(() => {
+        registerForPushNotificationsAsync();
+    }, []);
 
+    const registerForPushNotificationsAsync = async () => {
+        console.log("Registering token");
+        if (Device.isDevice) {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+            const token = (await Notifications.getExpoPushTokenAsync()).data;
+            // console.log(token);
+            setPushToken(token);
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            updateDoc(userRef, {
+                hostToken: token
+            });
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+    };
 
     const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);
         const userRef = doc(db, 'users', auth.currentUser.uid);
 
         updateDoc(eventRef, {
-            attendees: arrayUnion(userRef)
+            attendees: arrayUnion(userRef),
+            attendeeTokens: arrayUnion(pushToken),
         });
 
         updateDoc(userRef, {
@@ -99,7 +141,8 @@ const MyEventsScreen = () => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
 
         updateDoc(eventRef, {
-            attendees: arrayRemove(userRef)
+            attendees: arrayRemove(userRef),
+            attendeeTokens: arrayRemove(pushToken),
         });
 
         updateDoc(userRef, {
@@ -116,6 +159,46 @@ const MyEventsScreen = () => {
         setData(newData);
     }
 
+    const deleteAlert = (itemID, itemName, attendeeTokens) =>{
+        Alert.alert(
+        "Deleting \"" + itemName + "\"",
+        "Are You Sure?",
+        [
+            {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel"
+            },
+            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens) }
+        ]
+        )
+    };
+
+    const deleteEvent = (itemID, tokens) =>{
+        deleteDoc(doc(db, 'events', itemID))
+        .then(() => {
+            console.log("Event has been deleted");
+            if(tokens && tokens.length > 0) {
+                let message = eventName + " has been cancelled by the host.";
+                fetch("https://exp.host/--/api/v2/push/send", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 
+                        "to": tokens, 
+                        "title":"Event Cancellation", 
+                        "body": message 
+                    }),
+                }).then((response) => {
+                    console.log(response.status);
+                });
+            }
+        })
+        .catch(e => console.log('Error deleting event.' , e))
+    };
+
+    
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
         const displayTime = getTimeString(item.startTime) + ' - ' + getTimeString(item.endTime);
@@ -137,16 +220,25 @@ const MyEventsScreen = () => {
                 <View style={myEventsStyle.body}>
                     <View style={myEventsStyle.heading}>
                         <Text style={myEventsStyle.title}>{item.name}</Text>
-                        <TouchableOpacity
-                            onPress={() => {
-                                item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
-                            }}
-                        >
-                            {item.isAttending 
-                                ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)'/>
-                                : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)'/>
-                            }
-                        </TouchableOpacity>
+                        {auth.currentUser.uid === item.host 
+                        ?
+                            <TouchableOpacity
+                                onPress={() => {deleteAlert(item.id, item.name, item.attendeeTokens)}}
+                            >
+                                <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
+                            </TouchableOpacity>
+                        :
+                            <TouchableOpacity
+                                onPress={() => {
+                                    item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
+                                }}
+                            >
+                                {item.isAttending
+                                    ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)' />
+                                    : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)' />
+                                }
+                            </TouchableOpacity>
+                        }
                     </View>
                     <Text style={myEventsStyle.timestamp}>
                         <MaterialCommunityIcons name="clock-outline" size={16}/>
@@ -163,14 +255,14 @@ const MyEventsScreen = () => {
 
         await fetch("https://exp.host/--/api/v2/push/send", {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({ 
                 "to": token, 
                 "title":"A New Attendee", 
                 "body": message 
             }),
-            headers: {
-                "Content-Type": "application/json"
-            },
         }).then((response) => {
             console.log(response.status);
         });

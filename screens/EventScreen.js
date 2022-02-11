@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, Image } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, Image } from 'react-native';
 import eventStyles from '../styles/eventStyles';
 
 function getDateString(startDate, endDate) {
@@ -50,6 +50,25 @@ function handleDescription(description) {
     }
     return description.toString();
 }
+
+const deleteAlert = (itemID, itemName) =>{
+    Alert.alert(
+    "Deleting \"" + itemName + "\"",
+    "Are You Sure?",
+    [
+        {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel"
+        },
+        { text: "Delete", onPress: () => deleteEvent(itemID) }
+    ]
+    )
+};
+
+const deleteEvent = (itemID) =>{
+    console.log("Event deleted!");
+};
 
 const EventScreen = ({ route, navigation }) => {
     const event = route.params;
