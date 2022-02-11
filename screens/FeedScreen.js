@@ -24,6 +24,7 @@ const FeedScreen = () => {
     const [location, setLocation] = useState([]);
     const [myGeo, setMyGeo] = useState(null); // Geo is short for a geohash (a string used to represent a position based on lat and long)
     const [pushToken, setPushToken] = useState('');
+    const [eventDeleted, setEventDeleted] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -52,6 +53,7 @@ const FeedScreen = () => {
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db,"events");
         let eventQuery;
+        setEventDeleted(false);
 
         if (!myGeo) {
             eventQuery = viewEvents;
@@ -111,7 +113,7 @@ const FeedScreen = () => {
             // May want to sort by distance or something
             Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
-    }, [searchPhrase, myGeo])
+    }, [searchPhrase, myGeo, eventDeleted])
 
     useEffect(() => {
         registerForPushNotificationsAsync();
@@ -235,6 +237,7 @@ const FeedScreen = () => {
                     console.log(response.status);
                 });
             }
+            setEventDeleted(true);
         })
         .catch(e => console.log('Error deleting event.' , e))
     };

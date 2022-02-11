@@ -23,11 +23,12 @@ const MyEventsScreen = () => {
     const navigation = useNavigation();
 
     const isFocused = useIsFocused()
+    const [eventDeleted, setEventDeleted] = useState(false); 
 
     useEffect(() => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
         getDoc(userRef).then(docSnap => {
-            
+            setEventDeleted(false);
             let events = [];
 
             docSnap.data().attending.forEach(value => {
@@ -71,7 +72,7 @@ const MyEventsScreen = () => {
                 })  
             });  
         })
-    }, [isFocused]);
+    }, [isFocused, eventDeleted]);
 
     useEffect(() => {
         registerForPushNotificationsAsync();
@@ -194,6 +195,7 @@ const MyEventsScreen = () => {
                     console.log(response.status);
                 });
             }
+            setEventDeleted(true);
         })
         .catch(e => console.log('Error deleting event.' , e))
     };
