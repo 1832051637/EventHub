@@ -51,7 +51,7 @@ const FeedScreen = () => {
 
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
-        let viewEvents = collection(db,"events");
+        let viewEvents = collection(db, "events");
         let eventQuery;
         setEventDeleted(false);
 
@@ -63,7 +63,7 @@ const FeedScreen = () => {
 
         getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
-            
+
             let events = [];
 
             docs.forEach((doc) => {
@@ -73,7 +73,7 @@ const FeedScreen = () => {
                 }
 
                 const gsReference = ref(storage, docData.image);
-                let isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
+                let isAttending = docData.attendees.some((value) => { return value.id === userRef.id });
 
                 let event = {
                     id: doc.id,
@@ -88,30 +88,33 @@ const FeedScreen = () => {
                     hostToken: docData.hostToken,
                     host: docData.host,
                     attendeeTokens: docData.attendeeTokens,
+                    lon: docData.lon,
+                    lat: docData.lat,
+                    formatted_addr: docData.address,
                 };
-                
+
                 let eventName = event.name.toLowerCase();
                 let eventDescription = event.description.toLowerCase()
 
-                if (searchPhrase === '' || eventName.includes(searchPhraseLower) || 
+                if (searchPhrase === '' || eventName.includes(searchPhraseLower) ||
                     eventDescription.includes(searchPhraseLower)) {
 
                     // console.log("Event name: " + event.name);
                     // console.log("Description: " + event.description);
                     events.push(new Promise((resolve, reject) => {
                         getDownloadURL(gsReference)
-                        .then((url) => {
-                            event.image = url;
-                            resolve(event);
-                        })
-                        .catch(() => {
-                            resolve(event);
-                        });
+                            .then((url) => {
+                                event.image = url;
+                                resolve(event);
+                            })
+                            .catch(() => {
+                                resolve(event);
+                            });
                     }));
                 }
             });
             // May want to sort by distance or something
-            Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
+            Promise.all(events).then((values) => setData(values.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1)));
         });
     }, [searchPhrase, myGeo, eventDeleted])
 
@@ -140,16 +143,16 @@ const FeedScreen = () => {
                 hostToken: token
             });
         } else {
-          alert('Must use physical device for Push Notifications');
+            alert('Must use physical device for Push Notifications');
         }
 
         if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
+            Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
         }
     };
 
@@ -201,45 +204,45 @@ const FeedScreen = () => {
         setData(newData);
     }
 
-    const deleteAlert = (itemID, itemName, attendeeTokens) =>{
+    const deleteAlert = (itemID, itemName, attendeeTokens) => {
         Alert.alert(
-        "Deleting \"" + itemName + "\"",
-        "Are You Sure?",
-        [
-            {
-            text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel"
-            },
-            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens) }
-        ]
+            "Deleting \"" + itemName + "\"",
+            "Are You Sure?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                },
+                { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens) }
+            ]
         )
     };
 
     //Deletes event and notifys guests
-    const deleteEvent = (itemID, tokens) =>{
+    const deleteEvent = (itemID, tokens) => {
         deleteDoc(doc(db, 'events', itemID))
-        .then(() => {
-            console.log("Event has been deleted");
-            if(tokens && tokens.length > 0) {
-                let message = eventName + " has been cancelled by the host.";
-                fetch("https://exp.host/--/api/v2/push/send", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ 
-                        "to": tokens, 
-                        "title":"Event Cancellation", 
-                        "body": message 
-                    }),
-                }).then((response) => {
-                    console.log(response.status);
-                });
-            }
-            setEventDeleted(true);
-        })
-        .catch(e => console.log('Error deleting event.' , e))
+            .then(() => {
+                console.log("Event has been deleted");
+                if (tokens && tokens.length > 0) {
+                    let message = eventName + " has been cancelled by the host.";
+                    fetch("https://exp.host/--/api/v2/push/send", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "to": tokens,
+                            "title": "Event Cancellation",
+                            "body": message
+                        }),
+                    }).then((response) => {
+                        console.log(response.status);
+                    });
+                }
+                setEventDeleted(true);
+            })
+            .catch(e => console.log('Error deleting event.', e))
     };
 
     const EventCard = ({ item }) => {
@@ -264,14 +267,14 @@ const FeedScreen = () => {
                     <View style={feedStyle.heading}>
                         <Text style={feedStyle.title}>{item.name}</Text>
                         {/* If it is current users event, show delete button otherwise attend/unattend */}
-                        {auth.currentUser.uid === item.host 
-                        ?
+                        {auth.currentUser.uid === item.host
+                            ?
                             <TouchableOpacity
-                                onPress={() => {deleteAlert(item.id, item.name, item.attendeeTokens)}}
+                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens) }}
                             >
                                 <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
                             </TouchableOpacity>
-                        :
+                            :
                             <TouchableOpacity
                                 onPress={() => {
                                     item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
@@ -302,10 +305,10 @@ const FeedScreen = () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ 
-                "to": token, 
-                "title":"A New Attendee", 
-                "body": message 
+            body: JSON.stringify({
+                "to": token,
+                "title": "A New Attendee",
+                "body": message
             }),
         }).then((response) => {
             console.log(response.status);
