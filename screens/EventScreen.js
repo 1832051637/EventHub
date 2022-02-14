@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, Image } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, Image } from 'react-native';
 import eventStyles from '../styles/eventStyles';
 
 function getDateString(startDate, endDate) {
@@ -37,11 +37,11 @@ function has_property(object, key) {
     return object ? hasOwnProperty.call(object, key) : false;
 }
 
-function handleGeopoint(location) {
-    if (has_property(location, '_lat')) {
-        return 'Lat: ' + location._lat.toString() + ', long: ' + location._long.toString();
+function handleString(str) {
+    if (!str) {
+        return "N/A";
     }
-    return location.toString();
+    return str.toString();
 }
 
 function handleDescription(description) {
@@ -50,6 +50,25 @@ function handleDescription(description) {
     }
     return description.toString();
 }
+
+const deleteAlert = (itemID, itemName) => {
+    Alert.alert(
+        "Deleting \"" + itemName + "\"",
+        "Are You Sure?",
+        [
+            {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel"
+            },
+            { text: "Delete", onPress: () => deleteEvent(itemID) }
+        ]
+    )
+};
+
+const deleteEvent = (itemID) => {
+    console.log("Event deleted!");
+};
 
 const EventScreen = ({ route, navigation }) => {
     const event = route.params;
@@ -80,7 +99,20 @@ const EventScreen = ({ route, navigation }) => {
                 </Text>
                 <Text>
                     <Text style={eventStyles.category}>Location: </Text>
-                    <Text style={eventStyles.info}>{handleGeopoint(event.location)}</Text>
+                    <Text style={eventStyles.info}>{handleString(event.location)}</Text>
+                </Text>
+                <Text>
+                    <Text style={eventStyles.category}>Address: </Text>
+                    <Text style={eventStyles.info}>{handleString(event.formatted_addr)}</Text>
+                </Text>
+
+                <Text>
+                    <Text style={eventStyles.category}>Longitude: </Text>
+                    <Text style={eventStyles.info}>{handleString(event.lon)}</Text>
+                </Text>
+                <Text>
+                    <Text style={eventStyles.category}>Latitude: </Text>
+                    <Text style={eventStyles.info}>{handleString(event.lat)}</Text>
                 </Text>
                 <Text>
                     <Text style={eventStyles.category}>Total users: </Text>
