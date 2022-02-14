@@ -81,6 +81,7 @@ const FeedScreen = () => {
                     isAttending: isAttending,
                     eventGeo: docData.geoLocation,
                     total: docData.total,
+                    host: docData.host,
                     hostToken: docData.hostToken,
                 };
                 
