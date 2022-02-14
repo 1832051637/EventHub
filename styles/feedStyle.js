@@ -34,10 +34,13 @@ const feedStyle = StyleSheet.create({
     timestamp: {
         marginBottom: 5,
     },
+    location: {
+        marginBottom: 5,
+    },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',
-        borderBottomWidth: 1,
-        marginVertical: 15,
+        borderBottomWidth: 2,
+        marginVertical: 20,
     },
     footer: {
         marginVertical: 40,

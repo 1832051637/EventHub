@@ -292,6 +292,10 @@ const FeedScreen = () => {
                         <MaterialCommunityIcons name="clock-outline" size={16} />
                         {' '}{displayDate} at {displayTime}
                     </Text>
+                    {item.formatted_addr && <Text style={feedStyle.location}>
+                            <MaterialCommunityIcons name="map-marker-outline" size={16} />
+                            {' '}{item.formatted_addr}
+                     </Text>}
                     <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
             </TouchableOpacity>

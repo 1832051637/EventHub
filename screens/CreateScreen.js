@@ -24,7 +24,6 @@ const CreateScreen = () => {
     // Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
     // Location.setGoogleApiKey('AIzaSyA3wSOhQpvy9yDpb0cZXLidft2dNL-4LQ8');
 
-
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
     const [totalUsers, setTotalUsers] = useState('');
