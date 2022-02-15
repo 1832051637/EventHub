@@ -39,7 +39,7 @@ const feedStyle = StyleSheet.create({
     },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',
-        borderBottomWidth: 2,
+        borderBottomWidth: 1,
         marginVertical: 20,
     },
     footer: {

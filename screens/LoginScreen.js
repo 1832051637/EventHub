@@ -1,11 +1,10 @@
 import React, {  useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
-
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-
-import { auth, db } from '../firebase';
-import styles from '../styles/styles.js';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../firebase';
+import style from '../styles/style.js';
+import authStyle from '../styles/authStyle.js';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
@@ -24,54 +23,54 @@ const LoginScreen = () => {
     // Login Screen GUI
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={style.container}
             behavior='padding'
         >
-            <View style={styles.heading}>
-                <Text style={styles.titleEvent}>
+            <View style={authStyle.heading}>
+                <Text style={authStyle.titleEvent}>
                     Event
                 </Text>
-                <Text style={styles.titleHub}>
+                <Text style={authStyle.titleHub}>
                     Hub
                 </Text>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={style.buttonContainer}>
                 <TouchableOpacity
                         onPress={() => {navigation.push("Signup")}}
-                        style={[styles.button, styles.buttonOutline]}
+                        style={[style.button, style.buttonOutline]}
                     >
-                        <Text style={styles.buttonOutlineText}>Sign up</Text>
+                        <Text style={style.buttonOutlineText}>Sign up</Text>
                 </TouchableOpacity>
             </View>
             <Text style={{padding: 25}}>——— OR ———</Text>
-            <View style={styles.inputContainer}>
+            <View style={style.inputContainer}>
                 <TextInput
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={styles.input}
+                    style={style.input}
                 ></TextInput>
                 <TextInput
                     placeholder='Password'
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={styles.input}
+                    style={style.input}
                     secureTextEntry
                 ></TextInput>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={style.buttonContainer}>
                 <TouchableOpacity
                     onPress={handleLogin}
-                    style={styles.button}
+                    style={style.button}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={style.buttonText}>Login</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     onPress={() => {navigation.push("ForgotPassword")}}
-                    style={styles.resetButton}
+                    style={authStyle.resetButton}
                 >
-                    <Text style={styles.resetButtonText}>Forgot Password?</Text>
+                    <Text style={authStyle.resetButtonText}>Forgot Password?</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

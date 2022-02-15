@@ -1,8 +1,7 @@
-import { useNavigation } from '@react-navigation/native';
 import { Text, TouchableOpacity, View, Alert } from 'react-native';
 import React from 'react';
 import { auth } from '../firebase';
-import styles from '../styles/styles.js';
+import style from '../styles/style.js';
 import { sendEmailVerification } from "firebase/auth";
 
 const VerifyEmailButton = () => {
@@ -21,18 +20,18 @@ const VerifyEmailButton = () => {
     return (
         <TouchableOpacity
             onPress={handleVerifyEmail}
-            style={styles.button}
+            style={style.button}
         >
-            <Text style={styles.buttonText}>Verify Email Address</Text>
+            <Text style={style.buttonText}>Verify Email Address</Text>
         </TouchableOpacity>
     );
 }
 
 const SettingsScreen = () => {
     return (
-        <View style={styles.container}>
+        <View style={style.container}>
             <Text>User & Profile Settings Here</Text>
-            <View style={styles.buttonContainer}>
+            <View style={style.buttonContainer}>
                 <VerifyEmailButton />
             </View>
         </View>

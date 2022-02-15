@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } 
 import React, { useState } from 'react';
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from '../firebase';
-import styles from '../styles/styles.js';
+import style from '../styles/style.js';
 
 const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
@@ -20,34 +20,27 @@ const ForgotPasswordScreen = () => {
 
     // Forgot Password GUI
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior='padding'
-        >
-            <View>
-                <Text
-                    style={styles.title}
-                >Reset Password</Text>
-            </View>
-            <View style={styles.inputContainer}>
+        <KeyboardAvoidingView style={style.container}>
+            <Text style={style.title}>
+                Reset Password
+            </Text>
+            <View style={style.inputContainer}>
                 <TextInput
                     placeholder='Enter email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={styles.input}
+                    style={style.input}
 
                 ></TextInput>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={style.buttonContainer}>
                 <TouchableOpacity
                     onPress={handleSendEmail}
-                    style={styles.button}
+                    style={style.button}
                 >
-                    <Text style={styles.buttonText}>Send Email</Text>
+                    <Text style={style.buttonText}>Send Email</Text>
                 </TouchableOpacity>
             </View>
-            
-
         </KeyboardAvoidingView>
     );
 };

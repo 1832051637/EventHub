@@ -1,12 +1,10 @@
 import React, {  useState } from 'react';
 import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
-
 import { createUserWithEmailAndPassword } from "firebase/auth";
-
 import { doc, setDoc } from "firebase/firestore"; 
-
 import { auth, db } from '../firebase';
-import styles from '../styles/styles.js';
+import style from '../styles/style.js';
+import authStyle from '../styles/authStyle.js';
 
 const SignupScreen = () => {
     const [email, setEmail] = useState('');
@@ -37,47 +35,50 @@ const SignupScreen = () => {
     // Login Screen GUI
     return (
         <KeyboardAvoidingView
-            style={styles.container}
-            behavior='padding'
+            style={style.container}
+            //behavior='padding'
         >
-            <View>
-                <Text
-                    style={styles.title}
-                >Event Hub</Text>
+            <View style={authStyle.heading}>
+                <Text style={authStyle.titleEvent}>
+                    Event
+                </Text>
+                <Text style={authStyle.titleHub}>
+                    Hub
+                </Text>
             </View>
-            <View style={styles.inputContainer}>
+            <View style={style.inputContainer}>
                 <TextInput
                     placeholder='First name'
                     value={firstName}
                     onChangeText={text => setFirstName(text)}
-                    style={styles.input}
+                    style={style.input}
                 ></TextInput>
                 <TextInput
                     placeholder='Last name'
                     value={lastName}
                     onChangeText={text => setLastName(text)}
-                    style={styles.input}
+                    style={style.input}
                 ></TextInput>
                 <TextInput
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={styles.input}
+                    style={style.input}
                 ></TextInput>
                 <TextInput
                     placeholder='Password'
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={styles.input}
+                    style={style.input}
                     secureTextEntry
                 ></TextInput>
             </View>
-            <View style={styles.buttonContainer}>
+            <View style={style.buttonContainer}>
                 <TouchableOpacity
                     onPress={handleSignUp}
-                    style={[styles.button, styles.buttonOutline]}
+                    style={[style.button, style.buttonOutline]}
                 >
-                    <Text style={styles.buttonOutlineText}>Sign up</Text>
+                    <Text style={style.buttonOutlineText}>Sign up</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

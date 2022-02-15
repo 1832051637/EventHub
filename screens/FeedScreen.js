@@ -2,17 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, KeyboardAvoidingView, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where, deleteDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
-
 import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
-import styles from '../styles/styles.js';
+import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import Geohash from 'latlon-geohash';
 
@@ -82,16 +80,15 @@ const FeedScreen = () => {
                     startTime: new Date(docData.startTime.seconds * 1000),
                     endTime: new Date(docData.endTime.seconds * 1000),
                     location: docData.location,
-                    isAttending: isAttending,
-                    eventGeo: docData.geoLocation,
-                    total: docData.total,
-                    host: docData.host,
-                    hostToken: docData.hostToken,
-                    host: docData.host,
-                    attendeeTokens: docData.attendeeTokens,
                     lon: docData.lon,
                     lat: docData.lat,
-                    formatted_addr: docData.address,
+                    address: docData.address,
+                    eventGeo: docData.geoLocation,
+                    host: docData.host,
+                    attendeeLimit: docData.attendeeLimit,
+                    hostToken: docData.hostToken,
+                    attendeeTokens: docData.attendeeTokens,
+                    isAttending: isAttending,
                 };
 
                 let eventName = event.name.toLowerCase();
@@ -254,7 +251,7 @@ const FeedScreen = () => {
             <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.navigate("Event Details", item)
+                    navigation.push("Event Details", item)
                 }}
             >
                 {feedStyle.image && <Image
@@ -268,7 +265,8 @@ const FeedScreen = () => {
                     <View style={feedStyle.heading}>
                         <Text style={feedStyle.title}>{item.name}</Text>
                         {/* If it is current users event, show delete button otherwise attend/unattend */}
-                        {auth.currentUser.uid === item.host
+                        {
+                            auth.currentUser.uid === item.host
                             ?
                             <TouchableOpacity
                                 onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens) }}
@@ -292,9 +290,9 @@ const FeedScreen = () => {
                         <MaterialCommunityIcons name="clock-outline" size={16} />
                         {' '}{displayDate} at {displayTime}
                     </Text>
-                    {item.formatted_addr && <Text style={feedStyle.location}>
+                    {item.address && <Text style={feedStyle.location}>
                             <MaterialCommunityIcons name="map-marker-outline" size={16} />
-                            {' '}{item.formatted_addr}
+                            {' '}{item.address}
                      </Text>}
                     <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
@@ -322,7 +320,7 @@ const FeedScreen = () => {
 
     // Home screen GUI
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={style.container}>
             <SearchBar
                 searchPhrase={searchPhrase}
                 setSearchPhrase={setSearchPhrase}

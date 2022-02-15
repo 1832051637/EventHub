@@ -4,11 +4,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import SignOutButton from '../components/SignOutButton';
-import HomeStack from './HomeStack';
+//import HomeStack from './HomeStack';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import MyEventsScreen from '../screens/MyEventsScreen';
 import MapScreen from '../screens/MapScreen';
+import FeedScreen from '../screens/FeedScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +23,7 @@ AppTabs = () => {
             tabBarActiveTintColor: '#008EFF',
         }}
         >
-        <Tab.Screen name="Home" component={HomeStack} options={{
+        <Tab.Screen name="Feed" component={FeedScreen} options={{
             tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
             ),
@@ -35,6 +36,7 @@ AppTabs = () => {
             headerShown: false
         }} />
         <Tab.Screen name="Create" component={CreateScreen} options={{
+            headerTitle: 'Create Event',
             tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="plus-box-outline" color={color} size={size} />
             ),

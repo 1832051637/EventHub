@@ -7,7 +7,6 @@ const myEventsStyle = StyleSheet.create({
         marginRight: 10,
         marginTop:10,
     },
-    
     feed: {
         paddingTop: 20,
         alignSelf: 'stretch',

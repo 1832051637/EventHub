@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const eventStyles = StyleSheet.create({
+const eventStyle = StyleSheet.create({
     container: {
         flex: 1,
         // display: "flex",
@@ -48,4 +48,4 @@ const eventStyles = StyleSheet.create({
     },
 });
 
-export default eventStyles;
+export default eventStyle;

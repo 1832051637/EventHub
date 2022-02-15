@@ -1,7 +1,8 @@
-import { Text, View, TextInput, Button, TouchableHighlight, SafeAreaView, } from 'react-native';
+import { Text, SafeAreaView, } from 'react-native';
 import React from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
-import styles from '../styles/styles.js';
+import style from '../styles/style';
+import mapStyle from '../styles/mapStyle';
 import { MAP_KEY } from '../utils/API_KEYS';
 import * as Location from 'expo-location';
 
@@ -79,8 +80,8 @@ const MapScreen = ({ route }) => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <MapView style={styles.map}
+        <SafeAreaView style={style.container}>
+            <MapView style={mapStyle.map}
                 // The initial Location is set to user's location or UCSC if not given permission
                 region={{
                     latitude: currLocation.latitude,
@@ -103,7 +104,7 @@ const MapScreen = ({ route }) => {
                     }}
                 >
                     <Callout>
-                        <Text style={styles.container}>
+                        <Text style={style.container}>
                             Some random person lives at
                         </Text>
                         <Text> {address.streetAddress} </Text>

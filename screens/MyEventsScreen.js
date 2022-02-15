@@ -1,18 +1,14 @@
-//import React from 'react';
 import React, { useState, useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View, FlatList, Image, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused } from '@react-navigation/native'
-
 import { arrayUnion, arrayRemove, collection, getDocs, getDoc, updateDoc, doc, exists, deleteDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
-
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
-import styles from '../styles/styles.js';
-import myEventsStyle from '../styles/myEventsStyle';
-
+import style from '../styles/style.js';
+import feedStyle from '../styles/feedStyle';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
@@ -207,21 +203,21 @@ const MyEventsScreen = () => {
     
         return (
             <TouchableOpacity 
-                style={myEventsStyle.card}
+                style={feedStyle.card}
                 onPress={() => {
-                    navigation.navigate("Event Details", item)
+                    navigation.push("Event Details", item)
                 }}
             >
-                {myEventsStyle.image && <Image
+                {feedStyle.image && <Image
                     source={{
                         uri: item.image
                     }}
-                    style={myEventsStyle.image}
+                    style={feedStyle.image}
                     resizeMode={'cover'}
                 />}
-                <View style={myEventsStyle.body}>
-                    <View style={myEventsStyle.heading}>
-                        <Text style={myEventsStyle.title}>{item.name}</Text>
+                <View style={feedStyle.body}>
+                    <View style={feedStyle.heading}>
+                        <Text style={feedStyle.title}>{item.name}</Text>
                         {auth.currentUser.uid === item.host 
                         ?
                             <TouchableOpacity
@@ -242,11 +238,11 @@ const MyEventsScreen = () => {
                             </TouchableOpacity>
                         }
                     </View>
-                    <Text style={myEventsStyle.timestamp}>
+                    <Text style={feedStyle.timestamp}>
                         <MaterialCommunityIcons name="clock-outline" size={16}/>
                         {' '}{displayDate} at {displayTime}
                     </Text> 
-                    <Text numberOfLines={2} style={myEventsStyle.description}>{item.description}</Text>
+                    <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
             </TouchableOpacity>
         );
@@ -272,13 +268,13 @@ const MyEventsScreen = () => {
     
     // MyEvent screen GUI
     return (
-        <View style={styles.container}>
-            <Text style={myEventsStyle.catergory}>Attending</Text>
-            <FlatList style={myEventsStyle.feed}
+        <View style={style.container}>
+            <Text style={style.title}>Attending</Text>
+            <FlatList style={feedStyle.feed}
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={() => (<View style={myEventsStyle.separator}/>)}
+                ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
             />
         </View>
     );

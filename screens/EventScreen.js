@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert, Text, TouchableOpacity, View, Image } from 'react-native';
-import eventStyles from '../styles/eventStyles';
+import eventStyle from '../styles/eventStyle';
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 
 function has_property(object, key) {
@@ -46,52 +46,52 @@ const EventScreen = ({ route, navigation }) => {
     const displayTime = getTimeString(event.startTime) + ' - ' + getTimeString(event.endTime);
 
     return (
-        <View style={eventStyles.container}>
+        <View style={eventStyle.container}>
             <Image
                 source={{
                     uri: event.image
                 }}
-                style={eventStyles.image}
+                style={eventStyle.image}
             // resizeMode={'cover'}
             />
-            <View style={eventStyles.textContainer}>
-                <Text style={eventStyles.title}>
+            <View style={eventStyle.textContainer}>
+                <Text style={eventStyle.title}>
                     {event.name}
                 </Text>
-                <View style={eventStyles.separator}></View>
+                <View style={eventStyle.separator}></View>
                 <Text>
-                    <Text style={eventStyles.category}>Date: </Text>
-                    <Text style={eventStyles.info}>{displayDate}</Text>
+                    <Text style={eventStyle.category}>Date: </Text>
+                    <Text style={eventStyle.info}>{displayDate}</Text>
                 </Text>
                 <Text>
-                    <Text style={eventStyles.category}>Time: </Text>
-                    <Text style={eventStyles.info}>{displayTime}</Text>
+                    <Text style={eventStyle.category}>Time: </Text>
+                    <Text style={eventStyle.info}>{displayTime}</Text>
                 </Text>
                 <Text>
-                    <Text style={eventStyles.category}>Location: </Text>
-                    <Text style={eventStyles.info}>{handleString(event.location)}</Text>
+                    <Text style={eventStyle.category}>Location: </Text>
+                    <Text style={eventStyle.info}>{handleString(event.location)}</Text>
                 </Text>
                 <Text>
-                    <Text style={eventStyles.category}>Address: </Text>
-                    <Text style={eventStyles.info}>{handleString(event.formatted_addr)}</Text>
+                    <Text style={eventStyle.category}>Address: </Text>
+                    <Text style={eventStyle.info}>{handleString(event.formatted_addr)}</Text>
                 </Text>
 
                 <Text>
-                    <Text style={eventStyles.category}>Longitude: </Text>
-                    <Text style={eventStyles.info}>{handleString(event.lon)}</Text>
+                    <Text style={eventStyle.category}>Longitude: </Text>
+                    <Text style={eventStyle.info}>{handleString(event.lon)}</Text>
                 </Text>
                 <Text>
-                    <Text style={eventStyles.category}>Latitude: </Text>
-                    <Text style={eventStyles.info}>{handleString(event.lat)}</Text>
+                    <Text style={eventStyle.category}>Latitude: </Text>
+                    <Text style={eventStyle.info}>{handleString(event.lat)}</Text>
                 </Text>
                 <Text>
-                    <Text style={eventStyles.category}>Total users: </Text>
-                    <Text style={eventStyles.info}>{event.total}</Text>
+                    <Text style={eventStyle.category}>Attendee Limit: </Text>
+                    <Text style={eventStyle.info}>{event.attendeeLimit}</Text>
                 </Text>
-                <View style={eventStyles.separator}></View>
+                <View style={eventStyle.separator}></View>
                 <Text>
-                    <Text style={eventStyles.category}>Description: </Text>
-                    <Text style={eventStyles.info}>{handleDescription(event.description)}</Text>
+                    <Text style={eventStyle.category}>Description: </Text>
+                    <Text style={eventStyle.info}>{handleDescription(event.description)}</Text>
                 </Text>
             </View>
         </View>

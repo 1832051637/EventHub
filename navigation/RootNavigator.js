@@ -5,7 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase.js';
 import { AuthenticatedUserContext } from '../utils/AuthenticatedUserProvider';
 import AuthStack from './AuthStack';
-import AppTabs from './AppTabs';
+import AppStack from './AppStack';
 
 export default RootNavigator = () => {
   const { user, setUser } = useContext(AuthenticatedUserContext);
@@ -23,7 +23,7 @@ export default RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      {user ? <AppTabs /> : <AuthStack />}
+      {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };
