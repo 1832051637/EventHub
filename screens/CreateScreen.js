@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { auth, db, storage } from '../firebase'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geocoder from 'react-native-geocoding';
@@ -107,7 +106,7 @@ const CreateScreen = () => {
             });
 
             const fileRef = ref(storage, 'event-images/' + uuid.v4());
-            await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
+            //await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
             await uploadBytes(fileRef, blob);
             blob.close();
             return await getDownloadURL(fileRef);
@@ -147,6 +146,12 @@ const CreateScreen = () => {
             const json = await Geocoder.from(eventLocation);
             const location = json.results[0].geometry.location;
             const address = json.results[0].formatted_address;
+
+            let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
+
+            if (selectedImage !== null) {
+                downloadURL = await uploadImageAsync(selectedImage.localUri);
+            }
             
             const userRef = doc(db, 'users', auth.currentUser.uid);
 
@@ -156,30 +161,25 @@ const CreateScreen = () => {
                 description: eventDescription,
                 attendeeLimit: attendeeLimit,
                 location: eventLocation,
-                eventDate: date,
                 startTime: startTime,
                 endTime: endTime,
                 geoLocation: Geohash.encode(location.lat, location.lng, [3]),
                 attendees: [userRef],
                 host: auth.currentUser.uid,
+                hostToken: pushToken,
                 attendeeTokens: [],
                 lat: location.lat,
                 lon: location.lng,
                 address: address,
+                image: downloadURL
             }
             
             // Push to firebase Database
             const eventRef = await addDoc(collection(db, "events"), eventData);
-            const downloadURL = await uploadImageAsync(selectedImage.localUri);
 
             await updateDoc(userRef, {
                 hosting: arrayUnion(eventRef),
                 attending: arrayUnion(eventRef),
-            });
-
-            await updateDoc(eventRef, {
-                hostToken: pushToken,
-                image: downloadURL
             });
 
             resetFields();

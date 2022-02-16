@@ -3,7 +3,6 @@ import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, Key
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Device from 'expo-device';
-import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where, deleteDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
@@ -12,9 +11,7 @@ import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
-import Geohash from 'latlon-geohash';
 import { LocationContext } from '../utils/LocationProvider';
-
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
@@ -29,6 +26,7 @@ const FeedScreen = () => {
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db, "events");
+        let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
         let eventQuery;
         setEventDeleted(false);
 
@@ -46,8 +44,9 @@ const FeedScreen = () => {
             docs.forEach((doc) => {
                 let docData = doc.data();
                 
+                //if (auth.currentUser.uid === docData.host) return;
                 if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
-                if (auth.currentUser.uid !== docData.host && docData.attendees.length >= docData.attendeeLimit) return;
+                if (docData.attendees.length >= docData.attendeeLimit) return;
                 
 
                 const gsReference = ref(storage, docData.image);
