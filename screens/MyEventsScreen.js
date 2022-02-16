@@ -17,6 +17,7 @@ const MyEventsScreen = () => {
     const [data, setData] = useState([]);
     const [pushToken, setPushToken] = useState('');
     const navigation = useNavigation();
+    const [refresh, setRefresh] = useState(false);
 
     const isFocused = useIsFocused()
     const [eventDeleted, setEventDeleted] = useState(false); 
@@ -32,10 +33,11 @@ const MyEventsScreen = () => {
                 
                 getDoc(eventRef).then(ds => {
                     let docData = ds.data();
-
+                    
                     if (new Date() > new Date(docData.endTime.seconds * 1000)) {
                         return;
                     }
+                    
     
                     const gsReference = ref(storage, docData.image);
                     let isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
@@ -65,10 +67,11 @@ const MyEventsScreen = () => {
                         });
                     }));
                     Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
+                    setRefresh(false);
                 })  
             });  
         })
-    }, [isFocused, eventDeleted]);
+    }, [isFocused, eventDeleted, refresh]);
 
     useEffect(() => {
         registerForPushNotificationsAsync();
@@ -275,6 +278,8 @@ const MyEventsScreen = () => {
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
+                refreshing = {refresh}
+                onRefresh = {() => setRefresh(true)}
             />
         </View>
     );

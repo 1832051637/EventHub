@@ -24,6 +24,7 @@ const FeedScreen = () => {
     const [pushToken, setPushToken] = useState('');
     const [eventDeleted, setEventDeleted] = useState(false);
     const navigation = useNavigation();
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -53,11 +54,15 @@ const FeedScreen = () => {
         let eventQuery;
         setEventDeleted(false);
 
+        eventQuery = viewEvents;
+        /*
         if (!myGeo) {
             eventQuery = viewEvents;
         } else {
             eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
         }
+        */
+        
 
         getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -66,9 +71,11 @@ const FeedScreen = () => {
 
             docs.forEach((doc) => {
                 let docData = doc.data();
+                
                 if (new Date() > new Date(docData.endTime.seconds * 1000)) {
                     return;
                 }
+                
 
                 const gsReference = ref(storage, docData.image);
                 let isAttending = docData.attendees.some((value) => { return value.id === userRef.id });
@@ -113,8 +120,9 @@ const FeedScreen = () => {
             });
             // May want to sort by distance or something
             Promise.all(events).then((values) => setData(values.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1)));
+            setRefresh(false);
         });
-    }, [searchPhrase, myGeo, eventDeleted])
+    }, [searchPhrase, myGeo, eventDeleted, refresh])
 
     useEffect(() => {
         registerForPushNotificationsAsync();
@@ -334,6 +342,8 @@ const FeedScreen = () => {
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator} />)}
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
+                refreshing = {refresh}
+                onRefresh = {() => setRefresh(true)}
             />
         </SafeAreaView>
     );
