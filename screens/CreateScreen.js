@@ -33,7 +33,7 @@ const CreateScreen = () => {
     //const [eventCoord, setEventCoord] = useState("");
 
     useEffect(() => {
-        //registerForPushNotificationsAsync();
+        registerForPushNotificationsAsync();
     });
 
     useEffect(() => {

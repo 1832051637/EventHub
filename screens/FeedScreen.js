@@ -72,9 +72,8 @@ const FeedScreen = () => {
             docs.forEach((doc) => {
                 let docData = doc.data();
                 
-                if (new Date() > new Date(docData.endTime.seconds * 1000)) {
-                    return;
-                }
+                if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
+                if (docData.attendees.length >= docData.attendeeLimit) return;
                 
 
                 const gsReference = ref(storage, docData.image);
