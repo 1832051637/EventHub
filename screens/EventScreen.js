@@ -73,7 +73,7 @@ const EventScreen = ({ route, navigation }) => {
                 </Text>
                 <Text>
                     <Text style={eventStyle.category}>Address: </Text>
-                    <Text style={eventStyle.info}>{handleString(event.formatted_addr)}</Text>
+                    <Text style={eventStyle.info}>{handleString(event.address)}</Text>
                 </Text>
 
                 <Text>

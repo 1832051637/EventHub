@@ -73,19 +73,19 @@ const CreateScreen = () => {
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
         if (permissionResult.granted === false) {
-          alert('Permission to access camera roll is required!');
-          return;
+            alert('Permission to access camera roll is required!');
+            return;
         }
-    
+
         let pickerResult = await ImagePicker.launchImageLibraryAsync();
         if (pickerResult.cancelled === true) {
-          return;
+            return;
         }
-    
+
         setSelectedImage({ localUri: pickerResult.uri });
-      };
+    };
 
     const dateChange = (event, newDate) => {
         setEndTime(newDate);
@@ -123,7 +123,7 @@ const CreateScreen = () => {
                     address = json.results[0].formatted_address;
                 })
                 .catch(error => console.log(error.origin));
-            
+
             alert(address);
 
             const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -132,7 +132,7 @@ const CreateScreen = () => {
             const eventData = {
                 name: eventName,
                 description: eventDescription,
-                total: attendeeLimit,
+                attendeeLimit: attendeeLimit,
                 location: eventLocation,
                 eventDate: date,
                 startTime: startTime,
@@ -225,28 +225,28 @@ const CreateScreen = () => {
                 </View>
                 <View style={createStyle.dateBox}>
                     <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
-                    <RNDateTimePicker 
+                    <RNDateTimePicker
                         display="default"
-                        style={createStyle.datePicker} 
-                        value={date} 
+                        style={createStyle.datePicker}
+                        value={date}
                         onChange={dateChange}
                     />
                     <Text style={createStyle.datePickerText}>from</Text>
-                    <RNDateTimePicker 
+                    <RNDateTimePicker
                         value={startTime}
-                        style={createStyle.datePicker} 
-                        display="default" 
-                        mode="time" 
-                        onChange={startTimeChange} 
+                        style={createStyle.datePicker}
+                        display="default"
+                        mode="time"
+                        onChange={startTimeChange}
                         textColor='white'
                     />
                     <Text style={createStyle.datePickerText}>to</Text>
-                    <RNDateTimePicker 
-                        value={endTime} 
-                        style={createStyle.datePicker} 
+                    <RNDateTimePicker
+                        value={endTime}
+                        style={createStyle.datePicker}
                         display="default"
-                        mode="time" 
-                        onChange={endTimeChange} 
+                        mode="time"
+                        onChange={endTimeChange}
                     />
                 </View>
                 <View style={createStyle.inputItem}>
@@ -261,7 +261,7 @@ const CreateScreen = () => {
                     />
                 </View>
                 <View style={createStyle.inputItem}>
-                    <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />   
+                    <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
                     <TextInput
                         placeholder='Attendee Limit'
                         value={attendeeLimit}
