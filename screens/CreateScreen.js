@@ -16,8 +16,6 @@ import style from '../styles/style'
 import createStyle from '../styles/createStyle';
 import uuid from "uuid";
 
-const today = new Date();
-
 const CreateScreen = () => {
 
     // Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
@@ -27,16 +25,21 @@ const CreateScreen = () => {
     const [eventDescription, setEventDescription] = useState('');
     const [attendeeLimit, setAttendeeLimit] = useState('');
     const [eventLocation, setEventLocation] = useState('');
-    const [date, setDate] = useState(today);
+    const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [pushToken, setPushToken] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
-    const [eventCoord, setEventCoord] = useState("");
+    //const [eventCoord, setEventCoord] = useState("");
 
     useEffect(() => {
-        registerForPushNotificationsAsync();
-    }, []);
+        //registerForPushNotificationsAsync();
+    });
+
+    useEffect(() => {
+        startTimeChange(null, startTime);
+        endTimeChange(null, endTime);
+    }, [date]);
 
     const registerForPushNotificationsAsync = async () => {
         console.log("Registering token");
@@ -74,61 +77,65 @@ const CreateScreen = () => {
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
         if (permissionResult.granted === false) {
-          alert('Permission to access camera roll is required!');
-          return;
+            alert('Permission to access camera roll is required!');
+            return;
         }
-    
+
         let pickerResult = await ImagePicker.launchImageLibraryAsync();
         if (pickerResult.cancelled === true) {
-          return;
+            return;
         }
-    
+
         setSelectedImage({ localUri: pickerResult.uri });
     };
 
     async function uploadImageAsync(uri) {
-        const blob = await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                resolve(xhr.response);
-            };
-            xhr.onerror = function (e) {
-                console.log(e);
-                reject(new TypeError("Network request failed"));
-            };
-            xhr.responseType = "blob";
-            xhr.open("GET", uri, true);
-            xhr.send(null);
-        });
-      
-        const fileRef = ref(storage, 'event-images/' + uuid.v4());
-        await uploadBytes(fileRef, blob);
-        blob.close();
-        return await getDownloadURL(fileRef);
+        try {
+            const blob = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    resolve(xhr.response);
+                };
+                xhr.onerror = function (e) {
+                    console.log(e);
+                    reject(new TypeError("Network request failed"));
+                };
+                xhr.responseType = "blob";
+                xhr.open("GET", uri, true);
+                xhr.send(null);
+            });
+
+            const fileRef = ref(storage, 'event-images/' + uuid.v4());
+            await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
+            await uploadBytes(fileRef, blob);
+            blob.close();
+            return await getDownloadURL(fileRef);
+        } catch (error) {
+            console.log(error);
+        }
     }
       
 
     const dateChange = (event, newDate) => {
-        setEndTime(newDate);
-        setStartTime(newDate);
         setDate(newDate);
     }
 
-    const setDay = (check, newTime) => {
-        let day = date.getDate();
-        newTime.setDate(day);
-
-        check ? setEndTime(newTime) : setStartTime(newTime);
-    }
-
     const startTimeChange = (event, newTime) => {
-        setDay(0, newTime);
+        newTime.setFullYear(date.getFullYear());
+        newTime.setMonth(date.getMonth());
+        newTime.setDate(date.getDate());
+
+        setStartTime(newTime);
     }
 
     const endTimeChange = (event, newTime) => {
-        setDay(1, newTime);
+        newTime.setFullYear(date.getFullYear());
+        newTime.setMonth(date.getMonth());
+        newTime.setDate(date.getDate());
+
+        setEndTime(newTime);
     }
 
     const addEvent = async () => {
@@ -138,29 +145,22 @@ const CreateScreen = () => {
             // ********************************************************
 
             Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-            var location;
-            var address;
-            await Geocoder.from(eventLocation)
-                .then(json => {
-                    location = json.results[0].geometry.location;
-                    address = json.results[0].formatted_address;
-                })
-                .catch(error => console.log(error.origin));
+            const json = await Geocoder.from(eventLocation);
+            const location = json.results[0].geometry.location;
+            const address = json.results[0].formatted_address;
             
-            let eventRef;
             const userRef = doc(db, 'users', auth.currentUser.uid);
 
             // Initialize eventdatas
             const eventData = {
                 name: eventName,
                 description: eventDescription,
-                total: attendeeLimit,
+                attendeeLimit: attendeeLimit,
                 location: eventLocation,
                 eventDate: date,
                 startTime: startTime,
                 endTime: endTime,
-                //image: imageURL,
-                geoLocation: Geohash.encode(eventCoord.latitude, eventCoord.longitude, [3]),
+                geoLocation: Geohash.encode(location.lat, location.lng, [3]),
                 attendees: [userRef],
                 host: auth.currentUser.uid,
                 attendeeTokens: [],
@@ -168,29 +168,22 @@ const CreateScreen = () => {
                 lon: location.lng,
                 address: address,
             }
-
-            const imageUri = selectedImage.localUri
-
+            
             // Push to firebase Database
-            await addDoc(collection(db, "events"), eventData)
-                .then((ref) => {
-                    resetFields();
-                    eventRef = ref;
+            const eventRef = await addDoc(collection(db, "events"), eventData);
+            const downloadURL = await uploadImageAsync(selectedImage.localUri);
 
-                    updateDoc(userRef, {
-                        hosting: arrayUnion(eventRef),
-                        attending: arrayUnion(eventRef),
-                    });
-                })
-                .then(() => {
-                    return uploadImageAsync(imageUri)
-                })
-                .then((downloadURL) => {
-                    return updateDoc(eventRef, {
-                        hostToken: pushToken,
-                        image: downloadURL
-                    });
-                })
+            await updateDoc(userRef, {
+                hosting: arrayUnion(eventRef),
+                attending: arrayUnion(eventRef),
+            });
+
+            await updateDoc(eventRef, {
+                hostToken: pushToken,
+                image: downloadURL
+            });
+
+            resetFields();
 
         } catch (error) {
             console.log(error);
@@ -204,33 +197,6 @@ const CreateScreen = () => {
         setEventLocation('');
         setSelectedImage(null);
     }
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    return;
-                }
-
-                let userLocation = await Location.getLastKnownPositionAsync();
-                // alert(userLocation);
-                let userLocations = [];
-                let userCoords = userLocation.coords;
-                setEventCoord(userCoords);
-
-
-
-                userLocations.push({ longitude: JSON.stringify(userCoords.longitude), latitude: JSON.stringify(userCoords.latitude) });
-                //alert("User's Location is " + JSON.stringify(location[0]));
-                // setEventLocation(JSON.stringify(userLocations[0]))
-
-            }
-            catch (error) {
-                console.log("error " + error);
-            }
-        })();
-    }, []);
 
     return (
         <KeyboardAwareScrollView contentContainerStyle={createStyle.container}>
@@ -259,28 +225,28 @@ const CreateScreen = () => {
                 </View>
                 <View style={createStyle.dateBox}>
                     <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
-                    <RNDateTimePicker 
+                    <RNDateTimePicker
                         display="default"
-                        style={createStyle.datePicker} 
-                        value={date} 
+                        style={createStyle.datePicker}
+                        value={date}
                         onChange={dateChange}
                     />
                     <Text style={createStyle.datePickerText}>from</Text>
-                    <RNDateTimePicker 
+                    <RNDateTimePicker
                         value={startTime}
-                        style={createStyle.datePicker} 
-                        display="default" 
-                        mode="time" 
-                        onChange={startTimeChange} 
+                        style={createStyle.datePicker}
+                        display="default"
+                        mode="time"
+                        onChange={startTimeChange}
                         textColor='white'
                     />
                     <Text style={createStyle.datePickerText}>to</Text>
-                    <RNDateTimePicker 
-                        value={endTime} 
-                        style={createStyle.datePicker} 
+                    <RNDateTimePicker
+                        value={endTime}
+                        style={createStyle.datePicker}
                         display="default"
-                        mode="time" 
-                        onChange={endTimeChange} 
+                        mode="time"
+                        onChange={endTimeChange}
                     />
                 </View>
                 <View style={createStyle.inputItem}>
@@ -295,7 +261,7 @@ const CreateScreen = () => {
                     />
                 </View>
                 <View style={createStyle.inputItem}>
-                    <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />   
+                    <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
                     <TextInput
                         placeholder='Attendee Limit'
                         value={attendeeLimit}
