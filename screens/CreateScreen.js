@@ -30,7 +30,6 @@ const CreateScreen = () => {
     const [endTime, setEndTime] = useState(new Date());
     const [pushToken, setPushToken] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
-    //const [eventCoord, setEventCoord] = useState("");
 
     useEffect(() => {
         registerForPushNotificationsAsync();

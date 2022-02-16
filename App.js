@@ -7,12 +7,15 @@
 import React from 'react';
 
 import { AuthenticatedUserProvider } from './utils/AuthenticatedUserProvider';
+import { LocationProvider } from './utils/LocationProvider';
 import RootNavigator from './navigation/RootNavigator';
 
 export default function App() {
     return (
         <AuthenticatedUserProvider>
-            <RootNavigator />
+            <LocationProvider>
+                <RootNavigator />
+            </LocationProvider>
         </AuthenticatedUserProvider>
     );
 }
