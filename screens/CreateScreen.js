@@ -1,6 +1,6 @@
 import { Text, View, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { auth, db } from '../firebase'
+import { auth, db, storage } from '../firebase'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Location from 'expo-location';
@@ -8,11 +8,13 @@ import * as ImagePicker from 'expo-image-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geocoder from 'react-native-geocoding';
 import { collection, addDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Geohash from 'latlon-geohash';
 import style from '../styles/style'
 import createStyle from '../styles/createStyle';
+import uuid from "uuid";
 
 const today = new Date();
 
@@ -29,7 +31,6 @@ const CreateScreen = () => {
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [pushToken, setPushToken] = useState('');
-    const [imageURL, setImageURL] = useState("gs://event-hub-29d5a.appspot.com/IMG_7486.jpg"); // Default Value
     const [selectedImage, setSelectedImage] = useState(null);
     const [eventCoord, setEventCoord] = useState("");
 
@@ -85,7 +86,29 @@ const CreateScreen = () => {
         }
     
         setSelectedImage({ localUri: pickerResult.uri });
-      };
+    };
+
+    async function uploadImageAsync(uri) {
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+      
+        const fileRef = ref(storage, 'event-images/' + uuid.v4());
+        await uploadBytes(fileRef, blob);
+        blob.close();
+        return await getDownloadURL(fileRef);
+    }
+      
 
     const dateChange = (event, newDate) => {
         setEndTime(newDate);
@@ -124,8 +147,7 @@ const CreateScreen = () => {
                 })
                 .catch(error => console.log(error.origin));
             
-            alert(address);
-
+            let eventRef;
             const userRef = doc(db, 'users', auth.currentUser.uid);
 
             // Initialize eventdatas
@@ -137,7 +159,7 @@ const CreateScreen = () => {
                 eventDate: date,
                 startTime: startTime,
                 endTime: endTime,
-                image: imageURL,
+                //image: imageURL,
                 geoLocation: Geohash.encode(eventCoord.latitude, eventCoord.longitude, [3]),
                 attendees: [userRef],
                 host: auth.currentUser.uid,
@@ -147,21 +169,31 @@ const CreateScreen = () => {
                 address: address,
             }
 
+            const imageUri = selectedImage.localUri
+
             // Push to firebase Database
             await addDoc(collection(db, "events"), eventData)
-                .then((eventRef) => {
+                .then((ref) => {
+                    resetFields();
+                    eventRef = ref;
+
                     updateDoc(userRef, {
                         hosting: arrayUnion(eventRef),
                         attending: arrayUnion(eventRef),
                     });
-                    updateDoc(eventRef, {
-                        hostToken: pushToken
+                })
+                .then(() => {
+                    return uploadImageAsync(imageUri)
+                })
+                .then((downloadURL) => {
+                    return updateDoc(eventRef, {
+                        hostToken: pushToken,
+                        image: downloadURL
                     });
                 })
-                .then(resetFields);
 
         } catch (error) {
-            alert(error);
+            console.log(error);
         }
     }
 
@@ -169,6 +201,8 @@ const CreateScreen = () => {
         setEventName('');
         setEventDescription('');
         setAttendeeLimit('');
+        setEventLocation('');
+        setSelectedImage(null);
     }
 
     useEffect(() => {
@@ -193,7 +227,7 @@ const CreateScreen = () => {
 
             }
             catch (error) {
-                alert("error " + error);
+                console.log("error " + error);
             }
         })();
     }, []);

@@ -14,6 +14,7 @@ const createStyle = StyleSheet.create({
         marginBottom: 30
     },
     titleInput: {
+        flex: 1,
         fontSize: 20,
         fontWeight: 'bold',
         paddingLeft: 30,
