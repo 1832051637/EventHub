@@ -7,9 +7,9 @@ import SignOutButton from '../components/SignOutButton';
 //import HomeStack from './HomeStack';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import MyEventsScreen from '../screens/MyEventsScreen';
 import MapScreen from '../screens/MapScreen';
 import FeedScreen from '../screens/FeedScreen';
+import MyEventsScreen from '../screens/MyEventsScreen';
 
 const Tab = createBottomTabNavigator();
 
