@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, KeyboardAvoidingView, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Device from 'expo-device';
-import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, orderBy, query, where, deleteDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
@@ -12,57 +11,30 @@ import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
-import Geohash from 'latlon-geohash';
-
+import { LocationContext } from '../utils/LocationProvider';
 
 const FeedScreen = () => {
     const [data, setData] = useState([]);
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
-    const [location, setLocation] = useState([]);
-    const [myGeo, setMyGeo] = useState(null); // Geo is short for a geohash (a string used to represent a position based on lat and long)
+    const { myGeo } = useContext(LocationContext);
     const [pushToken, setPushToken] = useState('');
     const [eventDeleted, setEventDeleted] = useState(false);
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        (async () => {
-            try {
-                let userLocations = [];
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
-                } else {
-                    let userLocation = await Location.getLastKnownPositionAsync();
-                    let userCoords = userLocation.coords;
-                    userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
-                    setLocation(userLocations[0]);
-                    let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
-                    setMyGeo(geoLoc);
-                }
-            }
-            catch (error) {
-                console.log("error " + error);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db, "events");
+        //let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
         let eventQuery;
         setEventDeleted(false);
 
         eventQuery = viewEvents;
-        /*
-        if (!myGeo) {
-            eventQuery = viewEvents;
-        } else {
+
+        if (myGeo) {
             eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
         }
-        */
-        
 
         getDocs(eventQuery).then(docs => {
             const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -72,9 +44,9 @@ const FeedScreen = () => {
             docs.forEach((doc) => {
                 let docData = doc.data();
                 
-                if (new Date() > new Date(docData.endTime.seconds * 1000)) {
-                    return;
-                }
+                //if (auth.currentUser.uid === docData.host) return;
+                if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
+                if (docData.attendees.length >= docData.attendeeLimit) return;
                 
 
                 const gsReference = ref(storage, docData.image);
@@ -102,10 +74,7 @@ const FeedScreen = () => {
                 let eventDescription = event.description.toLowerCase()
 
                 if (searchPhrase === '' || eventName.includes(searchPhraseLower) ||
-                    eventDescription.includes(searchPhraseLower)) {
-
-                    // console.log("Event name: " + event.name);
-                    // console.log("Description: " + event.description);
+                                eventDescription.includes(searchPhraseLower)) {
                     events.push(new Promise((resolve, reject) => {
                         getDownloadURL(gsReference)
                             .then((url) => {

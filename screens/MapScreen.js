@@ -1,46 +1,22 @@
 import { Text, SafeAreaView, } from 'react-native';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
 import { MAP_KEY } from '../utils/API_KEYS';
-import * as Location from 'expo-location';
+import { LocationContext } from '../utils/LocationProvider';
 
 const MapScreen = ({ route }) => {
     let API_KEY = MAP_KEY();
 
-    const [currLocation, setCurrLocation] = React.useState({
-        longitude: -122.0582,
-        latitude: 36.9881
-    });
+    const { location } = useContext(LocationContext);
+    const [currLocation, setCurrLocation] = useState(location);
     const [address, setAddress] = React.useState({
         streetAddress: "",
         city: "",
         stateZip: "",
         // fullAddress: ""
     });
-
-    React.useEffect(async () => {
-        await (async () => {
-            try {
-                let userLocations = [];
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setCurrLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
-                } else {
-                    let userLocation = await Location.getLastKnownPositionAsync();
-                    let userCoords = userLocation.coords;
-                    userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
-                    setCurrLocation(userLocations[0]);
-                }
-
-            }
-            catch (error) {
-                console.log("error " + error);
-            }
-        })();
-    }, []);
-
     const [fullAddress, setFullAddress] = React.useState("");
 
     const searchInitial = () => {
@@ -90,7 +66,7 @@ const MapScreen = ({ route }) => {
                     longitudeDelta: 0.0421,
                 }}
             >
-                <Marker coordinate={currLocation} //Probably should have a special marker for user
+                <Marker coordinate={location} //Probably should have a special marker for user
                     currLocationColor='red'
                     draggable={true}
                     onDragStart={(e) => {
