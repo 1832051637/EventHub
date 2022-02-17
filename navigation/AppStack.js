@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import AppTabs from './AppTabs';
 import EventScreen from '../screens/EventScreen';
-import EditEventScreen from '../screens/EditEventScreen'
+import EditEventScreen from '../screens/EditEventScreen';
 
 const Stack = createNativeStackNavigator();
 
-export default AuthStack = () => {
-    return (
+export default AppStack = () => {
+    return (  
         <Stack.Navigator>
             <Stack.Screen options={{ headerShown: false }} name="Main Tabs" component={AppTabs} />
             <Stack.Screen name="Event Details" component={EventScreen} />

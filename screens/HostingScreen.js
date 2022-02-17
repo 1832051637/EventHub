@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,16 +9,14 @@ import { getDownloadURL, ref } from 'firebase/storage';
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-
+import { UserInfoContext } from '../utils/UserInfoProvider';
 
 const HostingScreen = () => {
+    const { pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
-    const [pushToken, setPushToken] = useState('');
+    //const [pushToken, setPushToken] = useState('');
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
-
     const isFocused = useIsFocused()
     const [eventDeleted, setEventDeleted] = useState(false); 
 
@@ -67,44 +65,6 @@ const HostingScreen = () => {
             });  
         })
     }, [isFocused, eventDeleted, refresh]);
-
-    useEffect(() => {
-        registerForPushNotificationsAsync();
-    }, []);
-
-    const registerForPushNotificationsAsync = async () => {
-        console.log("Registering token");
-        if (Device.isDevice) {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
-                return;
-            }
-            const token = (await Notifications.getExpoPushTokenAsync()).data;
-            // console.log(token);
-            setPushToken(token);
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-            updateDoc(userRef, {
-                hostToken: token
-            });
-        } else {
-          alert('Must use physical device for Push Notifications');
-        }
-
-        if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-    };
 
     const attendEvent = (eventId, hostToken, eventName) => {
         const eventRef = doc(db, 'events', eventId);

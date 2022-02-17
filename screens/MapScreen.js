@@ -4,12 +4,12 @@ import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
 import { MAP_KEY } from '../utils/API_KEYS';
-import { LocationContext } from '../utils/LocationProvider';
+import { UserInfoContext } from '../utils/UserInfoProvider';
 
 const MapScreen = ({ route }) => {
     let API_KEY = MAP_KEY();
 
-    const { location } = useContext(LocationContext);
+    const { location } = useContext(UserInfoContext);
     const [currLocation, setCurrLocation] = useState(location);
     const [address, setAddress] = React.useState({
         streetAddress: "",
