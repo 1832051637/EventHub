@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, KeyboardAvoidingView, } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Device from 'expo-device';
@@ -317,7 +317,5 @@ const FeedScreen = () => {
         </SafeAreaView>
     );
 };
-
-
 
 export default FeedScreen;

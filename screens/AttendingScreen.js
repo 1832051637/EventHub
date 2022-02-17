@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Text, TouchableOpacity, View, FlatList, Image, Linking } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused } from '@react-navigation/native'
@@ -28,9 +28,7 @@ const AttendingScreen = () => {
             setEventDeleted(false);
             let events = [];
 
-            docSnap.data().attending.forEach(value => {
-                let eventRef = doc(db, 'events', value.id);
-                
+            docSnap.data().attending.forEach(eventRef => {     
                 getDoc(eventRef).then(ds => {
                     let docData = ds.data();
                     
@@ -270,16 +268,18 @@ const AttendingScreen = () => {
     
     // MyEvent screen GUI
     return (
-        <View style={style.container}>
-            <FlatList style={feedStyle.feed}
+        <SafeAreaView style={style.container}>
+            <FlatList 
+                style={feedStyle.feed}
                 data={data}
                 renderItem={EventCard}
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
+                ListFooterComponent={() => (<View style={feedStyle.footer} />)}
                 refreshing = {refresh}
                 onRefresh = {() => setRefresh(true)}
             />
-        </View> 
+        </SafeAreaView>
     );
 };
 

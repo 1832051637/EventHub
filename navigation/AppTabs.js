@@ -1,21 +1,16 @@
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-
 import SignOutButton from '../components/SignOutButton';
-//import HomeStack from './HomeStack';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import MapScreen from '../screens/MapScreen';
 import FeedScreen from '../screens/FeedScreen';
-import MyEventsScreen from '../screens/MyEventsScreen';
+import MyEventsTabs from './MyEventsTabs';
 
 const Tab = createBottomTabNavigator();
 
 AppTabs = () => {
-    const navigation = useNavigation();
-
     return (
         <Tab.Navigator
         screenOptions={{
@@ -41,7 +36,7 @@ AppTabs = () => {
             <MaterialCommunityIcons name="plus-box-outline" color={color} size={size} />
             ),
         }} />
-        <Tab.Screen name="My Events" component={MyEventsScreen} options={{
+        <Tab.Screen name="My Events" component={MyEventsTabs} options={{
             tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),

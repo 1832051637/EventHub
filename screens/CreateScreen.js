@@ -16,10 +16,6 @@ import createStyle from '../styles/createStyle';
 import uuid from "uuid";
 
 const CreateScreen = () => {
-
-    // Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-    // Location.setGoogleApiKey('AIzaSyA3wSOhQpvy9yDpb0cZXLidft2dNL-4LQ8');
-
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
     const [attendeeLimit, setAttendeeLimit] = useState('');
@@ -106,7 +102,7 @@ const CreateScreen = () => {
             });
 
             const fileRef = ref(storage, 'event-images/' + uuid.v4());
-            //await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
+            await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
             await uploadBytes(fileRef, blob);
             blob.close();
             return await getDownloadURL(fileRef);
