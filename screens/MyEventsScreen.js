@@ -34,9 +34,8 @@ const MyEventsScreen = () => {
                 getDoc(eventRef).then(ds => {
                     let docData = ds.data();
                     
-                    if (new Date() > new Date(docData.endTime.seconds * 1000)) {
-                        return;
-                    }
+                    if (!docData) return;
+                    if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
                     
     
                     const gsReference = ref(storage, docData.image);

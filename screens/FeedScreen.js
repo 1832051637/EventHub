@@ -26,7 +26,7 @@ const FeedScreen = () => {
     useEffect(() => {
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db, "events");
-        let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
+        //let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
         let eventQuery;
         setEventDeleted(false);
 
