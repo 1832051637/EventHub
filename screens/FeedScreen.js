@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Alert, Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
+import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { arrayUnion, arrayRemove, collection, getDocs, updateDoc, doc, query, where, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
 import SearchBar from "../components/SearchBar";
@@ -10,6 +10,7 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
+import { attendEvent, unattendEvent, deleteAlert } from '../utils/eventUtils';
 
 const FeedScreen = () => {
     const { myGeo, pushToken } = useContext(UserInfoContext);
@@ -61,6 +62,7 @@ const FeedScreen = () => {
                     address: docData.address,
                     eventGeo: docData.geoLocation,
                     host: docData.host,
+                    attendees: docData.attendees,
                     attendeeLimit: docData.attendeeLimit,
                     hostToken: docData.hostToken,
                     attendeeTokens: docData.attendeeTokens,
@@ -90,95 +92,6 @@ const FeedScreen = () => {
         });
     }, [searchPhrase, myGeo, eventDeleted, refresh])
 
-    const attendEvent = (eventId, hostToken, eventName) => {
-        const eventRef = doc(db, 'events', eventId);
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-
-        updateDoc(eventRef, {
-            attendees: arrayUnion(userRef),
-            attendeeTokens: arrayUnion(pushToken),
-        });
-
-        updateDoc(userRef, {
-            attending: arrayUnion(eventRef)
-        });
-
-        const newData = data.map(item => {
-            if (item.id === eventId) {
-                item.isAttending = true;
-                return item
-            }
-            return item;
-        });
-
-        sendNotifications(hostToken, eventName);
-        setData(newData);
-    }
-
-    const unattendEvent = (eventId) => {
-        const eventRef = doc(db, 'events', eventId);
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-
-        updateDoc(eventRef, {
-            attendees: arrayRemove(userRef),
-            attendeeTokens: arrayRemove(pushToken),
-        });
-
-        updateDoc(userRef, {
-            attending: arrayRemove(eventRef)
-        });
-
-        const newData = data.map(item => {
-            if (item.id === eventId) {
-                item.isAttending = false;
-                return item
-            }
-            return item;
-        })
-        setData(newData);
-    }
-
-    const deleteAlert = (itemID, itemName, attendeeTokens) => {
-        Alert.alert(
-            "Deleting \"" + itemName + "\"",
-            "Are You Sure?",
-            [
-                {
-                    text: "Cancel",
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel"
-                },
-                { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens) }
-            ]
-        )
-    };
-
-    //Deletes event and notifys guests
-    const deleteEvent = (itemID, tokens) => {
-        deleteDoc(doc(db, 'events', itemID))
-            .then(() => {
-                console.log("Event has been deleted");
-                if (tokens && tokens.length > 0) {
-                    let message = eventName + " has been cancelled by the host.";
-                    fetch("https://exp.host/--/api/v2/push/send", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            "to": tokens,
-                            "title": "Event Cancellation",
-                            "body": message
-                        }),
-                    }).then((response) => {
-                        console.log(response.status);
-                    });
-                }
-                setEventDeleted(true);
-            })
-            .catch(e => console.log('Error deleting event.', e))
-    };
-
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
         const displayTime = getTimeString(item.startTime) + ' - ' + getTimeString(item.endTime);
@@ -205,14 +118,16 @@ const FeedScreen = () => {
                             auth.currentUser.uid === item.host
                             ?
                             <TouchableOpacity
-                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens) }}
+                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setEventDeleted) }}
                             >
                                 <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
                             </TouchableOpacity>
                             :
                             <TouchableOpacity
                                 onPress={() => {
-                                    item.isAttending ? unattendEvent(item.id) : attendEvent(item.id, item.hostToken, item.name);
+                                    item.isAttending 
+                                    ? unattendEvent(item.id, pushToken, setData, data) 
+                                    : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
                                 }}
                             >
                                 {item.isAttending
@@ -234,24 +149,6 @@ const FeedScreen = () => {
                 </View>
             </TouchableOpacity>
         );
-    }
-
-    const sendNotifications = async (token, eventName) => {
-        let message = "Someone has joined your event: " + eventName + "!";
-
-        await fetch("https://exp.host/--/api/v2/push/send", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "to": token,
-                "title": "A New Attendee",
-                "body": message
-            }),
-        }).then((response) => {
-            console.log(response.status);
-        });
     }
 
     // Home screen GUI
