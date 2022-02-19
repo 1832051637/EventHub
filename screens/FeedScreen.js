@@ -2,15 +2,16 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { collection, getDocs, doc, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
-import { getDownloadURL, ref } from 'firebase/storage';
+import { ref } from 'firebase/storage';
 import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import { attendEvent, unattendEvent, deleteAlert } from '../utils/eventUtils';
+import LoadingView from '../components/LoadingView';
 
 const FeedScreen = () => {
     const { myGeo, pushToken } = useContext(UserInfoContext);
@@ -20,13 +21,15 @@ const FeedScreen = () => {
     const [eventDeleted, setEventDeleted] = useState(false);
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setEventDeleted(false);
+        
         let searchPhraseLower = searchPhrase.toLowerCase();
         let viewEvents = collection(db, "events");
         //let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
         let eventQuery;
-        setEventDeleted(false);
 
         eventQuery = viewEvents;
 
@@ -35,8 +38,6 @@ const FeedScreen = () => {
         }
 
         getDocs(eventQuery).then(docs => {
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-
             let events = [];
 
             docs.forEach((doc) => {
@@ -48,22 +49,18 @@ const FeedScreen = () => {
                 
 
                 const gsReference = ref(storage, docData.image);
-                let isAttending = docData.attendees.some((value) => { return value.id === userRef.id });
+                let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
                 let event = {
                     id: doc.id,
+                    image: docData.image,
                     name: docData.name,
                     description: docData.description,
                     startTime: new Date(docData.startTime.seconds * 1000),
                     endTime: new Date(docData.endTime.seconds * 1000),
-                    location: docData.location,
-                    lon: docData.lon,
-                    lat: docData.lat,
                     address: docData.address,
                     eventGeo: docData.geoLocation,
                     host: docData.host,
-                    attendees: docData.attendees,
-                    attendeeLimit: docData.attendeeLimit,
                     hostToken: docData.hostToken,
                     attendeeTokens: docData.attendeeTokens,
                     isAttending: isAttending,
@@ -74,22 +71,15 @@ const FeedScreen = () => {
 
                 if (searchPhrase === '' || eventName.includes(searchPhraseLower) ||
                                 eventDescription.includes(searchPhraseLower)) {
-                    events.push(new Promise((resolve, reject) => {
-                        getDownloadURL(gsReference)
-                            .then((url) => {
-                                event.image = url;
-                                resolve(event);
-                            })
-                            .catch(() => {
-                                resolve(event);
-                            });
-                    }));
+
+                   events.push(event);
                 }
             });
-            // May want to sort by distance or something
-            Promise.all(events).then((values) => setData(values.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1)));
+            
+            setData(events.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1));
+            setLoading(false);
             setRefresh(false);
-        });
+        })
     }, [searchPhrase, myGeo, eventDeleted, refresh])
 
     const EventCard = ({ item }) => {
@@ -100,7 +90,7 @@ const FeedScreen = () => {
             <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", item)
+                    navigation.push("Event Details", {eventID: item.id})
                 }}
             >
                 {feedStyle.image && <Image
@@ -126,8 +116,8 @@ const FeedScreen = () => {
                             <TouchableOpacity
                                 onPress={() => {
                                     item.isAttending 
-                                    ? unattendEvent(item.id, pushToken, setData, data) 
-                                    : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
+                                        ? unattendEvent(item.id, pushToken, setData, data) 
+                                        : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
                                 }}
                             >
                                 {item.isAttending
@@ -149,6 +139,10 @@ const FeedScreen = () => {
                 </View>
             </TouchableOpacity>
         );
+    }
+
+    if (loading) {
+        return (<LoadingView />)
     }
 
     // Home screen GUI

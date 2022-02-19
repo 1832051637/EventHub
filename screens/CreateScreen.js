@@ -13,6 +13,8 @@ import style from '../styles/style'
 import createStyle from '../styles/createStyle';
 import uuid from "uuid";
 import { UserInfoContext } from '../utils/UserInfoProvider';
+import { useNavigation } from '@react-navigation/native';
+import LoadingView from '../components/LoadingView';
 
 const CreateScreen = () => {
     const { pushToken } = useContext(UserInfoContext);
@@ -23,8 +25,9 @@ const CreateScreen = () => {
     const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
-    //const [pushToken, setPushToken] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
 
     useEffect(() => {
         startTimeChange(null, startTime);
@@ -47,7 +50,7 @@ const CreateScreen = () => {
         setSelectedImage({ localUri: pickerResult.uri });
     };
 
-    async function uploadImageAsync(uri) {
+    async function uploadImageAsync(uri, id) {
         try {
             const blob = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -63,7 +66,7 @@ const CreateScreen = () => {
                 xhr.send(null);
             });
 
-            const fileRef = ref(storage, 'event-images/' + uuid.v4());
+            const fileRef = ref(storage, 'event-images/' + id);
             await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
             await uploadBytes(fileRef, blob);
             blob.close();
@@ -95,6 +98,7 @@ const CreateScreen = () => {
     }
 
     const addEvent = async () => {
+        setLoading(true);
         try {
             // ********************************************************
             // Get the coord of event based on user entered address
@@ -106,9 +110,10 @@ const CreateScreen = () => {
             const address = json.results[0].formatted_address;
 
             let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
+            const imageID = uuid.v4();
 
             if (selectedImage !== null) {
-                downloadURL = await uploadImageAsync(selectedImage.localUri);
+                downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
             }
             
             const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -129,6 +134,7 @@ const CreateScreen = () => {
                 lat: location.lat,
                 lon: location.lng,
                 address: address,
+                imageID: imageID,
                 image: downloadURL
             }
             
@@ -141,10 +147,12 @@ const CreateScreen = () => {
             });
 
             resetFields();
+            navigation.push("Event Details", {eventID: eventRef.id});
 
         } catch (error) {
             console.log(error);
         }
+        setLoading(false);
     }
 
     const resetFields = () => {
@@ -153,6 +161,10 @@ const CreateScreen = () => {
         setAttendeeLimit('');
         setEventLocation('');
         setSelectedImage(null);
+    }
+
+    if (loading) {
+        return (<LoadingView />)
     }
 
     return (

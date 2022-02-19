@@ -1,50 +1,41 @@
 import { StyleSheet } from 'react-native';
 
 const eventStyle = StyleSheet.create({
-    container: {
-        flex: 1,
-        // display: "flex",
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    textContainer: {
-        flex: 5,
-        // justifyContent: 'space-between',
-        // backgroundColor: 'white',
-        // padding: 40,
-        width: '80%',
-        // borderRadius: 10
-
-    },
     title: {
         textAlign: 'center',
         fontSize: 28,
         fontWeight: 'bold',
+        paddingBottom: 15
+    },
+    mainContainer: {
+        flex: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        fontSize: 18,
+    },
+    description: {
+        fontSize: 18,
+    },
+    footerContainer: {
+        padding: 10
+    },
+    footerText: {
+        fontSize: 18,
+        marginBottom: 5
+    },
+    icon: {
+        fontWeight: 'bold'
     },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',
         borderBottomWidth: 1,
         marginVertical: 10,
-        width: '100%',
-        alignItems: 'center'
+        width: '90%',
+        alignSelf: 'center'
     },
     image: {
-        width: '90%',
-        minHeight: '20%',
-        maxHeight: '60%',
-        marginTop: '5%',
-        marginBottom: '3%',
-        resizeMode: 'cover',
-        borderRadius: 10,
-    },
-    category: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        // margin: '5%'
-    },
-    info: {
-        fontSize: 20,
-        // fontWeight: 'bold',
+        width: '100%',
+        height: 200,
     },
 });
 

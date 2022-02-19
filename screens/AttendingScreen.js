@@ -3,8 +3,7 @@ import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, } from 're
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getDoc, doc } from "firebase/firestore";
-import { db, storage, auth } from '../firebase';
-import { getDownloadURL, ref } from 'firebase/storage';
+import { db, auth } from '../firebase';
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
@@ -16,55 +15,46 @@ const AttendingScreen = () => {
     const [data, setData] = useState([]);
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
-    const [eventDeleted, setEventDeleted] = useState(false); 
+    const [eventDeleted, setEventDeleted] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useEffect(async () => {
+        setEventDeleted(false);
+        
         const userRef = doc(db, 'users', auth.currentUser.uid);
-        getDoc(userRef).then(docSnap => {
-            setEventDeleted(false);
-            let events = [];
+        let userData = (await getDoc(userRef)).data();
 
-            docSnap.data().attending.forEach(eventRef => {     
-                getDoc(eventRef).then(ds => {
-                    let docData = ds.data();
-                    
-                    if (!docData) return;
-                    if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
-                    
-    
-                    const gsReference = ref(storage, docData.image);
-                    let isAttending = docData.attendees.some((value) => {return value.id === userRef.id});
+        let events = await Promise.all(userData.attending.map(async (eventRef) => {
+            let eventData = (await getDoc(eventRef)).data();
 
-                    let event = {
-                        id: ds.id,
-                        name: docData.name,
-                        description: docData.description,
-                        startTime: new Date(docData.startTime.seconds * 1000),
-                        endTime: new Date(docData.endTime.seconds * 1000),
-                        location: docData.location,
-                        isAttending: isAttending,
-                        total: docData.total,
-                        hostToken: docData.hostToken,
-                        host: docData.host
-                    };
+            if (!eventData) return null;
+            if (new Date() > new Date(eventData.endTime.seconds * 1000)) return null;
 
-                    events.push(new Promise((resolve, reject) => {
-                        getDownloadURL(gsReference)
-                        .then((url) => {
-                            event.image = url;
+            let isAttending = eventData.attendees.some((value) => {return value.id === userRef.id});
 
-                            resolve(event);
-                        })
-                        .catch(() => {
-                            resolve(event);
-                        });
-                    }));
-                    Promise.all(events).then((values) => setData(values.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1)));
-                    setRefresh(false);
-                })  
-            });  
-        })
-    }, [ eventDeleted, refresh]);
+            return {
+                id: eventRef.id,
+                image: eventData.image,
+                name: eventData.name,
+                description: eventData.description,
+                startTime: new Date(eventData.startTime.seconds * 1000),
+                endTime: new Date(eventData.endTime.seconds * 1000),
+                address: eventData.address,
+                eventGeo: eventData.geoLocation,
+                host: eventData.host,
+                hostToken: eventData.hostToken,
+                attendeeTokens: eventData.attendeeTokens,
+                isAttending: isAttending,
+            };
+        }));
+
+        // Filter out null events
+        events = events.filter((event) => event);
+
+        setData(events.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1));
+        setLoading(false);
+        setRefresh(false);
+    }, [eventDeleted, refresh]);
     
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
@@ -74,7 +64,7 @@ const AttendingScreen = () => {
             <TouchableOpacity 
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", item)
+                    navigation.push("Event Details", {eventID: item.id})
                 }}
             >
                 {feedStyle.image && <Image
@@ -98,8 +88,8 @@ const AttendingScreen = () => {
                             <TouchableOpacity
                                 onPress={() => {
                                     item.isAttending 
-                                    ? unattendEvent(item.id, pushToken, setData, data) 
-                                    : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
+                                        ? unattendEvent(item.id, pushToken, setData, data) 
+                                        : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
                                 }}
                             >
                                 {item.isAttending
@@ -113,10 +103,18 @@ const AttendingScreen = () => {
                         <MaterialCommunityIcons name="clock-outline" size={16}/>
                         {' '}{displayDate} at {displayTime}
                     </Text> 
+                    {item.address && <Text style={feedStyle.location}>
+                            <MaterialCommunityIcons name="map-marker-outline" size={16} />
+                            {' '}{item.address}
+                     </Text>}
                     <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
             </TouchableOpacity>
         );
+    }
+
+    if (loading) {
+        return (<LoadingView />)
     }
     
     // MyEvent screen GUI
