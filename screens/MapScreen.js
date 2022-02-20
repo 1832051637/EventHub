@@ -4,7 +4,9 @@ import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
 import Geocoder from 'react-native-geocoding';
-
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db, storage, auth } from '../firebase';
+import { ref } from 'firebase/storage';
 import { MAP_KEY } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 
@@ -13,6 +15,7 @@ const MapScreen = ({ route }) => {
     let API_KEY = MAP_KEY();
 
     const { location } = useContext(UserInfoContext);
+    // const { myGeo, pushToken } = useContext(UserInfoContext);
     const [userLocation, setLocation] = useState(location);
     const [address, setAddress] = React.useState({
         streetAddress: "",
@@ -20,9 +23,11 @@ const MapScreen = ({ route }) => {
         stateZip: "",
         fullAddress: ""
     });
-
     const [locationText, setLocationText] = useState("");
-    // const [fullAddress, setFullAddress] = React.useState("");
+    const [eventsArray, setEventsArray] = useState([]);
+    const [searchRadius, setRadius] = useState(2000);
+    const userColor = 'red';
+    const eventColor = '#ffe01a';
 
     const searchInitial = () => {
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
@@ -55,12 +60,9 @@ const MapScreen = ({ route }) => {
 
     React.useEffect(() => {
         searchInitial();
+        loadEvents();
     }, [userLocation])
 
-    const searchAddress = () => {
-        console.log("Sanity check");
-        console.log(address.fullAddress);
-    }
 
     // ********************************************************
     // Reset the marker based on user entered location
@@ -94,6 +96,57 @@ const MapScreen = ({ route }) => {
             console.log(error);
         }
     }
+
+    // ********************************************************
+    // LoadEvents from firebase
+    // ********************************************************
+    const loadEvents = () => {
+        // View events collection from firebase
+        let viewEvents = collection(db, "events");
+        let eventQuery;
+
+        eventQuery = viewEvents;
+
+        // if (myGeo) {
+        //     eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        // }
+        getDocs(eventQuery).then(docs => {
+            let events = [];
+            docs.forEach((doc) => {
+                let docData = doc.data();
+
+                // Only display valid events
+                if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
+                if (docData.attendees.length >= docData.attendeeLimit) return;
+                if (!docData.lat || !docData.lon) return;
+
+                // const gsReference = ref(storage, docData.image);
+                let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+
+                let event = {
+                    id: doc.id,
+                    // image: docData.image,
+                    name: docData.name,
+                    description: docData.description,
+                    startTime: new Date(docData.startTime.seconds * 1000),
+                    endTime: new Date(docData.endTime.seconds * 1000),
+                    address: docData.address,
+                    lat: docData.lat,
+                    lon: docData.lon,
+                    eventGeo: docData.geoLocation,
+                    host: docData.host,
+                    hostToken: docData.hostToken,
+                    attendeeTokens: docData.attendeeTokens,
+                    isAttending: isAttending,
+                };
+                events.push(event);
+            });
+            setEventsArray(events.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1));
+
+        })
+    }
+
+
     return (
         <SafeAreaView style={mapStyle.container}>
             <View style={mapStyle.searchContainer}>
@@ -120,20 +173,42 @@ const MapScreen = ({ route }) => {
                     longitudeDelta: 0.0421,
                 }}
             >
-                <Marker coordinate={userLocation} //Probably should have a special marker for user
-                    userLocationColor='red'
+                { // Display loaded events from firebase
+                    eventsArray[0] != null && eventsArray.map((marker, index) => (
+                        <Marker
+
+                            key={index}
+                            coordinate={{
+                                latitude: marker.lat,
+                                longitude: marker.lon
+                            }}
+                            pinColor={eventColor}
+                            title={marker.name}
+                        >
+                            <Callout>
+                                <View style={mapStyle.callOutContainer}>
+                                    <Text>{marker.name}</Text>
+                                </View>
+                            </Callout>
+                        </Marker>
+                    ))
+                }
+
+                {/* User Marker */}
+                <Marker coordinate={userLocation}
+                    pinColor={userColor}
                 >
                     <Callout>
                         <View style={mapStyle.callOutContainer}>
-                            <Text>Some random person is at {address.fullAddress}</Text>
+                            <Text>You are here: {address.fullAddress}</Text>
                         </View>
                     </Callout>
                 </Marker>
-
                 <Circle center={userLocation}
                     // Draw a circle around the marked location
-                    radius={2000}
+                    radius={searchRadius}
                 ></Circle>
+
             </MapView>
         </SafeAreaView>
     );

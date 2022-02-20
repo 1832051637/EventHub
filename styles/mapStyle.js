@@ -9,9 +9,9 @@ const mapStyle = StyleSheet.create({
         paddingBottom: 100
     },
     searchContainer: {
-        borderWidth: 2,
-        borderRadius: 10,
-        backgroundColor: 'white',
+        // borderWidth: 2,
+        // borderRadius: 10,
+        // backgroundColor: 'white',
         marginTop: 5,
         flexDirection: 'row',
         width: "95%",
@@ -25,11 +25,10 @@ const mapStyle = StyleSheet.create({
     },
     input: {
         paddingHorizontal: 15,
-        paddingVertical: 10,
+        paddingVertical: 12,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
-        // marginHorizontal: '5%',
         marginRight: '2%',
         width: '80%'
     },
