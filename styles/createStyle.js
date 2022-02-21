@@ -73,6 +73,16 @@ const createStyle = StyleSheet.create({
         width: (Dimensions.get('window').width / 2),
         height: 100,
         borderRadius: 5,
+    },
+    deleteButton: {
+        //marginTop: 'auto',
+        padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    deleteButtonText: {
+        color: 'rgb(200, 0, 0)',
+        fontSize: 18
     }
 });
 

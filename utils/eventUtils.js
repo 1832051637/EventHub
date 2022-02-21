@@ -3,7 +3,7 @@ import { arrayUnion, arrayRemove, updateDoc, doc, deleteDoc, getDoc } from "fire
 import { db, storage, auth } from '../firebase';
 import { deleteObject, ref } from 'firebase/storage';
 
-const deleteAlert = (itemID, itemName, attendeeTokens, setRefresh) => {
+const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
     Alert.alert(
         "Deleting \"" + itemName + "\"",
         "Are You Sure?",
@@ -13,7 +13,7 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setRefresh) => {
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel"
             },
-            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setRefresh) }
+            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setEventDeleted) }
         ]
     )
 };
@@ -105,7 +105,7 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
 }
 
 //Deletes event and notifys guests
-const deleteEvent = async (itemID, tokens, setRefresh) => {
+const deleteEvent = async (itemID, tokens, setEventDeleted) => {
     try {
         let eventRef = doc(db, 'events', itemID);
         let ds = await getDoc(eventRef);
@@ -137,7 +137,7 @@ const deleteEvent = async (itemID, tokens, setRefresh) => {
             console.log(response.status);
         }
 
-        setRefresh(true);
+        setEventDeleted(true);
         
     } catch (error) {
         console.log('Error deleting event.', error);

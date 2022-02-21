@@ -3,15 +3,15 @@ import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
-import { db, storage, auth } from '../firebase';
-import { ref } from 'firebase/storage';
+import { db, auth } from '../firebase';
 import SearchBar from "../components/SearchBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
-import { attendEvent, unattendEvent, deleteAlert } from '../utils/eventUtils';
+import { attendEvent, unattendEvent } from '../utils/eventUtils';
 import LoadingView from '../components/LoadingView';
+import { useIsFocused } from '@react-navigation/native';
 
 const FeedScreen = () => {
     const navigation = useNavigation();
@@ -24,6 +24,7 @@ const FeedScreen = () => {
     const [loading, setLoading] = useState(true);
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
+    const isFocused = useIsFocused();
 
     useEffect(async () => {
         if (searchPhrase === '') {
@@ -37,10 +38,15 @@ const FeedScreen = () => {
         setRefresh(false);
     }, [searchPhrase, myGeo, refresh])
 
+    useEffect(async () => {
+        setRefresh(true);
+    }, [isFocused])
+
     const loadMore = async () => {
         let allEvents = collection(db, "events");
         let events = [];
         let geo = myGeo ? myGeo : defaultGeo;
+        //let geo = defaultGeo;
         let eventQuery;
         let replaceData = false;
         
@@ -169,9 +175,11 @@ const FeedScreen = () => {
                             auth.currentUser.uid === item.host
                             ?
                             <TouchableOpacity
-                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setRefresh) }}
+                                onPress={() => { 
+                                    navigation.push("Edit Event", {eventID: item.id}) 
+                                }}
                             >
-                                <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
+                                <MaterialCommunityIcons name="pencil" size={26} color='rgb(100, 100, 100)' />
                             </TouchableOpacity>
                             :
                             <TouchableOpacity

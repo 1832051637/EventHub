@@ -12,14 +12,11 @@ import Geohash from 'latlon-geohash';
 import style from '../styles/style'
 import createStyle from '../styles/createStyle';
 import uuid from "uuid";
-import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
-import { sendUpdateNotifications } from '../utils/eventUtils';
+import { sendUpdateNotifications, deleteAlert } from '../utils/eventUtils';
 
 const EditEventScreen = ( {route, navigation} ) => {
-
-    const { pushToken } = useContext(UserInfoContext);
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
     const [attendeeLimit, setAttendeeLimit] = useState('');
@@ -36,10 +33,11 @@ const EditEventScreen = ( {route, navigation} ) => {
     const [originalImageID, setOriginalImageID] = useState(null);
     const [loading, setLoading] = useState(false);
     const [update, setUpdate] = useState(false);
+    const [eventDeleted, setEventDeleted] = useState(false);
     const {setOptions} = useNavigation();
+    const eventID = route.params.eventID;
 
     useEffect(async () => {
-        const eventID = route.params.eventID;
         console.log("Event: " + eventID); //Helps you find the event in database
         try {
             const eventRef = doc(db, 'events', eventID);
@@ -75,6 +73,12 @@ const EditEventScreen = ( {route, navigation} ) => {
         startTimeChange(null, startTime);
         endTimeChange(null, endTime);
     }, [date]);
+
+    useEffect(() => {
+        if (eventDeleted) {
+            navigation.popToTop();
+        }
+    }, [eventDeleted])
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -185,7 +189,7 @@ const EditEventScreen = ( {route, navigation} ) => {
                     eventData.image = downloadURL;
                 }
                 //Deletes the original image
-                if (changedOriginalImage) {
+                if (changedOriginalImage && originalImageID) {
                     console.log("Deleting original image");
                     let imageRef = ref(storage, 'event-images/' + originalImageID);
                     await deleteObject(imageRef);
@@ -299,6 +303,13 @@ const EditEventScreen = ( {route, navigation} ) => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <TouchableOpacity
+                onPress={() => { deleteAlert(eventID, eventName, attendeeTokens, setEventDeleted) }}
+                style={createStyle.deleteButton}
+            >
+                <MaterialCommunityIcons name="delete" size={20} color='rgb(200, 0, 0)' />
+                <Text style={createStyle.deleteButtonText}> Delete Event</Text>
+            </TouchableOpacity>
         </KeyboardAwareScrollView >
     );
 };

@@ -8,7 +8,8 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
-import { attendEvent, unattendEvent, deleteAlert } from '../utils/eventUtils';
+import { attendEvent, unattendEvent } from '../utils/eventUtils';
+import { useIsFocused } from '@react-navigation/native';
 
 const HostingScreen = () => {
     const { pushToken } = useContext(UserInfoContext);
@@ -16,6 +17,7 @@ const HostingScreen = () => {
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
+    const isFocused = useIsFocused();
 
     useEffect(async () => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -51,7 +53,7 @@ const HostingScreen = () => {
         setData(events.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1));
         setLoading(false);
         setRefresh(false);
-    }, [refresh]);
+    }, [isFocused, refresh]);
     
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
@@ -61,7 +63,7 @@ const HostingScreen = () => {
             <TouchableOpacity 
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", {eventID: item.id})
+                    navigation.push("Event Details", {eventID: item.id, host: item.host})
                 }}
             >
                 {feedStyle.image && <Image
@@ -76,11 +78,13 @@ const HostingScreen = () => {
                         <Text style={feedStyle.title}>{item.name}</Text>
                         {auth.currentUser.uid === item.host 
                         ?
-                            <TouchableOpacity
-                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setRefresh) }}
-                            >
-                                <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
-                            </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => { 
+                                navigation.push("Edit Event", {eventID: item.id}) 
+                            }}
+                        >
+                            <MaterialCommunityIcons name="pencil" size={26} color='rgb(100, 100, 100)' />
+                        </TouchableOpacity>
                         :
                             <TouchableOpacity
                                 onPress={() => {
