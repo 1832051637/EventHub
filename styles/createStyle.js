@@ -47,15 +47,25 @@ const createStyle = StyleSheet.create({
         borderBottomColor: 'grey',
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: "wrap"
+    },
+    datePickerStart: {
+        flexDirection: "row",
+        paddingBottom: 5,
+    },
+    datePickerEnd: {
+        flexDirection: "row",
+        marginLeft: 7,
     },
     datePicker: {
        backgroundColor: 'white',
+       paddingTop: 5,
        marginRight: 5,
-       width: 90
+       width: 90,
     },
     datePickerText: {
-        marginRight: 5,
+        marginTop: 10,
     },
     imageSelect: {
         borderBottomWidth: 1,

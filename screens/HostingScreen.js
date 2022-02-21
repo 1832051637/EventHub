@@ -61,7 +61,7 @@ const HostingScreen = () => {
             <TouchableOpacity 
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", {eventID: item.id})
+                    navigation.push("Event Details", {eventID: item.id, host: auth.currentUser.uid})
                 }}
             >
                 {feedStyle.image && <Image

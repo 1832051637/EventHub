@@ -22,7 +22,8 @@ const CreateScreen = () => {
     const [eventDescription, setEventDescription] = useState('');
     const [attendeeLimit, setAttendeeLimit] = useState('');
     const [eventLocation, setEventLocation] = useState('');
-    const [date, setDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [selectedImage, setSelectedImage] = useState(null);
@@ -31,8 +32,11 @@ const CreateScreen = () => {
 
     useEffect(() => {
         startTimeChange(null, startTime);
+    }, [startDate]);
+
+    useEffect(() => {
         endTimeChange(null, endTime);
-    }, [date]);
+    }, [endDate]);
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -77,22 +81,26 @@ const CreateScreen = () => {
     }
 
 
-    const dateChange = (event, newDate) => {
-        setDate(newDate);
+    const startDateChange = (event, newDate) => {
+        setStartDate(newDate);
+    }
+
+    const endDateChange = (event, newDate) => {
+        setEndDate(newDate);
     }
 
     const startTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(startDate.getFullYear());
+        newTime.setMonth(startDate.getMonth());
+        newTime.setDate(startDate.getDate());
 
         setStartTime(newTime);
     }
 
     const endTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(endDate.getFullYear());
+        newTime.setMonth(endDate.getMonth());
+        newTime.setDate(endDate.getDate());
 
         setEndTime(newTime);
     }
@@ -195,29 +203,41 @@ const CreateScreen = () => {
                 </View>
                 <View style={createStyle.dateBox}>
                     <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
-                    <RNDateTimePicker
-                        display="default"
-                        style={createStyle.datePicker}
-                        value={date}
-                        onChange={dateChange}
-                    />
-                    <Text style={createStyle.datePickerText}>from</Text>
-                    <RNDateTimePicker
-                        value={startTime}
-                        style={createStyle.datePicker}
-                        display="default"
-                        mode="time"
-                        onChange={startTimeChange}
-                        textColor='white'
-                    />
-                    <Text style={createStyle.datePickerText}>to</Text>
-                    <RNDateTimePicker
-                        value={endTime}
-                        style={createStyle.datePicker}
-                        display="default"
-                        mode="time"
-                        onChange={endTimeChange}
-                    />
+                    <View style={createStyle.datePickerStart}>
+                        <RNDateTimePicker
+                            display="default"
+                            style={createStyle.datePicker}
+                            minimumDate={new Date()}
+                            value={startDate}
+                            onChange={startDateChange}
+                        />
+                        
+                        <RNDateTimePicker
+                            value={startTime}
+                            style={createStyle.datePicker}
+                            display="default"
+                            mode="time"
+                            onChange={startTimeChange}
+                            textColor='white'
+                        />
+                    </View>
+                    <View style={createStyle.datePickerEnd}>
+                        <Text style={createStyle.datePickerText}>to</Text>
+                        <RNDateTimePicker
+                            display="default"
+                            style={createStyle.datePicker}
+                            minimumDate={startDate}
+                            value={endDate}
+                            onChange={endDateChange}
+                        />
+                        <RNDateTimePicker
+                            value={endTime}
+                            style={createStyle.datePicker}
+                            display="default"
+                            mode="time"
+                            onChange={endTimeChange}
+                        />
+                    </View>
                 </View>
                 <View style={createStyle.inputItem}>
                     <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
