@@ -75,7 +75,7 @@ const CreateScreen = () => {
             console.log(error);
         }
     }
-      
+
 
     const dateChange = (event, newDate) => {
         setDate(newDate);
@@ -100,22 +100,23 @@ const CreateScreen = () => {
     const addEvent = async () => {
         setLoading(true);
         try {
+
             // ********************************************************
             // Get the coord of event based on user entered address
             // ********************************************************
-
             Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
             const json = await Geocoder.from(eventLocation);
             const location = json.results[0].geometry.location;
             const address = json.results[0].formatted_address;
 
-            let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
-            const imageID = uuid.v4();
+            let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
+            let imageID = '';
 
             if (selectedImage !== null) {
+                imageID = uuid.v4();
                 downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
             }
-            
+
             const userRef = doc(db, 'users', auth.currentUser.uid);
 
             // Initialize eventdatas
@@ -137,7 +138,7 @@ const CreateScreen = () => {
                 imageID: imageID,
                 image: downloadURL
             }
-            
+
             // Push to firebase Database
             const eventRef = await addDoc(collection(db, "events"), eventData);
 
@@ -147,7 +148,7 @@ const CreateScreen = () => {
             });
 
             resetFields();
-            navigation.push("Event Details", {eventID: eventRef.id});
+            navigation.push("Event Details", { eventID: eventRef.id });
 
         } catch (error) {
             console.log(error);

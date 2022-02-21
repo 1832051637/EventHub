@@ -3,7 +3,7 @@ import { arrayUnion, arrayRemove, updateDoc, doc, deleteDoc, getDoc } from "fire
 import { db, storage, auth } from '../firebase';
 import { deleteObject, ref } from 'firebase/storage';
 
-const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
+const deleteAlert = (itemID, itemName, attendeeTokens, setRefresh) => {
     Alert.alert(
         "Deleting \"" + itemName + "\"",
         "Are You Sure?",
@@ -13,7 +13,7 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel"
             },
-            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setEventDeleted) }
+            { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setRefresh) }
         ]
     )
 };
@@ -103,14 +103,17 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
 }
 
 //Deletes event and notifys guests
-const deleteEvent = async (itemID, tokens, setEventDeleted) => {
+const deleteEvent = async (itemID, tokens, setRefresh) => {
     try {
         let eventRef = doc(db, 'events', itemID);
         let ds = await getDoc(eventRef);
         let imageID = ds.data().imageID;
-        let imageRef = ref(storage, 'event-images/' + imageID);
 
-        await deleteObject(imageRef);
+        if (imageID) {
+            let imageRef = ref(storage, 'event-images/' + imageID);
+            await deleteObject(imageRef);
+        }
+        
         await deleteDoc(eventRef);
 
         console.log("Event has been deleted");
@@ -132,7 +135,7 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
             console.log(response.status);
         }
 
-        setEventDeleted(true);
+        setRefresh(true);
         
     } catch (error) {
         console.log('Error deleting event.', error);

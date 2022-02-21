@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { ref } from 'firebase/storage';
 import SearchBar from "../components/SearchBar";
@@ -14,73 +14,134 @@ import { attendEvent, unattendEvent, deleteAlert } from '../utils/eventUtils';
 import LoadingView from '../components/LoadingView';
 
 const FeedScreen = () => {
+    const navigation = useNavigation();
     const { myGeo, pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
+    const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
-    const [eventDeleted, setEventDeleted] = useState(false);
-    const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
+    const defaultGeo = '9q9';
+    const eventsToLoad = 3;
 
-    useEffect(() => {
-        setEventDeleted(false);
-        
-        let searchPhraseLower = searchPhrase.toLowerCase();
-        let viewEvents = collection(db, "events");
-        //let hostedEvents = query(viewEvents, where("host", "==", auth.currentUser.uid));
-        let eventQuery;
+    useEffect(async () => {
+        if (searchPhrase === '') {
+            await loadMore();
 
-        eventQuery = viewEvents;
-
-        if (myGeo) {
-            eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
+        } else {
+            await searchEvents();
         }
 
-        getDocs(eventQuery).then(docs => {
-            let events = [];
+        setLoading(false);
+        setRefresh(false);
+    }, [searchPhrase, myGeo, refresh])
 
-            docs.forEach((doc) => {
-                let docData = doc.data();
-                
-                //if (auth.currentUser.uid === docData.host) return;
-                if (new Date() > new Date(docData.endTime.seconds * 1000)) return;
-                if (docData.attendees.length >= docData.attendeeLimit) return;
-                
-
-                const gsReference = ref(storage, docData.image);
-                let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
-
-                let event = {
-                    id: doc.id,
-                    image: docData.image,
-                    name: docData.name,
-                    description: docData.description,
-                    startTime: new Date(docData.startTime.seconds * 1000),
-                    endTime: new Date(docData.endTime.seconds * 1000),
-                    address: docData.address,
-                    eventGeo: docData.geoLocation,
-                    host: docData.host,
-                    hostToken: docData.hostToken,
-                    attendeeTokens: docData.attendeeTokens,
-                    isAttending: isAttending,
-                };
-
-                let eventName = event.name.toLowerCase();
-                let eventDescription = event.description.toLowerCase()
-
-                if (searchPhrase === '' || eventName.includes(searchPhraseLower) ||
-                                eventDescription.includes(searchPhraseLower)) {
-
-                   events.push(event);
-                }
-            });
+    const loadMore = async () => {
+        let allEvents = collection(db, "events");
+        let events = [];
+        let geo = myGeo ? myGeo : defaultGeo;
+        let eventQuery;
+        let replaceData = false;
+        
+        if (refresh || !lastSnapshot) {
+            replaceData = true;
+            eventQuery = query(allEvents, 
+                where("endTime", ">=", new Date()), 
+                where("geoLocation", "==", geo),
+                orderBy("endTime"),
+                orderBy("startTime"),
+                limit(eventsToLoad));
             
-            setData(events.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1));
-            setLoading(false);
-            setRefresh(false);
-        })
-    }, [searchPhrase, myGeo, eventDeleted, refresh])
+        } else {
+            eventQuery = query(allEvents, 
+                where("endTime", ">=", new Date()), 
+                where("geoLocation", "==", geo),
+                orderBy("endTime"),
+                orderBy("startTime"),
+                startAfter(lastSnapshot),
+                limit(eventsToLoad));
+        }
+
+        let eventSnaps = await getDocs(eventQuery);
+
+        if (eventSnaps.docs.length === 0) return;
+
+        setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
+        
+        eventSnaps.forEach((eventSnap) => {
+            let eventData = eventSnap.data();
+
+            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+                let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+
+            events.push({
+                id: eventSnap.id,
+                image: eventData.image,
+                name: eventData.name,
+                description: eventData.description,
+                startTime: new Date(eventData.startTime.seconds * 1000),
+                endTime: new Date(eventData.endTime.seconds * 1000),
+                address: eventData.address,
+                eventGeo: eventData.geoLocation,
+                host: eventData.host,
+                hostToken: eventData.hostToken,
+                attendeeTokens: eventData.attendeeTokens,
+                isAttending: isAttending,
+            });
+        });
+
+        if (replaceData) {
+            setData(events);
+        } else {
+            setData([...data, ...events]);
+        }
+    };
+
+    const searchEvents = async () => {
+        setLastSnapshot(null);
+        let searchPhraseLower = searchPhrase.toLowerCase();
+        let allEvents = collection(db, "events");
+        let events = [];
+        let geo = myGeo ? myGeo : defaultGeo;
+        let searchEvents = query(allEvents, 
+            where("endTime", ">=", new Date()), 
+            where("geoLocation", "==", geo), 
+            orderBy("endTime"), 
+            orderBy("startTime"));
+
+        let eventSnaps = await getDocs(searchEvents);
+        
+        eventSnaps.forEach((eventSnap) => {
+            let eventData = eventSnap.data();
+
+            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+
+            let eventName = eventData.name.toLowerCase();
+            let eventDescription = eventData.description.toLowerCase();
+
+            if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower)) {
+                let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+
+                events.push({
+                    id: eventSnap.id,
+                    image: eventData.image,
+                    name: eventData.name,
+                    description: eventData.description,
+                    startTime: new Date(eventData.startTime.seconds * 1000),
+                    endTime: new Date(eventData.endTime.seconds * 1000),
+                    address: eventData.address,
+                    eventGeo: eventData.geoLocation,
+                    host: eventData.host,
+                    hostToken: eventData.hostToken,
+                    attendeeTokens: eventData.attendeeTokens,
+                    isAttending: isAttending,
+                });
+            }
+        });
+
+        setData(events);
+    }
 
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
@@ -108,7 +169,7 @@ const FeedScreen = () => {
                             auth.currentUser.uid === item.host
                             ?
                             <TouchableOpacity
-                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setEventDeleted) }}
+                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setRefresh) }}
                             >
                                 <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
                             </TouchableOpacity>
@@ -163,6 +224,12 @@ const FeedScreen = () => {
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
                 refreshing = {refresh}
                 onRefresh = {() => setRefresh(true)}
+                onEndReached = {() => {
+                    if (searchPhrase == '') {
+                        loadMore();
+                    }
+                }}
+                onEndReachedThreshold={0.1}
             />
         </SafeAreaView>
     );
