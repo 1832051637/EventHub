@@ -15,12 +15,9 @@ const AttendingScreen = () => {
     const [data, setData] = useState([]);
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
-    const [eventDeleted, setEventDeleted] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(async () => {
-        setEventDeleted(false);
-        
         const userRef = doc(db, 'users', auth.currentUser.uid);
         let userData = (await getDoc(userRef)).data();
 
@@ -54,7 +51,7 @@ const AttendingScreen = () => {
         setData(events.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1));
         setLoading(false);
         setRefresh(false);
-    }, [eventDeleted, refresh]);
+    }, [refresh]);
     
     const EventCard = ({ item }) => {
         const displayDate = getDateString(item.startTime, item.endTime);
@@ -80,7 +77,7 @@ const AttendingScreen = () => {
                         {auth.currentUser.uid === item.host 
                         ?
                             <TouchableOpacity
-                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setEventDeleted) }}
+                                onPress={() => { deleteAlert(item.id, item.name, item.attendeeTokens, setRefresh) }}
                             >
                                 <MaterialCommunityIcons name="delete" size={26} color='rgb(200, 0, 0)' />
                             </TouchableOpacity>
