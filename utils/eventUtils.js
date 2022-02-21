@@ -36,6 +36,24 @@ const sendNotifications = async (token, eventName) => {
     });
 }
 
+const sendUpdateNotifications = async (tokens, eventName) => {
+    let message =  "Log in to see the new details!";
+
+    await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "to": tokens,
+            "title": eventName + " has changed details",
+            "body": message
+        }),
+    }).then((response) => {
+        console.log(response.status);
+    });
+}
+
 const attendEvent = (eventId, hostToken, eventName, pushToken, setData, data) => {
     const eventRef = doc(db, 'events', eventId);
     const userRef = doc(db, 'users', auth.currentUser.uid);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, ScrollView, SafeAreaView } from 'react-native';
+import { Text, View, Image, ScrollView, SafeAreaView, Button } from 'react-native';
 import { getDoc, doc } from "firebase/firestore";
 import eventStyle from '../styles/eventStyle';
 import style from '../styles/style.js';
@@ -7,6 +7,7 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
+import { useNavigation } from '@react-navigation/native';
 
 function has_property(object, key) {
     return object ? hasOwnProperty.call(object, key) : false;
@@ -40,8 +41,8 @@ const EventScreen = ({ route, navigation }) => {
         setEvent(eventData);
         setDateString(getDateString(eventData.startTime, eventData.endTime));
         setTimeString(getTimeString(eventData.startTime) + ' - ' + getTimeString(eventData.endTime));
-        setLoading(false);
-    });
+        setLoading(false);        
+    }, []);
 
     if (loading) {
         return (<LoadingView />)
