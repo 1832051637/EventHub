@@ -18,6 +18,7 @@ import LoadingView from '../components/LoadingView';
 import { sendUpdateNotifications } from '../utils/eventUtils';
 
 const EditEventScreen = ( {route, navigation} ) => {
+
     const { pushToken } = useContext(UserInfoContext);
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
@@ -39,7 +40,7 @@ const EditEventScreen = ( {route, navigation} ) => {
 
     useEffect(async () => {
         const eventID = route.params.eventID;
-        console.log("Event: " + eventID);
+        console.log("Event: " + eventID); //Helps you find the event in database
         try {
             const eventRef = doc(db, 'events', eventID);
             const docData = (await getDoc(eventRef)).data();
@@ -193,7 +194,9 @@ const EditEventScreen = ( {route, navigation} ) => {
                 const eventRef = doc(db, 'events', route.params.eventID);
                 await updateDoc(eventRef, eventData);
                 // Comment the below out if you don't want others to get notifications of changes
-                await sendUpdateNotifications(attendeeTokens, eventName);
+                if (attendeeTokens.length > 0) {
+                    sendUpdateNotifications(attendeeTokens, eventName);
+                }
                 // Goes to refreshed details page
                 navigation.pop(2);
                 navigation.push("Event Details", {eventID: route.params.eventID, host: host})
