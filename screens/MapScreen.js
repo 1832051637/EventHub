@@ -1,7 +1,6 @@
 import { Text, SafeAreaView, TextInput, View, TouchableOpacity, Keyboard } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
-import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
 import Geocoder from 'react-native-geocoding';
 import { useNavigation } from '@react-navigation/native';
@@ -12,7 +11,7 @@ import { MAP_KEY } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 
 const MapScreen = ({ route }) => {
-    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
+
     let API_KEY = MAP_KEY();
 
     const navigation = useNavigation();
@@ -48,7 +47,6 @@ const MapScreen = ({ route }) => {
                 return Promise.reject(response);
             }
         }).then(function (result) {
-            // console.log(result);
             let addressResult = result.features[0].place_name;
             console.log("Is this your address? " + addressResult);
             const addressArray = addressResult.split(", ");
@@ -59,7 +57,6 @@ const MapScreen = ({ route }) => {
                 regionOrCountry: addressArray[3],
                 fullAddress: addressResult,
             });
-            // setFullAddress(addressResult);
         }).catch(function (error) {
             console.warn(error);
         });
@@ -75,6 +72,7 @@ const MapScreen = ({ route }) => {
     // Reset the marker based on user entered location
     // ********************************************************
     const handleNewLocation = async () => {
+        Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
         Keyboard.dismiss();
         try {
             const json = await Geocoder.from(locationText)

@@ -35,7 +35,13 @@ const FeedScreen = () => {
             await loadMore();
 
         } else {
-            await getLocationFromSearch();
+            //********************************************************************
+            // IMPORTANT: this function is using too many Geocoding API request.
+            // Whenever the searchPhrase is not empty string, it requests the API.
+            // And it may exceed the free limits. So I just commented it out.
+            //********************************************************************
+            // await getLocationFromSearch();
+
             await searchEvents();
         }
 
@@ -53,19 +59,19 @@ const FeedScreen = () => {
         let geo = myGeo ? myGeo : defaultGeo;
         let eventQuery;
         let replaceData = false;
-        
+
         if (refresh || !lastSnapshot) {
             replaceData = true;
-            eventQuery = query(allEvents, 
-                where("endTime", ">=", new Date()), 
+            eventQuery = query(allEvents,
+                where("endTime", ">=", new Date()),
                 where("geoLocation", "==", geo),
                 orderBy("endTime"),
                 orderBy("startTime"),
                 limit(eventsToLoad));
-            
+
         } else {
-            eventQuery = query(allEvents, 
-                where("endTime", ">=", new Date()), 
+            eventQuery = query(allEvents,
+                where("endTime", ">=", new Date()),
                 where("geoLocation", "==", geo),
                 orderBy("endTime"),
                 orderBy("startTime"),
@@ -78,12 +84,12 @@ const FeedScreen = () => {
         if (eventSnaps.docs.length === 0) return;
 
         setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
-        
+
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
 
             if (eventData.attendees.length >= eventData.attendeeLimit) return;
-                let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+            let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
             events.push({
                 id: eventSnap.id,
@@ -113,13 +119,13 @@ const FeedScreen = () => {
             const json = await Geocoder.from(searchPhrase);
             const newLocation = json.results[0].geometry.location;
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
-            
+
             setLocation({
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
             })
-            
-        } catch(error) {
+
+        } catch (error) {
             setMyGeo("");
             console.log("Error in searching by location " + error);
         }
@@ -131,17 +137,17 @@ const FeedScreen = () => {
         let allEvents = collection(db, "events");
         let events = [];
         let geo = myGeo ? myGeo : defaultGeo;
-        let searchEvents = query(allEvents, 
-            where("endTime", ">=", new Date()), 
-            where("geoLocation", "==", geo), 
-            orderBy("endTime"), 
+        let searchEvents = query(allEvents,
+            where("endTime", ">=", new Date()),
+            where("geoLocation", "==", geo),
+            orderBy("endTime"),
             orderBy("startTime"));
 
         let eventSnaps = await getDocs(searchEvents);
-        
+
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
-            
+
             if (eventData.attendees.length >= eventData.attendeeLimit) return;
 
             let eventName = eventData.name.toLowerCase();
@@ -178,7 +184,7 @@ const FeedScreen = () => {
             <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", {eventID: item.id, host: item.host})
+                    navigation.push("Event Details", { eventID: item.id, host: item.host })
                 }}
             >
                 {feedStyle.image && <Image
@@ -194,27 +200,27 @@ const FeedScreen = () => {
                         {/* If it is current users event, show delete button otherwise attend/unattend */}
                         {
                             auth.currentUser.uid === item.host
-                            ?
-                            <TouchableOpacity
-                                onPress={() => { 
-                                    navigation.push("Edit Event", {eventID: item.id}) 
-                                }}
-                            >
-                                <MaterialCommunityIcons name="pencil" size={26} color='rgb(100, 100, 100)' />
-                            </TouchableOpacity>
-                            :
-                            <TouchableOpacity
-                                onPress={() => {
-                                    item.isAttending 
-                                        ? unattendEvent(item.id, pushToken, setData, data) 
-                                        : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
-                                }}
-                            >
-                                {item.isAttending
-                                    ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)' />
-                                    : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)' />
-                                }
-                            </TouchableOpacity>
+                                ?
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        navigation.push("Edit Event", { eventID: item.id })
+                                    }}
+                                >
+                                    <MaterialCommunityIcons name="pencil" size={26} color='rgb(100, 100, 100)' />
+                                </TouchableOpacity>
+                                :
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        item.isAttending
+                                            ? unattendEvent(item.id, pushToken, setData, data)
+                                            : attendEvent(item.id, item.hostToken, item.name, pushToken, setData, data);
+                                    }}
+                                >
+                                    {item.isAttending
+                                        ? <MaterialCommunityIcons name="minus" size={26} color='rgb(100, 100, 100)' />
+                                        : <MaterialCommunityIcons name="plus" size={26} color='rgb(100, 100, 100)' />
+                                    }
+                                </TouchableOpacity>
                         }
                     </View>
                     <Text style={feedStyle.timestamp}>
@@ -222,9 +228,9 @@ const FeedScreen = () => {
                         {' '}{displayDate} at {displayTime}
                     </Text>
                     {item.address && <Text style={feedStyle.location}>
-                            <MaterialCommunityIcons name="map-marker-outline" size={16} />
-                            {' '}{item.address}
-                     </Text>}
+                        <MaterialCommunityIcons name="map-marker-outline" size={16} />
+                        {' '}{item.address}
+                    </Text>}
                     <Text numberOfLines={2} style={feedStyle.description}>{item.description}</Text>
                 </View>
             </TouchableOpacity>
@@ -251,9 +257,9 @@ const FeedScreen = () => {
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator} />)}
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
-                refreshing = {refresh}
-                onRefresh = {() => setRefresh(true)}
-                onEndReached = {() => {
+                refreshing={refresh}
+                onRefresh={() => setRefresh(true)}
+                onEndReached={() => {
                     if (searchPhrase == '') {
                         loadMore();
                     }
