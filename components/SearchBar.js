@@ -28,6 +28,9 @@ const SearchBar = (props) => {
           onFocus={() => {
             props.setClicked(true);
           }}
+          onBlur={() => {
+            props.setClicked(!props.clicked);
+          }}
         />
         {/* cross Icon, depending on whether the search bar is clicked or not */}
         {props.clicked && (
