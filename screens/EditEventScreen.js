@@ -23,7 +23,8 @@ const EditEventScreen = ( {route, navigation} ) => {
     const [attendeeTokens, setAttendeeTokens] = useState([]);
     const [eventLocation, setEventLocation] = useState('');
     const [host, setHost] = useState('');
-    const [date, setDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [selectedImage, setSelectedImage] = useState(null);
@@ -52,7 +53,8 @@ const EditEventScreen = ( {route, navigation} ) => {
             const end = docData.endTime.toDate();
             setStartTime(start);
             setEndTime(end);
-            setDate(start);
+            setStartDate(start);
+            setStartDate(end);
             setOriginalImage(docData.image);
             setOriginalImageID(docData.imageID);
             if (auth.currentUser.uid === docData.host) {
@@ -71,8 +73,11 @@ const EditEventScreen = ( {route, navigation} ) => {
  
     useEffect(() => {
         startTimeChange(null, startTime);
+    }, [startDate]);
+
+    useEffect(() => {
         endTimeChange(null, endTime);
-    }, [date]);
+    }, [endDate]);
 
     useEffect(() => {
         if (eventDeleted) {
@@ -125,21 +130,25 @@ const EditEventScreen = ( {route, navigation} ) => {
     }
       
 
-    const dateChange = (event, newDate) => {
-        setDate(newDate);
+    const startDateChange = (event, newDate) => {
+        setStartDate(newDate);
+    }
+
+    const endDateChange = (event, newDate) => {
+        setEndDate(newDate);
     }
 
     const startTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(startDate.getFullYear());
+        newTime.setMonth(startDate.getMonth());
+        newTime.setDate(startDate.getDate());
         setStartTime(newTime);
     }
 
     const endTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(endDate.getFullYear());
+        newTime.setMonth(endDate.getMonth());
+        newTime.setDate(endDate.getDate());
         setEndTime(newTime);
     }
 
@@ -198,9 +207,9 @@ const EditEventScreen = ( {route, navigation} ) => {
                 const eventRef = doc(db, 'events', route.params.eventID);
                 await updateDoc(eventRef, eventData);
                 // Comment the below out if you don't want others to get notifications of changes
-                if (attendeeTokens.length > 0) {
-                    sendUpdateNotifications(attendeeTokens, eventName);
-                }
+                // if (attendeeTokens.length > 0) {
+                //     sendUpdateNotifications(attendeeTokens, eventName);
+                // }
                 // Goes to refreshed details page
                 navigation.pop(2);
                 navigation.push("Event Details", {eventID: route.params.eventID, host: host})
@@ -245,13 +254,15 @@ const EditEventScreen = ( {route, navigation} ) => {
                 </View>
                 <View style={createStyle.dateBox}>
                     <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                    <Text style={createStyle.datePickerText}> From</Text>
                     <RNDateTimePicker
                         display="default"
                         style={createStyle.datePicker}
-                        value={date}
-                        onChange={dateChange}
+                        minimumDate={new Date()}
+                        value={startDate}
+                        onChange={startDateChange}
                     />
-                    <Text style={createStyle.datePickerText}>from</Text>
+                    <Text style={createStyle.datePickerText}> at </Text>
                     <RNDateTimePicker
                         value={startTime}
                         style={createStyle.datePicker}
@@ -260,7 +271,18 @@ const EditEventScreen = ( {route, navigation} ) => {
                         onChange={startTimeChange}
                         textColor='white'
                     />
-                    <Text style={createStyle.datePickerText}>to</Text>
+                </View>
+                <View style={createStyle.dateBox}>
+                    <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                    <Text style={createStyle.datePickerText}> To    </Text>
+                    <RNDateTimePicker
+                        display="default"
+                        style={createStyle.datePicker}
+                        minimumDate={startDate}
+                        value={endDate}
+                        onChange={endDateChange}
+                    />
+                    <Text style={createStyle.datePickerText}> at </Text>
                     <RNDateTimePicker
                         value={endTime}
                         style={createStyle.datePicker}

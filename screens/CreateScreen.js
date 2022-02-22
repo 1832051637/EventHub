@@ -22,7 +22,8 @@ const CreateScreen = () => {
     const [eventDescription, setEventDescription] = useState('');
     const [attendeeLimit, setAttendeeLimit] = useState('');
     const [eventLocation, setEventLocation] = useState('');
-    const [date, setDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [selectedImage, setSelectedImage] = useState(null);
@@ -31,8 +32,11 @@ const CreateScreen = () => {
 
     useEffect(() => {
         startTimeChange(null, startTime);
+    }, [startDate]);
+
+    useEffect(() => {
         endTimeChange(null, endTime);
-    }, [date]);
+    }, [endDate]);
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -77,22 +81,26 @@ const CreateScreen = () => {
     }
 
 
-    const dateChange = (event, newDate) => {
-        setDate(newDate);
+    const startDateChange = (event, newDate) => {
+        setStartDate(newDate);
+    }
+
+    const endDateChange = (event, newDate) => {
+        setEndDate(newDate);
     }
 
     const startTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(startDate.getFullYear());
+        newTime.setMonth(startDate.getMonth());
+        newTime.setDate(startDate.getDate());
 
         setStartTime(newTime);
     }
 
     const endTimeChange = (event, newTime) => {
-        newTime.setFullYear(date.getFullYear());
-        newTime.setMonth(date.getMonth());
-        newTime.setDate(date.getDate());
+        newTime.setFullYear(endDate.getFullYear());
+        newTime.setMonth(endDate.getMonth());
+        newTime.setDate(endDate.getDate());
 
         setEndTime(newTime);
     }
@@ -195,13 +203,15 @@ const CreateScreen = () => {
                 </View>
                 <View style={createStyle.dateBox}>
                     <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                    <Text style={createStyle.datePickerText}> From</Text>
                     <RNDateTimePicker
                         display="default"
                         style={createStyle.datePicker}
-                        value={date}
-                        onChange={dateChange}
+                        minimumDate={new Date()}
+                        value={startDate}
+                        onChange={startDateChange}
                     />
-                    <Text style={createStyle.datePickerText}>from</Text>
+                    <Text style={createStyle.datePickerText}> at </Text>
                     <RNDateTimePicker
                         value={startTime}
                         style={createStyle.datePicker}
@@ -210,7 +220,18 @@ const CreateScreen = () => {
                         onChange={startTimeChange}
                         textColor='white'
                     />
-                    <Text style={createStyle.datePickerText}>to</Text>
+                </View>
+                <View style={createStyle.dateBox}>
+                    <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                    <Text style={createStyle.datePickerText}> To    </Text>
+                    <RNDateTimePicker
+                        display="default"
+                        style={createStyle.datePicker}
+                        minimumDate={startDate}
+                        value={endDate}
+                        onChange={endDateChange}
+                    />
+                    <Text style={createStyle.datePickerText}> at </Text>
                     <RNDateTimePicker
                         value={endTime}
                         style={createStyle.datePicker}

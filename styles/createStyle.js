@@ -11,7 +11,7 @@ const createStyle = StyleSheet.create({
     },
     inputContainer: {
         alignSelf: 'stretch',
-        marginBottom: 30
+        marginBottom: 20
     },
     titleInput: {
         flex: 1,
@@ -47,15 +47,15 @@ const createStyle = StyleSheet.create({
         borderBottomColor: 'grey',
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: "wrap"
     },
     datePicker: {
        backgroundColor: 'white',
-       marginRight: 5,
-       width: 90
+       width: 90,
     },
     datePickerText: {
-        marginRight: 5,
+        marginHorizontal: 7,
     },
     imageSelect: {
         borderBottomWidth: 1,
@@ -75,8 +75,7 @@ const createStyle = StyleSheet.create({
         borderRadius: 5,
     },
     deleteButton: {
-        //marginTop: 'auto',
-        padding: 10,
+        //padding: 5,
         flexDirection: 'row',
         justifyContent: 'center'
     },
