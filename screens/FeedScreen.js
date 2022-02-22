@@ -17,7 +17,7 @@ import Geohash from 'latlon-geohash';
 
 const FeedScreen = () => {
     const navigation = useNavigation();
-    const { myGeo, setMyGeo, originalGeo, pushToken } = useContext(UserInfoContext);
+    const { myGeo, setMyGeo, setLocation, originalGeo, pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
@@ -112,7 +112,13 @@ const FeedScreen = () => {
         try {
             const json = await Geocoder.from(searchPhrase);
             const newLocation = json.results[0].geometry.location;
-            setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3])); 
+            setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
+            
+            setLocation({
+                latitude: newLocation.lat,
+                longitude: newLocation.lng
+            })
+            
         } catch(error) {
             setMyGeo("");
             console.log("Error in searching by location " + error);

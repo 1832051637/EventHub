@@ -1,5 +1,5 @@
 import { Text, SafeAreaView, TextInput, View, TouchableOpacity, Keyboard } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
@@ -29,7 +29,12 @@ const MapScreen = ({ route }) => {
     const userColor = 'red';
     const eventColor = '#ffe01a';
 
+    useEffect(async () => {
+        setLocation(location);
+    }, [location]);
+
     const searchInitial = () => {
+        console.log("User Location Latitude is " + userLocation.latitude);
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
         let gc_end = ".json?country=US&access_token=";
         let geocoding_request = gc_start.concat(userLocation.longitude, ',', userLocation.latitude, gc_end, API_KEY);
