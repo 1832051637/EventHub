@@ -4,6 +4,7 @@ import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import style from '../styles/style';
 import mapStyle from '../styles/mapStyle';
 import Geocoder from 'react-native-geocoding';
+import { useNavigation } from '@react-navigation/native';
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { ref } from 'firebase/storage';
@@ -14,6 +15,7 @@ const MapScreen = ({ route }) => {
     Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
     let API_KEY = MAP_KEY();
 
+    const navigation = useNavigation();
     const { location } = useContext(UserInfoContext);
     // const { myGeo, pushToken } = useContext(UserInfoContext);
     const [userLocation, setLocation] = useState(location);
@@ -179,20 +181,27 @@ const MapScreen = ({ route }) => {
                 }}
             >
                 { // Display loaded events from firebase
-                    eventsArray[0] != null && eventsArray.map((marker, index) => (
+                    eventsArray[0] != null && eventsArray.map((event, index) => (
                         <Marker
 
                             key={index}
                             coordinate={{
-                                latitude: marker.lat,
-                                longitude: marker.lon
+                                latitude: event.lat,
+                                longitude: event.lon
                             }}
                             pinColor={eventColor}
-                            title={marker.name}
+                            title={event.name}
                         >
                             <Callout>
                                 <View style={mapStyle.callOutContainer}>
-                                    <Text>{marker.name}</Text>
+                                    <Text>{event.name}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            navigation.navigate("Event Details", { eventID: event.id })
+                                        }}
+                                    >
+                                        <Text style={mapStyle.detailText}>View Details...</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </Callout>
                         </Marker>

@@ -49,12 +49,12 @@ const mapStyle = StyleSheet.create({
     },
 
     callOutContainer: {
-        flexDirection: "row",
         alignItems: "flex-start",
-        width: 150
-        // flex: 1,
-        // // width: "99%",
     },
+
+    detailText: {
+        color: '#0782F8',
+    }
 });
 
 export default mapStyle;
