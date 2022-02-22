@@ -11,6 +11,7 @@ export const UserInfoContext = createContext({});
 export const UserInfoProvider = ({ children }) => {
     const [location, setLocation] = useState([]);
     const [myGeo, setMyGeo] = useState(null);
+    const [originalGeo, setOriginalGeo] = useState(null);
     const [pushToken, setPushToken] = useState('');
 
     useEffect(() => {
@@ -27,6 +28,7 @@ export const UserInfoProvider = ({ children }) => {
                     setLocation(userLocations[0]);
                     let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
                     setMyGeo(geoLoc);
+                    setOriginalGeo(geoLoc);
                 }
             }
             catch (error) {
@@ -82,7 +84,7 @@ export const UserInfoProvider = ({ children }) => {
     };
 
     return (
-        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, pushToken, setPushToken }}>
+        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, originalGeo, pushToken, setPushToken }}>
             {children}
         </UserInfoContext.Provider>
     );

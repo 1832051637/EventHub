@@ -12,10 +12,12 @@ import { UserInfoContext } from '../utils/UserInfoProvider';
 import { attendEvent, unattendEvent } from '../utils/eventUtils';
 import LoadingView from '../components/LoadingView';
 import { useIsFocused } from '@react-navigation/native';
+import Geocoder from "react-native-geocoding";
+import Geohash from 'latlon-geohash';
 
 const FeedScreen = () => {
     const navigation = useNavigation();
-    const { myGeo, pushToken } = useContext(UserInfoContext);
+    const { myGeo, setMyGeo, originalGeo, pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
@@ -25,12 +27,15 @@ const FeedScreen = () => {
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
     const isFocused = useIsFocused();
+    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
 
     useEffect(async () => {
         if (searchPhrase === '') {
+            setMyGeo(originalGeo);
             await loadMore();
 
         } else {
+            await getLocationFromSearch();
             await searchEvents();
         }
 
@@ -46,7 +51,6 @@ const FeedScreen = () => {
         let allEvents = collection(db, "events");
         let events = [];
         let geo = myGeo ? myGeo : defaultGeo;
-        //let geo = defaultGeo;
         let eventQuery;
         let replaceData = false;
         
@@ -104,6 +108,17 @@ const FeedScreen = () => {
         }
     };
 
+    const getLocationFromSearch = async () => {
+        try {
+            const json = await Geocoder.from(searchPhrase);
+            const newLocation = json.results[0].geometry.location;
+            setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3])); 
+        } catch(error) {
+            setMyGeo("");
+            console.log("Error in searching by location " + error);
+        }
+    }
+
     const searchEvents = async () => {
         setLastSnapshot(null);
         let searchPhraseLower = searchPhrase.toLowerCase();
@@ -120,15 +135,15 @@ const FeedScreen = () => {
         
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
-
+            
             if (eventData.attendees.length >= eventData.attendeeLimit) return;
 
             let eventName = eventData.name.toLowerCase();
             let eventDescription = eventData.description.toLowerCase();
+            let eventLocation = eventData.geoLocation;
 
-            if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower)) {
+            if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower) || eventLocation == myGeo) {
                 let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
-
                 events.push({
                     id: eventSnap.id,
                     image: eventData.image,

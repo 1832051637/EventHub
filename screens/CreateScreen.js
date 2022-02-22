@@ -80,8 +80,16 @@ const CreateScreen = () => {
         }
     }
 
+    // Validates the Date and Modifies End Date if necessary
+    const checkDate = (newDate) => {
+        if(endDate < newDate) {
+            setEndDate(newDate);
+        }
+    }
+
 
     const startDateChange = (event, newDate) => {
+        checkDate(newDate);
         setStartDate(newDate);
     }
 
