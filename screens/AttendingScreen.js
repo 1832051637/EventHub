@@ -63,7 +63,7 @@ const AttendingScreen = () => {
             <TouchableOpacity 
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", {eventID: item.id, host: item.host})
+                    navigation.push("Event Details", {eventID: item.id, host: item.host.id})
                 }}
             >
                 {feedStyle.image && <Image
@@ -76,7 +76,7 @@ const AttendingScreen = () => {
                 <View style={feedStyle.body}>
                     <View style={feedStyle.heading}>
                         <Text style={feedStyle.title}>{item.name}</Text>
-                        {auth.currentUser.uid === item.host 
+                        {auth.currentUser.uid === item.host.id 
                         ?
                         <TouchableOpacity
                             onPress={() => { 

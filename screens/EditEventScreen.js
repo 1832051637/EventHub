@@ -22,7 +22,7 @@ const EditEventScreen = ( {route, navigation} ) => {
     const [attendeeLimit, setAttendeeLimit] = useState('');
     const [attendeeTokens, setAttendeeTokens] = useState([]);
     const [eventLocation, setEventLocation] = useState('');
-    const [host, setHost] = useState('');
+    const [host, setHost] = useState(null);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
@@ -57,7 +57,7 @@ const EditEventScreen = ( {route, navigation} ) => {
             setStartDate(end);
             setOriginalImage(docData.image);
             setOriginalImageID(docData.imageID);
-            if (auth.currentUser.uid === docData.host) {
+            if (auth.currentUser.uid === docData.host.id) {
                 setOptions({
                     headerRight: () => {
                         return (
@@ -212,7 +212,7 @@ const EditEventScreen = ( {route, navigation} ) => {
                 // }
                 // Goes to refreshed details page
                 navigation.pop(2);
-                navigation.push("Event Details", {eventID: route.params.eventID, host: host})
+                navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
                 console.log("Event has been updated!");
 
             } catch (error) {

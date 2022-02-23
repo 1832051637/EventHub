@@ -188,7 +188,7 @@ const FeedScreen = () => {
             <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", { eventID: item.id, host: item.host })
+                    navigation.push("Event Details", { eventID: item.id, host: item.host.id })
                 }}
             >
                 {feedStyle.image && <Image
@@ -203,7 +203,7 @@ const FeedScreen = () => {
                         <Text style={feedStyle.title}>{item.name}</Text>
                         {/* If it is current users event, show delete button otherwise attend/unattend */}
                         {
-                            auth.currentUser.uid === item.host
+                            auth.currentUser.uid === item.host.id
                                 ?
                                 <TouchableOpacity
                                     onPress={() => {

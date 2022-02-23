@@ -145,7 +145,7 @@ const CreateScreen = () => {
                 endTime: endTime,
                 geoLocation: Geohash.encode(location.lat, location.lng, [3]),
                 attendees: [userRef],
-                host: auth.currentUser.uid,
+                host: userRef,
                 hostToken: pushToken,
                 attendeeTokens: [],
                 lat: location.lat,

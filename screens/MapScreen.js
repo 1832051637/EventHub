@@ -195,7 +195,7 @@ const MapScreen = ({ route }) => {
                                     <Text>{event.name}</Text>
                                     <TouchableOpacity
                                         onPress={() => {
-                                            navigation.navigate("Event Details", { eventID: event.id })
+                                            navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
                                         }}
                                     >
                                         <Text style={mapStyle.detailText}>View Details...</Text>
