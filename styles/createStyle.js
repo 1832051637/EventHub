@@ -2,12 +2,12 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const createStyle = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'flex-start',
+        height: '100%',
+         backgroundColor: 'white'
+    },
+    scroll: {
         alignItems: 'center',
-        backgroundColor: 'white',
         paddingTop: 10,
-        paddingBottom: 100
     },
     inputContainer: {
         alignSelf: 'stretch',

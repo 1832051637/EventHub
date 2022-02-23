@@ -1,4 +1,4 @@
-import { Text, View, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, Image, SafeAreaView, } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { auth, db, storage } from '../firebase'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -185,111 +185,114 @@ const CreateScreen = () => {
     }
 
     return (
-        <KeyboardAwareScrollView contentContainerStyle={createStyle.container}>
-            <View style={createStyle.inputContainer}>
-                <View style={createStyle.inputItem}>
-                    <TextInput
-                        placeholder='Title'
-                        value={eventName}
-                        onChangeText={text => setEventName(text)}
-                        style={createStyle.titleInput}
-                        multiline={true}
-                        scrollEnabled={false}
-                    />
+        <SafeAreaView style={createStyle.container}>
+            <KeyboardAwareScrollView contentContainerStyle={createStyle.scroll}>
+                <View style={createStyle.inputContainer}>
+                    <View style={createStyle.inputItem}>
+                        <TextInput
+                            placeholder='Title'
+                            value={eventName}
+                            onChangeText={text => setEventName(text)}
+                            style={createStyle.titleInput}
+                            multiline={true}
+                            scrollEnabled={false}
+                        />
+                    </View>
+                    <View style={createStyle.inputItem}>
+                        <MaterialCommunityIcons name="text" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
+                        <TextInput
+                            placeholder='Description'
+                            value={eventDescription}
+                            onChangeText={text => setEventDescription(text)}
+                            style={createStyle.input}
+                            multiline={true}
+                            scrollEnabled={false}
+                            minHeight={150}
+                        />
+                    </View>
+                    <View style={createStyle.dateBox}>
+                        <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                        <Text style={createStyle.datePickerText}> From</Text>
+                        <RNDateTimePicker
+                            display="default"
+                            style={createStyle.datePicker}
+                            minimumDate={new Date()}
+                            value={startDate}
+                            onChange={startDateChange}
+                        />
+                        <Text style={createStyle.datePickerText}> at </Text>
+                        <RNDateTimePicker
+                            value={startTime}
+                            style={createStyle.datePicker}
+                            display="default"
+                            mode="time"
+                            onChange={startTimeChange}
+                            textColor='white'
+                        />
+                    </View>
+                    <View style={createStyle.dateBox}>
+                        <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
+                        <Text style={createStyle.datePickerText}> To    </Text>
+                        <RNDateTimePicker
+                            display="default"
+                            style={createStyle.datePicker}
+                            minimumDate={startDate}
+                            value={endDate}
+                            onChange={endDateChange}
+                        />
+                        <Text style={createStyle.datePickerText}> at </Text>
+                        <RNDateTimePicker
+                            value={endTime}
+                            style={createStyle.datePicker}
+                            display="default"
+                            mode="time"
+                            onChange={endTimeChange}
+                        />
+                    </View>
+                    <View style={createStyle.inputItem}>
+                        <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
+                        <TextInput
+                            placeholder='Location'
+                            value={eventLocation}
+                            onChangeText={text => setEventLocation(text)}
+                            style={createStyle.input}
+                            multiline={true}
+                            scrollEnabled={false}
+                        />
+                    </View>
+                    <View style={createStyle.inputItem}>
+                        <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
+                        <TextInput
+                            placeholder='Attendee Limit'
+                            value={attendeeLimit}
+                            onChangeText={text => setAttendeeLimit(text)}
+                            style={createStyle.input}
+                            keyboardType={"number-pad"}
+                        />
+                    </View>
+                    <View style={createStyle.imageSelect}>
+                        <TouchableOpacity
+                            onPress={openImagePickerAsync}
+                            style={createStyle.imageButton}
+                        >
+                            <MaterialCommunityIcons name="image-plus" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
+                            {selectedImage && <Image style={createStyle.image} source={{ uri: selectedImage.localUri }} />}
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={createStyle.inputItem}>
-                    <MaterialCommunityIcons name="text" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                    <TextInput
-                        placeholder='Description'
-                        value={eventDescription}
-                        onChangeText={text => setEventDescription(text)}
-                        style={createStyle.input}
-                        multiline={true}
-                        scrollEnabled={false}
-                        minHeight={150}
-                    />
-                </View>
-                <View style={createStyle.dateBox}>
-                    <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
-                    <Text style={createStyle.datePickerText}> From</Text>
-                    <RNDateTimePicker
-                        display="default"
-                        style={createStyle.datePicker}
-                        minimumDate={new Date()}
-                        value={startDate}
-                        onChange={startDateChange}
-                    />
-                    <Text style={createStyle.datePickerText}> at </Text>
-                    <RNDateTimePicker
-                        value={startTime}
-                        style={createStyle.datePicker}
-                        display="default"
-                        mode="time"
-                        onChange={startTimeChange}
-                        textColor='white'
-                    />
-                </View>
-                <View style={createStyle.dateBox}>
-                    <MaterialCommunityIcons name="clock-outline" size={20} color='rgb(100, 100, 100)' />
-                    <Text style={createStyle.datePickerText}> To    </Text>
-                    <RNDateTimePicker
-                        display="default"
-                        style={createStyle.datePicker}
-                        minimumDate={startDate}
-                        value={endDate}
-                        onChange={endDateChange}
-                    />
-                    <Text style={createStyle.datePickerText}> at </Text>
-                    <RNDateTimePicker
-                        value={endTime}
-                        style={createStyle.datePicker}
-                        display="default"
-                        mode="time"
-                        onChange={endTimeChange}
-                    />
-                </View>
-                <View style={createStyle.inputItem}>
-                    <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                    <TextInput
-                        placeholder='Location'
-                        value={eventLocation}
-                        onChangeText={text => setEventLocation(text)}
-                        style={createStyle.input}
-                        multiline={true}
-                        scrollEnabled={false}
-                    />
-                </View>
-                <View style={createStyle.inputItem}>
-                    <MaterialCommunityIcons name="account-group-outline" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                    <TextInput
-                        placeholder='Attendee Limit'
-                        value={attendeeLimit}
-                        onChangeText={text => setAttendeeLimit(text)}
-                        style={createStyle.input}
-                        keyboardType={"number-pad"}
-                    />
-                </View>
-                <View style={createStyle.imageSelect}>
+                <View style={style.buttonContainer}>
                     <TouchableOpacity
-                        onPress={openImagePickerAsync}
-                        style={createStyle.imageButton}
+                        style={style.button}
+                        onPress={addEvent}
                     >
-                        <MaterialCommunityIcons name="image-plus" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                        {selectedImage && <Image style={createStyle.image} source={{ uri: selectedImage.localUri }} />}
+                        <Text
+                            style={style.buttonText}
+                        >Create Event</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-            <View style={style.buttonContainer}>
-                <TouchableOpacity
-                    style={style.button}
-                    onPress={addEvent}
-                >
-                    <Text
-                        style={style.buttonText}
-                    >Create Event</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAwareScrollView >
+            </KeyboardAwareScrollView >
+            <View style={{height: 80}}></View>
+        </SafeAreaView>
     );
 };
 
