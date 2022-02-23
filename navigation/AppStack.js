@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AppTabs from './AppTabs';
 import EventScreen from '../screens/EventScreen';
 import EditEventScreen from '../screens/EditEventScreen';
+import MapScreen from '../screens/MapScreen';
 import { Button } from 'react-native';
 import { auth } from '../firebase';
 
@@ -25,6 +26,13 @@ export default AppStack = () => {
                 options={({ navigation }) => ({
                     headerLeft: () => (
                       <Button onPress={() => navigation.goBack()} title="Cancel"/>
+                    ),
+                })}
+            />
+            <Stack.Screen name="Map Screen" component={MapScreen} 
+                options={({ navigation }) => ({
+                    headerLeft: () => (
+                      <Button onPress={() => navigation.goBack()} title="Back"/>
                     ),
                 })}
             />

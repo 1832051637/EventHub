@@ -23,6 +23,11 @@ const eventStyle = StyleSheet.create({
         fontSize: 18,
         marginBottom: 5
     },
+    locationText: {
+        textDecorationLine: 'underline',
+        fontSize: 18,
+        marginBottom: 5
+    },
     icon: {
         fontWeight: 'bold'
     },

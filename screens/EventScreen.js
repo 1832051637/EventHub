@@ -71,19 +71,22 @@ const EventScreen = ({ route, navigation }) => {
                 <View style={eventStyle.separator}></View>
                 <View style={eventStyle.footerContainer}>
                     <Text style={eventStyle.footerText}>
-                        <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon} />
+                        <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon}/>
                         {' '}{dateString} at {timeString}
                     </Text>
-                    <Text style={eventStyle.footerText}>
-                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon} />
+                    <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
+                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon} 
+                         />
                         {' '}{event.address ? event.address : 'N/A'}
                     </Text>
+
                     <Text style={eventStyle.footerText}>
                         <MaterialCommunityIcons name="account-group-outline" size={20} style={eventStyle.icon} />
                         {' '}{event.attendees.length} 
                         {event.attendeeLimit && ' out of ' + event.attendeeLimit}
                         {' '}attending so far
                     </Text>
+
                 </View>
             </ScrollView>
         </SafeAreaView>
