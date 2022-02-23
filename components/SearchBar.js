@@ -1,16 +1,13 @@
 import React from "react";
-import { StyleSheet, TextInput, View, Keyboard, Button } from "react-native";
+import { StyleSheet, TextInput, View, Keyboard, Button, TouchableOpacity, Text } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
+import mapStyle from '../styles/mapStyle';
 
 const SearchBar = (props) => {
   return (
     <View style={styles.container}>
       <View
-        style={
-          !props.clicked
-            ? styles.searchBar__unclicked
-            : styles.searchBar__clicked
-        }
+        style={styles.searchBar__clicked}
       >
         {/* search Icon */}
         <Feather
@@ -39,18 +36,15 @@ const SearchBar = (props) => {
           }}/>
         )}
       </View>
-      {/* cancel button, depending on whether the search bar is clicked or not */}
-      {props.clicked && (
-        <View>
-          <Button
-            title="Cancel"
-            onPress={() => {
-              Keyboard.dismiss();
-              props.setClicked(false);
-            }}
-          ></Button>
-        </View>
-      )}
+      <TouchableOpacity
+        onPress={() => {
+          props.setSubmit(true);
+        }}
+        style={[mapStyle.button]}
+      >
+        <Text style={mapStyle.buttonText}>Go!</Text>
+      </TouchableOpacity>
+      
     </View>
   );
 };

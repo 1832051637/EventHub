@@ -17,13 +17,15 @@ import Geohash from 'latlon-geohash';
 
 const FeedScreen = () => {
     const navigation = useNavigation();
-    const { myGeo, setMyGeo, setLocation, originalGeo, pushToken } = useContext(UserInfoContext);
+    const { myGeo, setMyGeo, location, setLocation, originalLocation, originalGeo, pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
     const [clicked, setClicked] = useState(false);
+    const [submit, setSubmit] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
+    //const [timeOutID, setTimeoutID] = useState(null);
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
     const isFocused = useIsFocused();
@@ -32,22 +34,24 @@ const FeedScreen = () => {
     useEffect(async () => {
         if (searchPhrase === '') {
             setMyGeo(originalGeo);
+            setLocation(originalLocation);
             await loadMore();
 
-        } else {
+        } else if (submit && searchPhrase !== "") {
             //********************************************************************
             // IMPORTANT: this function is using too many Geocoding API request.
             // Whenever the searchPhrase is not empty string, it requests the API.
             // And it may exceed the free limits. So I just commented it out.
             //********************************************************************
-            // await getLocationFromSearch();
-
+            await getLocationFromSearch();
             await searchEvents();
         }
+        
 
         setLoading(false);
         setRefresh(false);
-    }, [searchPhrase, myGeo, refresh])
+        setSubmit(false);
+    }, [searchPhrase, submit, myGeo, refresh])
 
     useEffect(async () => {
         setRefresh(true);
@@ -249,6 +253,8 @@ const FeedScreen = () => {
                 setSearchPhrase={setSearchPhrase}
                 clicked={clicked}
                 setClicked={setClicked}
+                submit = {submit}
+                setSubmit = {setSubmit}
             />
             <FlatList
                 style={feedStyle.feed}
