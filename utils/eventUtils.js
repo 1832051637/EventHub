@@ -33,10 +33,13 @@ const inputValidator = (event) => {
         valid = false;
         errors += "- Event name and description cannot contain profane language!\n";
     }
-    
     if (!event.attendeeLimit.replace(/\s/g, '').length || Number(event.attendeeLimit) < 2) {
         valid = false;
         errors += "- Attendee limit must be at least a couple people\n";
+    }
+    if (Number(event.attendeeLimit) > 1000000) {
+        valid = false;
+        errors += "- Attendee limit must be realistic\n";
     }
     if (!event.location.replace(/\s/g, '').length) {
         valid = false;
@@ -52,7 +55,6 @@ const inputValidationAlert = (errors) => {
         [
             {
                 text: "OK",
-                onPress: () => console.log("OK Pressed"),
                 style: "cancel"
             }
         ]

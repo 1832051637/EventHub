@@ -189,6 +189,8 @@ const CreateScreen = () => {
         setAttendeeLimit('');
         setEventLocation('');
         setSelectedImage(null);
+        setStartDate(new Date());
+        setEndDate(new Date());
     }
 
     if (loading) {

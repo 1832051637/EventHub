@@ -9,6 +9,7 @@ import { db, storage, auth } from '../firebase';
 import { ref } from 'firebase/storage';
 import { MAP_KEY } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
+import { getDistance } from 'geolib';
 
 const MapScreen = ({ route }) => {
 
@@ -127,7 +128,10 @@ const MapScreen = ({ route }) => {
 
                 // const gsReference = ref(storage, docData.image);
                 let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
-
+                let distance = +((getDistance(
+                    {latitude: userLocation.latitude, longitude: userLocation.longitude},
+                    {latitude: docData.lat, longitude: docData.lon},
+                )/1600).toFixed(2));
                 let event = {
                     id: doc.id,
                     // image: docData.image,
@@ -143,6 +147,7 @@ const MapScreen = ({ route }) => {
                     hostToken: docData.hostToken,
                     attendeeTokens: docData.attendeeTokens,
                     isAttending: isAttending,
+                    distance: distance
                 };
                 events.push(event);
             });
@@ -193,6 +198,7 @@ const MapScreen = ({ route }) => {
                             <Callout>
                                 <View style={mapStyle.callOutContainer}>
                                     <Text>{event.name}</Text>
+                                    <Text>Distance: {event.distance} miles</Text>
                                     <TouchableOpacity
                                         onPress={() => {
                                             navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
