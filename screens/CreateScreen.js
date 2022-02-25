@@ -15,6 +15,7 @@ import uuid from "uuid";
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
+import { inputValidator, inputValidationAlert } from '../utils/eventUtils';
 
 const CreateScreen = () => {
     const { pushToken } = useContext(UserInfoContext);
@@ -114,62 +115,72 @@ const CreateScreen = () => {
     }
 
     const addEvent = async () => {
-        setLoading(true);
-        try {
-
-            // ********************************************************
-            // Get the coord of event based on user entered address
-            // ********************************************************
-            Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-            const json = await Geocoder.from(eventLocation);
-            const location = json.results[0].geometry.location;
-            const address = json.results[0].formatted_address;
-
-            let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
-            let imageID = '';
-
-            if (selectedImage !== null) {
-                imageID = uuid.v4();
-                downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
-            }
-
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-
-            // Initialize eventdatas
-            const eventData = {
-                name: eventName,
-                description: eventDescription,
-                attendeeLimit: attendeeLimit,
-                location: eventLocation,
-                startTime: startTime,
-                endTime: endTime,
-                geoLocation: Geohash.encode(location.lat, location.lng, [3]),
-                attendees: [userRef],
-                host: userRef,
-                hostToken: pushToken,
-                attendeeTokens: [],
-                lat: location.lat,
-                lon: location.lng,
-                address: address,
-                imageID: imageID,
-                image: downloadURL
-            }
-
-            // Push to firebase Database
-            const eventRef = await addDoc(collection(db, "events"), eventData);
-
-            await updateDoc(userRef, {
-                hosting: arrayUnion(eventRef),
-                attending: arrayUnion(eventRef),
-            });
-
-            resetFields();
-            navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
-
-        } catch (error) {
-            console.log(error);
+        const eventCheck = {
+            name: eventName,
+            description: eventDescription,
+            attendeeLimit: attendeeLimit,
+            location: eventLocation
         }
-        setLoading(false);
+        let validation = inputValidator(eventCheck);
+        if (!validation.valid) {
+            inputValidationAlert(validation.errors)
+        } else {
+            setLoading(true);
+            try {
+
+                // ********************************************************
+                // Get the coord of event based on user entered address
+                // ********************************************************
+                Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
+                const json = await Geocoder.from(eventLocation);
+                const location = json.results[0].geometry.location;
+                const address = json.results[0].formatted_address;
+
+                let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
+                let imageID = '';
+
+                if (selectedImage !== null) {
+                    imageID = uuid.v4();
+                    downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
+                }
+
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+
+                // Initialize eventdatas
+                const eventData = {
+                    name: eventName,
+                    description: eventDescription,
+                    attendeeLimit: attendeeLimit,
+                    location: eventLocation,
+                    startTime: startTime,
+                    endTime: endTime,
+                    geoLocation: Geohash.encode(location.lat, location.lng, [3]),
+                    attendees: [userRef],
+                    host: userRef,
+                    hostToken: pushToken,
+                    attendeeTokens: [],
+                    lat: location.lat,
+                    lon: location.lng,
+                    address: address,
+                    imageID: imageID,
+                    image: downloadURL
+                }
+                
+                // Push to firebase Database
+                const eventRef = await addDoc(collection(db, "events"), eventData);
+
+                await updateDoc(userRef, {
+                    hosting: arrayUnion(eventRef),
+                    attending: arrayUnion(eventRef),
+                });
+
+                resetFields();
+                navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
+            } catch (error) {
+                console.log(error);
+            }
+            setLoading(false);
+        }
     }
 
     const resetFields = () => {
