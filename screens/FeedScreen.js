@@ -15,8 +15,10 @@ import LoadingView from '../components/LoadingView';
 import { useIsFocused } from '@react-navigation/native';
 import Geocoder from "react-native-geocoding";
 import Geohash from 'latlon-geohash';
+import { GEOCODING_API } from '../utils/API_KEYS';
 
 const FeedScreen = () => {
+    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const navigation = useNavigation();
     const { myGeo, setMyGeo, setLocation, pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
@@ -30,7 +32,7 @@ const FeedScreen = () => {
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
     const isFocused = useIsFocused();
-    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
+    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
 
     useEffect(async () => {
         if (searchPhrase === '') {
@@ -40,7 +42,7 @@ const FeedScreen = () => {
 
             await searchEvents();
         }
-        
+
 
         setLoading(false);
         setRefresh(false);
@@ -113,7 +115,7 @@ const FeedScreen = () => {
 
     const getLocationFromSearch = async () => {
         try {
-            const json = await Geocoder.from(searchPhrase);
+            const json = await Geocoder.from(locationPhrase);
             const newLocation = json.results[0].geometry.location;
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
 
@@ -121,6 +123,7 @@ const FeedScreen = () => {
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
             })
+            setRefresh(true)
 
         } catch (error) {
             setMyGeo("");

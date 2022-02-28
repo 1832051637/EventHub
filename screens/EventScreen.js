@@ -33,6 +33,7 @@ const EventScreen = ({ route, navigation }) => {
             startTime: new Date(docData.startTime.seconds * 1000),
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
+            location: docData.location,
             host: docData.host,
             attendees: docData.attendees,
             attendeeLimit: docData.attendeeLimit,
@@ -41,7 +42,7 @@ const EventScreen = ({ route, navigation }) => {
         setEvent(eventData);
         setDateString(getDateString(eventData.startTime, eventData.endTime));
         setTimeString(getTimeString(eventData.startTime) + ' - ' + getTimeString(eventData.endTime));
-        setLoading(false);        
+        setLoading(false);
     }, []);
 
     if (loading) {
@@ -50,7 +51,7 @@ const EventScreen = ({ route, navigation }) => {
 
     return (
         <SafeAreaView style={style.container}>
-            <ScrollView style={{width: '100%'}} contentContainerStyle={{alignItems: 'stretch'}}>
+            <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'stretch' }}>
                 <Image
                     source={{
                         uri: event.image
@@ -71,18 +72,18 @@ const EventScreen = ({ route, navigation }) => {
                 <View style={eventStyle.separator}></View>
                 <View style={eventStyle.footerContainer}>
                     <Text style={eventStyle.footerText}>
-                        <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon}/>
+                        <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon} />
                         {' '}{dateString} at {timeString}
                     </Text>
                     <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
-                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon} 
-                         />
-                        {' '}{event.address ? event.address : 'N/A'}
+                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon}
+                        />
+                        {' '}{event.address ? event.location + ", " + event.address : 'N/A'}
                     </Text>
 
                     <Text style={eventStyle.footerText}>
                         <MaterialCommunityIcons name="account-group-outline" size={20} style={eventStyle.icon} />
-                        {' '}{event.attendees.length} 
+                        {' '}{event.attendees.length}
                         {event.attendeeLimit && ' out of ' + event.attendeeLimit}
                         {' '}attending so far
                     </Text>

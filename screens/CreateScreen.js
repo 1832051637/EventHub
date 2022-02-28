@@ -6,6 +6,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import * as ImagePicker from 'expo-image-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geocoder from 'react-native-geocoding';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { PLACES_API, GEOCODING_API } from '../utils/API_KEYS';
 import { collection, addDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Geohash from 'latlon-geohash';
@@ -15,8 +17,11 @@ import uuid from "uuid";
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
+import { inputValidator, inputValidationAlert } from '../utils/eventUtils';
 
 const CreateScreen = () => {
+    const GOOGLE_PLACES_API_KEY = PLACES_API();
+    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const { pushToken } = useContext(UserInfoContext);
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
@@ -82,7 +87,7 @@ const CreateScreen = () => {
 
     // Validates the Date and Modifies End Date if necessary
     const checkDate = (newDate) => {
-        if(endDate < newDate) {
+        if (endDate < newDate) {
             setEndDate(newDate);
         }
     }
@@ -114,62 +119,73 @@ const CreateScreen = () => {
     }
 
     const addEvent = async () => {
-        setLoading(true);
-        try {
-
-            // ********************************************************
-            // Get the coord of event based on user entered address
-            // ********************************************************
-            Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-            const json = await Geocoder.from(eventLocation);
-            const location = json.results[0].geometry.location;
-            const address = json.results[0].formatted_address;
-
-            let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
-            let imageID = '';
-
-            if (selectedImage !== null) {
-                imageID = uuid.v4();
-                downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
-            }
-
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-
-            // Initialize eventdatas
-            const eventData = {
-                name: eventName,
-                description: eventDescription,
-                attendeeLimit: attendeeLimit,
-                location: eventLocation,
-                startTime: startTime,
-                endTime: endTime,
-                geoLocation: Geohash.encode(location.lat, location.lng, [3]),
-                attendees: [userRef],
-                host: userRef,
-                hostToken: pushToken,
-                attendeeTokens: [],
-                lat: location.lat,
-                lon: location.lng,
-                address: address,
-                imageID: imageID,
-                image: downloadURL
-            }
-
-            // Push to firebase Database
-            const eventRef = await addDoc(collection(db, "events"), eventData);
-
-            await updateDoc(userRef, {
-                hosting: arrayUnion(eventRef),
-                attending: arrayUnion(eventRef),
-            });
-
-            resetFields();
-            navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
-
-        } catch (error) {
-            console.log(error);
+        const eventCheck = {
+            name: eventName,
+            description: eventDescription,
+            attendeeLimit: attendeeLimit,
+            location: eventLocation
         }
-        setLoading(false);
+        let validation = inputValidator(eventCheck);
+        if (!validation.valid) {
+            inputValidationAlert(validation.errors)
+        } else {
+            setLoading(true);
+            try {
+                // ********************************************************
+                // Get the coord of event based on user entered address
+                // ********************************************************
+                Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
+                alert(eventLocation);
+                const json = await Geocoder.from(eventLocation);
+                const location = json.results[0].geometry.location;
+                const address = json.results[0].formatted_address;
+
+                let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
+                let imageID = '';
+
+                if (selectedImage !== null) {
+                    imageID = uuid.v4();
+                    downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
+                }
+
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+
+                // Initialize eventdatas
+                const eventData = {
+                    name: eventName,
+                    description: eventDescription,
+                    attendeeLimit: attendeeLimit,
+                    location: eventLocation,
+                    startTime: startTime,
+                    endTime: endTime,
+                    geoLocation: Geohash.encode(location.lat, location.lng, [3]),
+                    attendees: [userRef],
+                    host: userRef,
+                    hostToken: pushToken,
+                    attendeeTokens: [],
+                    lat: location.lat,
+                    lon: location.lng,
+                    address: address,
+                    imageID: imageID,
+                    image: downloadURL
+                }
+
+                // Push to firebase Database
+                const eventRef = await addDoc(collection(db, "events"), eventData);
+
+                await updateDoc(userRef, {
+                    hosting: arrayUnion(eventRef),
+                    attending: arrayUnion(eventRef),
+                });
+
+                resetFields();
+                navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
+            } catch (error) {
+                console.log(error);
+                alert(error);
+            }
+            setLoading(false);
+        }
     }
 
     const resetFields = () => {
@@ -178,6 +194,8 @@ const CreateScreen = () => {
         setAttendeeLimit('');
         setEventLocation('');
         setSelectedImage(null);
+        setStartDate(new Date());
+        setEndDate(new Date());
     }
 
     if (loading) {
@@ -186,7 +204,13 @@ const CreateScreen = () => {
 
     return (
         <SafeAreaView style={createStyle.container}>
-            <KeyboardAwareScrollView contentContainerStyle={createStyle.scroll}>
+            <KeyboardAwareScrollView
+                contentContainerStyle={createStyle.scroll}
+
+                //*********************************************
+                // To fix autocomplete list in scrollView error 
+                keyboardShouldPersistTaps="always"
+            >
                 <View style={createStyle.inputContainer}>
                     <View style={createStyle.inputItem}>
                         <TextInput
@@ -251,13 +275,36 @@ const CreateScreen = () => {
                     </View>
                     <View style={createStyle.inputItem}>
                         <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                        <TextInput
-                            placeholder='Location'
-                            value={eventLocation}
-                            onChangeText={text => setEventLocation(text)}
-                            style={createStyle.input}
-                            multiline={true}
-                            scrollEnabled={false}
+
+                        {/* Google Autocomplete API 
+                        To reduce number of requests, please comment key out to use original textinput
+                        */}
+                        <GooglePlacesAutocomplete
+                            fetchDetails={false}                // We don't need details
+                            debounce={1500}                     // Search debounce
+                            minLength={3}                       // Minimum number of chars to start a search 
+                            query={{
+                                //key: GOOGLE_PLACES_API_KEY,  // *** Comment this line out if you dont use Autocomplete***
+                                language: 'en',
+                            }}
+                            onPress={(data, details) => {
+                                setEventLocation(data.structured_formatting.main_text);
+                            }}
+                            textInputProps={{
+                                InputComp: TextInput,
+                                leftIcon: { type: 'font-awesome', name: 'chevron-left' },
+                                errorStyle: { color: 'red' },
+                                placeholder: 'Location',
+                                value: eventLocation,
+                                onChangeText: text => {
+                                    setEventLocation(text);
+                                },
+                                style: createStyle.input,
+                                multiline: true,
+                                scrollEnabled: false,
+                            }}
+                            disableScroll={true}
+                            listViewDisplayed={false}
                         />
                     </View>
                     <View style={createStyle.inputItem}>
@@ -291,7 +338,7 @@ const CreateScreen = () => {
                     </TouchableOpacity>
                 </View>
             </KeyboardAwareScrollView >
-            <View style={{height: 80}}></View>
+            <View style={{ height: 80 }}></View>
         </SafeAreaView>
     );
 };

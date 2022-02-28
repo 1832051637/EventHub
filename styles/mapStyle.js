@@ -15,7 +15,7 @@ const mapStyle = StyleSheet.create({
         marginTop: 5,
         flexDirection: 'row',
         width: "95%",
-        alignItems: 'center'
+        alignItems: 'flex-start'
     },
     map: {
         flex: 1,
@@ -30,7 +30,7 @@ const mapStyle = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'grey',
         marginRight: '2%',
-        width: '80%'
+        width: '95%'
     },
     button: {
         backgroundColor: 'white',
@@ -49,7 +49,9 @@ const mapStyle = StyleSheet.create({
     },
 
     callOutContainer: {
+        flex: 1,
         alignItems: "flex-start",
+        maxWidth: 250
     },
 
     detailText: {

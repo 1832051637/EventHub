@@ -3,20 +3,22 @@ import React, { useContext, useEffect, useState } from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import mapStyle from '../styles/mapStyle';
 import Geocoder from 'react-native-geocoding';
+import Geohash from 'latlon-geohash';
 import { useNavigation } from '@react-navigation/native';
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db, storage, auth } from '../firebase';
-import { ref } from 'firebase/storage';
-import { MAP_KEY } from '../utils/API_KEYS';
+import { collection, getDocs } from "firebase/firestore";
+import { db, auth } from '../firebase';
+import { MAP_KEY, PLACES_API, GEOCODING_API } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import LocationBar from "../components/LocationBar";
+import { getDistance } from 'geolib';
 
 const MapScreen = ({ route }) => {
-    let API_KEY = MAP_KEY();
+    const GOOGLE_PLACES_API_KEY = PLACES_API();
+    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
+    const API_KEY = MAP_KEY();
 
     const navigation = useNavigation();
-    const { location } = useContext(UserInfoContext);
-    const [userLocation, setLocation] = useState(location);
+    const { location, setLocation, setMyGeo } = useContext(UserInfoContext);
     const [address, setAddress] = React.useState({
         streetAddress: "",
         city: "",
@@ -28,15 +30,12 @@ const MapScreen = ({ route }) => {
     const [searchRadius, setRadius] = useState(2000);
     const userColor = 'red';
     const eventColor = '#ffe01a';
-
-    useEffect(async () => {
-        setLocation(location);
-    }, [location]);
+    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
 
     const searchInitial = () => {
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
         let gc_end = ".json?country=US&access_token=";
-        let geocoding_request = gc_start.concat(userLocation.longitude, ',', userLocation.latitude, gc_end, API_KEY);
+        let geocoding_request = gc_start.concat(location.longitude, ',', location.latitude, gc_end, API_KEY);
 
         fetch(geocoding_request).then(function (response) {
             if (response.ok) {
@@ -61,16 +60,15 @@ const MapScreen = ({ route }) => {
     }
 
     React.useEffect(() => {
-        searchInitial();
+        //searchInitial();
         loadEvents();
-    }, [userLocation])
+    }, [location])
 
 
     // ********************************************************
     // Reset the marker based on user entered location
     // ********************************************************
     const handleNewLocation = async () => {
-        Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
         try {
             const json = await Geocoder.from(locationPhrase)
                 .catch(() => {
@@ -79,21 +77,23 @@ const MapScreen = ({ route }) => {
                 });
             const newLocation = json.results[0].geometry.location;
             const formatted_address = json.results[0].formatted_address;
-            // alert(formatted_address);
+            
             const addressArray = formatted_address.split(", ");
+            setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
+
             setLocation({
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
             })
-            // alert(userLocation)
+            
             setAddress({
                 streetAddress: addressArray[0],
                 city: addressArray[1],
                 stateZip: addressArray[2],
                 regionOrCountry: addressArray[3],
-                fullAddress: addressResult,
+                fullAddress: formatted_address,
             });
-            // alert(address.fullAddress);
+            
         } catch (error) {
             console.log(error);
         }
@@ -124,7 +124,10 @@ const MapScreen = ({ route }) => {
 
                 // const gsReference = ref(storage, docData.image);
                 let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
-
+                let distance = +((getDistance(
+                    { latitude: location.latitude, longitude: location.longitude },
+                    { latitude: docData.lat, longitude: docData.lon },
+                ) / 1600).toFixed(2));
                 let event = {
                     id: doc.id,
                     // image: docData.image,
@@ -140,6 +143,7 @@ const MapScreen = ({ route }) => {
                     hostToken: docData.hostToken,
                     attendeeTokens: docData.attendeeTokens,
                     isAttending: isAttending,
+                    distance: distance
                 };
                 events.push(event);
             });
@@ -155,14 +159,13 @@ const MapScreen = ({ route }) => {
                 <LocationBar
                     searchPhrase={locationPhrase}
                     setSearchPhrase={setLocationPhrase}
-                    onSubmit = {handleNewLocation}
+                    onSubmit={handleNewLocation}
                 />
-                <MapView 
-                    style={mapStyle.map}
+                <MapView style={mapStyle.map}
                     // The initial Location is set to user's location or UCSC if not given permission
                     region={{
-                        latitude: userLocation.latitude,
-                        longitude: userLocation.longitude,
+                        latitude: location.latitude,
+                        longitude: location.longitude,
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     }}
@@ -182,6 +185,7 @@ const MapScreen = ({ route }) => {
                                 <Callout>
                                     <View style={mapStyle.callOutContainer}>
                                         <Text>{event.name}</Text>
+                                        <Text>Distance: {event.distance} miles</Text>
                                         <TouchableOpacity
                                             onPress={() => {
                                                 navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
@@ -196,7 +200,7 @@ const MapScreen = ({ route }) => {
                     }
 
                     {/* User Marker */}
-                    <Marker coordinate={userLocation}
+                    <Marker coordinate={location}
                         pinColor={userColor}
                     >
                         <Callout>
@@ -205,11 +209,10 @@ const MapScreen = ({ route }) => {
                             </View>
                         </Callout>
                     </Marker>
-                    <Circle center={userLocation}
+                    <Circle center={location}
                         // Draw a circle around the marked location
                         radius={searchRadius}
                     ></Circle>
-
                 </MapView>
             </SafeAreaView>
         </TouchableWithoutFeedback>
@@ -217,5 +220,3 @@ const MapScreen = ({ route }) => {
 };
 
 export default MapScreen;
-
-// const styles = StyleSheet.create({});
