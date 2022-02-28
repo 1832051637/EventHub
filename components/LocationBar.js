@@ -1,14 +1,14 @@
 import React from "react";
-import { StyleSheet, TextInput, View, Keyboard, Button } from "react-native";
-import { Feather, Entypo } from "@expo/vector-icons";
+import { StyleSheet, TextInput, View, Keyboard, Button, TouchableOpacity, Text } from "react-native";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 
-const SearchBar = (props) => {
+const LocationBar = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
         {/* search Icon */}
-        <Feather
-          name="search"
+        <Ionicons
+          name="location-sharp"
           size={20}
           color="black"
           style={{ marginLeft: 1 }}
@@ -16,10 +16,11 @@ const SearchBar = (props) => {
         {/* Input field */}
         <TextInput
           style={styles.input}
-          placeholder="Search"
-          returnKeyType="search"
+          placeholder="Location"
+          returnKeyType="done"
           value={props.searchPhrase}
           onChangeText={props.setSearchPhrase}
+          onSubmitEditing={props.onSubmit}
         />
         {/* cross Icon, depending on whether the search bar is clicked or not */}
         {false && (
@@ -31,7 +32,7 @@ const SearchBar = (props) => {
     </View>
   );
 };
-export default SearchBar;
+export default LocationBar;
 
 const styles = StyleSheet.create({
   container: {

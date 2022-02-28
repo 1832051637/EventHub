@@ -1,4 +1,4 @@
-import { Text, SafeAreaView, TextInput, View, TouchableOpacity, Keyboard } from 'react-native';
+import { Text, SafeAreaView, View, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import MapView, { Callout, Circle, Marker } from 'react-native-maps';
 import mapStyle from '../styles/mapStyle';
@@ -9,14 +9,13 @@ import { db, storage, auth } from '../firebase';
 import { ref } from 'firebase/storage';
 import { MAP_KEY } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
+import LocationBar from "../components/LocationBar";
 
 const MapScreen = ({ route }) => {
-
     let API_KEY = MAP_KEY();
 
     const navigation = useNavigation();
     const { location } = useContext(UserInfoContext);
-    // const { myGeo, pushToken } = useContext(UserInfoContext);
     const [userLocation, setLocation] = useState(location);
     const [address, setAddress] = React.useState({
         streetAddress: "",
@@ -24,7 +23,7 @@ const MapScreen = ({ route }) => {
         stateZip: "",
         fullAddress: ""
     });
-    const [locationText, setLocationText] = useState("");
+    const [locationPhrase, setLocationPhrase] = useState("");
     const [eventsArray, setEventsArray] = useState([]);
     const [searchRadius, setRadius] = useState(2000);
     const userColor = 'red';
@@ -35,7 +34,6 @@ const MapScreen = ({ route }) => {
     }, [location]);
 
     const searchInitial = () => {
-        console.log("User Location Latitude is " + userLocation.latitude);
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
         let gc_end = ".json?country=US&access_token=";
         let geocoding_request = gc_start.concat(userLocation.longitude, ',', userLocation.latitude, gc_end, API_KEY);
@@ -48,7 +46,7 @@ const MapScreen = ({ route }) => {
             }
         }).then(function (result) {
             let addressResult = result.features[0].place_name;
-            console.log("Is this your address? " + addressResult);
+
             const addressArray = addressResult.split(", ");
             setAddress({
                 streetAddress: addressArray[0],
@@ -73,9 +71,8 @@ const MapScreen = ({ route }) => {
     // ********************************************************
     const handleNewLocation = async () => {
         Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-        Keyboard.dismiss();
         try {
-            const json = await Geocoder.from(locationText)
+            const json = await Geocoder.from(locationPhrase)
                 .catch(() => {
                     alert("Invalid Location. Please enter again!");
                     return;
@@ -153,76 +150,69 @@ const MapScreen = ({ route }) => {
 
 
     return (
-        <SafeAreaView style={mapStyle.container}>
-            <View style={mapStyle.searchContainer}>
-                <TextInput
-                    placeholder='Enter a new location...'
-                    value={locationText}
-                    onChangeText={text => setLocationText(text)}
-                    style={mapStyle.input}
-                ></TextInput>
-                <TouchableOpacity
-                    onPress={handleNewLocation}
-                    style={[mapStyle.button]}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <SafeAreaView style={mapStyle.container}>
+                <LocationBar
+                    searchPhrase={locationPhrase}
+                    setSearchPhrase={setLocationPhrase}
+                    onSubmit = {handleNewLocation}
+                />
+                <MapView 
+                    style={mapStyle.map}
+                    // The initial Location is set to user's location or UCSC if not given permission
+                    region={{
+                        latitude: userLocation.latitude,
+                        longitude: userLocation.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
                 >
-                    <Text style={mapStyle.buttonText}>Go!</Text>
-                </TouchableOpacity>
-            </View>
+                    { // Display loaded events from firebase
+                        eventsArray[0] != null && eventsArray.map((event, index) => (
+                            <Marker
 
-            <MapView style={mapStyle.map}
-                // The initial Location is set to user's location or UCSC if not given permission
-                region={{
-                    latitude: userLocation.latitude,
-                    longitude: userLocation.longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-            >
-                { // Display loaded events from firebase
-                    eventsArray[0] != null && eventsArray.map((event, index) => (
-                        <Marker
+                                key={index}
+                                coordinate={{
+                                    latitude: event.lat,
+                                    longitude: event.lon
+                                }}
+                                pinColor={eventColor}
+                                title={event.name}
+                            >
+                                <Callout>
+                                    <View style={mapStyle.callOutContainer}>
+                                        <Text>{event.name}</Text>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
+                                            }}
+                                        >
+                                            <Text style={mapStyle.detailText}>View Details...</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </Callout>
+                            </Marker>
+                        ))
+                    }
 
-                            key={index}
-                            coordinate={{
-                                latitude: event.lat,
-                                longitude: event.lon
-                            }}
-                            pinColor={eventColor}
-                            title={event.name}
-                        >
-                            <Callout>
-                                <View style={mapStyle.callOutContainer}>
-                                    <Text>{event.name}</Text>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
-                                        }}
-                                    >
-                                        <Text style={mapStyle.detailText}>View Details...</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </Callout>
-                        </Marker>
-                    ))
-                }
+                    {/* User Marker */}
+                    <Marker coordinate={userLocation}
+                        pinColor={userColor}
+                    >
+                        <Callout>
+                            <View style={mapStyle.callOutContainer}>
+                                <Text>You are here: {address.fullAddress}</Text>
+                            </View>
+                        </Callout>
+                    </Marker>
+                    <Circle center={userLocation}
+                        // Draw a circle around the marked location
+                        radius={searchRadius}
+                    ></Circle>
 
-                {/* User Marker */}
-                <Marker coordinate={userLocation}
-                    pinColor={userColor}
-                >
-                    <Callout>
-                        <View style={mapStyle.callOutContainer}>
-                            <Text>You are here: {address.fullAddress}</Text>
-                        </View>
-                    </Callout>
-                </Marker>
-                <Circle center={userLocation}
-                    // Draw a circle around the marked location
-                    radius={searchRadius}
-                ></Circle>
-
-            </MapView>
-        </SafeAreaView>
+                </MapView>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     );
 };
 

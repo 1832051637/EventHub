@@ -10,9 +10,7 @@ export const UserInfoContext = createContext({});
 
 export const UserInfoProvider = ({ children }) => {
     const [location, setLocation] = useState([]);
-    const [originalLocation, setOriginalLocation] = useState([]);
     const [myGeo, setMyGeo] = useState(null);
-    const [originalGeo, setOriginalGeo] = useState(null);
     const [pushToken, setPushToken] = useState('');
 
     useEffect(() => {
@@ -22,16 +20,14 @@ export const UserInfoProvider = ({ children }) => {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
-                    setOriginalLocation({ longitude: -122.0582, latitude: 36.9881 });
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
                     let userCoords = userLocation.coords;
                     userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
                     setLocation(userLocations[0]);
-                    setOriginalLocation(userLocations[0]);
+
                     let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
                     setMyGeo(geoLoc);
-                    setOriginalGeo(geoLoc);
                 }
             }
             catch (error) {
@@ -87,7 +83,7 @@ export const UserInfoProvider = ({ children }) => {
     };
 
     return (
-        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, originalGeo, originalLocation, pushToken, setPushToken }}>
+        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, pushToken, setPushToken }}>
             {children}
         </UserInfoContext.Provider>
     );
