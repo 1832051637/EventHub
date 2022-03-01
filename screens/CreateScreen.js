@@ -134,7 +134,6 @@ const CreateScreen = () => {
                 // Get the coord of event based on user entered address
                 // ********************************************************
                 Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
-                alert(eventLocation);
                 const json = await Geocoder.from(eventLocation);
                 const location = json.results[0].geometry.location;
                 const address = json.results[0].formatted_address;

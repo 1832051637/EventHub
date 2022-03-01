@@ -39,7 +39,6 @@ const EditEventScreen = ( {route, navigation} ) => {
     const eventID = route.params.eventID;
 
     useEffect(async () => {
-        console.log("Event: " + eventID); //Helps you find the event in database
         try {
             const eventRef = doc(db, 'events', eventID);
             const docData = (await getDoc(eventRef)).data();
@@ -210,7 +209,6 @@ const EditEventScreen = ( {route, navigation} ) => {
                     }
                     //Deletes the original image
                     if (changedOriginalImage && originalImageID) {
-                        console.log("Deleting original image");
                         let imageRef = ref(storage, 'event-images/' + originalImageID);
                         await deleteObject(imageRef);
                     }
@@ -224,10 +222,8 @@ const EditEventScreen = ( {route, navigation} ) => {
                     // Goes to refreshed details page
                     navigation.pop(2);
                     navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
-                    console.log("Event has been updated!");
 
                 } catch (error) {
-                    console.log("Obama");
                     console.log(error);
                 }
                 setLoading(false);

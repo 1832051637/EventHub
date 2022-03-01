@@ -88,7 +88,9 @@ const FeedScreen = () => {
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
 
-            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+            // Do not render event if it is full
+            if (eventData.attendeeLimit !== '' && eventData.attendees.length >= eventData.attendeeLimit) return;
+
             let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
             events.push({
@@ -152,7 +154,7 @@ const FeedScreen = () => {
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
 
-            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+            if (eventData.attendeeLimit !== '' && eventData.attendees.length >= eventData.attendeeLimit) return;
 
             let eventName = eventData.name.toLowerCase();
             let eventDescription = eventData.description.toLowerCase();

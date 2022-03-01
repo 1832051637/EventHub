@@ -7,11 +7,6 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
-import { useNavigation } from '@react-navigation/native';
-
-function has_property(object, key) {
-    return object ? hasOwnProperty.call(object, key) : false;
-}
 
 const EventScreen = ({ route, navigation }) => {
     const [event, setEvent] = useState({});
@@ -20,7 +15,6 @@ const EventScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(async () => {
-        //setLoading(true);
         const eventID = route.params.eventID;
         const eventRef = doc(db, 'events', eventID);
         const docData = (await getDoc(eventRef)).data();
