@@ -128,6 +128,7 @@ const HostingScreen = () => {
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator}/>)}
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
+                ListEmptyComponent={() => (<Text style={feedStyle.empty}>You are not hosting any events</Text>)}
                 refreshing = {refresh}
                 onRefresh = {() => setRefresh(true)}
             />

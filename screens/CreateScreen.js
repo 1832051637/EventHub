@@ -92,7 +92,6 @@ const CreateScreen = () => {
         }
     }
 
-
     const startDateChange = (event, newDate) => {
         checkDate(newDate);
         setStartDate(newDate);

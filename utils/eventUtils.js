@@ -151,6 +151,7 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
 const deleteEvent = async (itemID, tokens, setEventDeleted) => {
     try {
         let eventRef = doc(db, 'events', itemID);
+        const userRef = doc(db, 'users', auth.currentUser.uid);
         let ds = await getDoc(eventRef);
         let imageID = ds.data().imageID;
 
@@ -158,6 +159,11 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
             let imageRef = ref(storage, 'event-images/' + imageID);
             await deleteObject(imageRef);
         }
+
+        updateDoc(userRef, {
+            attending: arrayRemove(eventRef),
+            hosting: arrayRemove(eventRef)
+        });
         
         await deleteDoc(eventRef);
 

@@ -279,6 +279,7 @@ const FeedScreen = () => {
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator} />)}
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
+                ListEmptyComponent={() => (<Text style={feedStyle.empty}>No results</Text>)}
                 refreshing={refresh}
                 onRefresh={() => setRefresh(true)}
                 onEndReached={() => {

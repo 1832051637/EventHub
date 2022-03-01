@@ -4,7 +4,7 @@ const feedStyle = StyleSheet.create({
     feed: {
         paddingTop: 20,
         alignSelf: 'stretch',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
     },
     card: {
         flex: 1,
@@ -44,6 +44,11 @@ const feedStyle = StyleSheet.create({
     },
     footer: {
         marginVertical: 40,
+    },
+    empty: {
+        paddingVertical: 20,
+        fontSize: 20,
+        textAlign: 'center'
     }
 });
 
