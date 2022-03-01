@@ -10,6 +10,7 @@ export const UserInfoContext = createContext({});
 
 export const UserInfoProvider = ({ children }) => {
     const [location, setLocation] = useState([]);
+    const [locationString, setLocationString] = useState('');
     const [myGeo, setMyGeo] = useState(null);
     const [pushToken, setPushToken] = useState('');
 
@@ -24,6 +25,7 @@ export const UserInfoProvider = ({ children }) => {
                     let userLocation = await Location.getLastKnownPositionAsync();
                     let userCoords = userLocation.coords;
                     userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                    
                     setLocation(userLocations[0]);
 
                     let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
@@ -83,7 +85,7 @@ export const UserInfoProvider = ({ children }) => {
     };
 
     return (
-        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, pushToken, setPushToken }}>
+        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, pushToken, setPushToken, locationString, setLocationString }}>
             {children}
         </UserInfoContext.Provider>
     );

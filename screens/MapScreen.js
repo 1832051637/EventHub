@@ -18,14 +18,14 @@ const MapScreen = ({ route }) => {
     const API_KEY = MAP_KEY();
 
     const navigation = useNavigation();
-    const { location, setLocation, setMyGeo } = useContext(UserInfoContext);
+    const { location, setLocation, setMyGeo, locationString, setLocationString } = useContext(UserInfoContext);
     const [address, setAddress] = React.useState({
         streetAddress: "",
         city: "",
         stateZip: "",
         fullAddress: ""
     });
-    const [locationPhrase, setLocationPhrase] = useState("");
+    const [locationPhrase, setLocationPhrase] = useState('');
     const [eventsArray, setEventsArray] = useState([]);
     const [searchRadius, setRadius] = useState(2000);
     const userColor = 'red';
@@ -60,7 +60,7 @@ const MapScreen = ({ route }) => {
     }
 
     React.useEffect(() => {
-        //searchInitial();
+        searchInitial();
         loadEvents();
     }, [location])
 
@@ -85,6 +85,8 @@ const MapScreen = ({ route }) => {
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
             })
+
+            setLocationString(formatted_address);
             
             setAddress({
                 streetAddress: addressArray[0],
@@ -152,12 +154,11 @@ const MapScreen = ({ route }) => {
         })
     }
 
-
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <SafeAreaView style={mapStyle.container}>
                 <LocationBar
-                    searchPhrase={locationPhrase}
+                    initialValue={locationString}
                     setSearchPhrase={setLocationPhrase}
                     onSubmit={handleNewLocation}
                 />

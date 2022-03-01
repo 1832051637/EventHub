@@ -4,6 +4,8 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const LocationBar = (props) => {
+  let placeholder = props.initialValue ? props.initialValue : 'Enter a new location...';
+
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
@@ -28,51 +30,16 @@ const LocationBar = (props) => {
               InputComp: TextInput,
               leftIcon: { type: 'font-awesome', name: 'chevron-left' },
               errorStyle: { color: 'red' },
-              placeholder: 'Enter a new location...',
-              value: props.searchPhrase,
+              placeholder: placeholder,
               returnKeyType: "done",
-              onChangeText: text => {
-                props.setSearchPhrase(text);
-              },
-              onSubmitEditing: text => {
-                props.onSubmit();
-              },
+              onChangeText: props.setSearchPhrase,
+              onSubmitEditing: props.onSubmit,
               style: styles.input,
           }}
         />
       </View>
     </View>
   );
-  /*
-  return (
-    <View style={styles.container}>
-      <View style={styles.searchBar}>
-        {/* search Icon }
-        <Ionicons
-          name="location-sharp"
-          size={20}
-          color="black"
-          style={{ marginLeft: 1 }}
-        />
-        {/* Input field }
-        <TextInput
-          style={styles.input}
-          placeholder="Location"
-          returnKeyType="done"
-          value={props.searchPhrase}
-          onChangeText={props.setSearchPhrase}
-          onSubmitEditing={props.onSubmit}
-        />
-        {/* cross Icon, depending on whether the search bar is clicked or not }
-        {false && (
-          <Entypo name="cross" size={20} color="black" style={{ padding: 1 }} onPress={() => {
-              props.setSearchPhrase("")
-          }}/>
-        )}
-      </View>
-    </View>
-  );
-  */
 };
 export default LocationBar;
 

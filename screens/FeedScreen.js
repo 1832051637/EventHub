@@ -20,11 +20,11 @@ import { GEOCODING_API } from '../utils/API_KEYS';
 const FeedScreen = () => {
     const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const navigation = useNavigation();
-    const { myGeo, setMyGeo, setLocation, pushToken } = useContext(UserInfoContext);
+    const { myGeo, setMyGeo, setLocation, pushToken, locationString, setLocationString } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
-    const [locationPhrase, setLocationPhrase] = useState("");
+    const [locationPhrase, setLocationPhrase] = useState(locationString);
     const [searchClicked, setSearchClicked] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -60,6 +60,7 @@ const FeedScreen = () => {
         let replaceData = false;
 
         if (refresh || !lastSnapshot) {
+            setLastSnapshot(null);
             replaceData = true;
             eventQuery = query(allEvents,
                 where("endTime", ">=", new Date()),
@@ -80,9 +81,9 @@ const FeedScreen = () => {
 
         let eventSnaps = await getDocs(eventQuery);
 
-        if (eventSnaps.docs.length === 0) return;
-
-        setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
+        if (eventSnaps.docs.length !== 0) {
+            setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
+        }
 
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
@@ -118,6 +119,9 @@ const FeedScreen = () => {
             const json = await Geocoder.from(locationPhrase);
             const newLocation = json.results[0].geometry.location;
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
+
+            setLocationString(json.results[0].formatted_address);
+
 
             setLocation({
                 latitude: newLocation.lat,
@@ -262,7 +266,7 @@ const FeedScreen = () => {
                 {
                 searchClicked &&
                 <LocationBar
-                    searchPhrase={locationPhrase}
+                    initialValue={locationString}
                     setSearchPhrase={setLocationPhrase}
                     onSubmit={getLocationFromSearch}
                 />
