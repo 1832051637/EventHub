@@ -23,8 +23,7 @@ const SignupScreen = () => {
                 console.log('A new user just registered:', user.email);
 
                 return setDoc(doc(db, 'users', user.uid), {
-                    firstName: firstName,
-                    lastName: lastName,
+                    name: firstName + " " + lastName,
                     attending: [],
                     hosting: []
                 })
