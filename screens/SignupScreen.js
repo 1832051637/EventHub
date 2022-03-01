@@ -20,7 +20,6 @@ const SignupScreen = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log('A new user just registered:', user.email);
 
                 return setDoc(doc(db, 'users', user.uid), {
                     name: firstName + " " + lastName,

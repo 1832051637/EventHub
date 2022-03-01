@@ -180,7 +180,6 @@ const CreateScreen = () => {
                 navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
             } catch (error) {
                 console.log(error);
-                alert(error);
             }
             setLoading(false);
         }

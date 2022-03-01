@@ -33,7 +33,7 @@ export const UserInfoProvider = ({ children }) => {
                 }
             }
             catch (error) {
-                console.log("error " + error);
+                console.log(error);
             }
         })();
     }, []);
@@ -50,16 +50,12 @@ export const UserInfoProvider = ({ children }) => {
             if (existingStatus !== 'granted') {
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
-            } else {
-                console.log("Notification permissions already granted");
             }
 
             if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
                 return;
             }
 
-            console.log("Getting token");
             const token = (await Notifications.getExpoPushTokenAsync()).data;
             setPushToken(token);
 
@@ -71,7 +67,7 @@ export const UserInfoProvider = ({ children }) => {
             } 
 
         } else {
-            alert('Must use physical device for Push Notifications');
+            //alert('Must use physical device for Push Notifications');
         }
 
         if (Platform.OS === 'android') {
