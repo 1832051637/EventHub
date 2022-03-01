@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 const createStyle = StyleSheet.create({
     container: {
         height: '100%',
-         backgroundColor: 'white'
+        backgroundColor: 'white'
     },
     scroll: {
         alignItems: 'center',
@@ -51,8 +51,8 @@ const createStyle = StyleSheet.create({
         flexWrap: "wrap"
     },
     datePicker: {
-       backgroundColor: 'white',
-       width: 90,
+        backgroundColor: 'white',
+        width: 90,
     },
     datePickerText: {
         marginHorizontal: 7,
@@ -82,7 +82,10 @@ const createStyle = StyleSheet.create({
     deleteButtonText: {
         color: 'rgb(200, 0, 0)',
         fontSize: 18
-    }
+    },
+    autoComplete: {
+        alignItems: "center"
+    },
 });
 
 export default createStyle;

@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView } from 'react-native';
+import { Text, TouchableOpacity, View, FlatList, Image, SafeAreaView, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs, query, where, orderBy, limit, startAfter } from "firebase/firestore";
 import { db, auth } from '../firebase';
 import SearchBar from "../components/SearchBar";
+import LocationBar from "../components/LocationBar";
 import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
@@ -14,46 +15,40 @@ import LoadingView from '../components/LoadingView';
 import { useIsFocused } from '@react-navigation/native';
 import Geocoder from "react-native-geocoding";
 import Geohash from 'latlon-geohash';
+import { GEOCODING_API } from '../utils/API_KEYS';
 
 const FeedScreen = () => {
+    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const navigation = useNavigation();
-    const { myGeo, setMyGeo, location, setLocation, originalLocation, originalGeo, pushToken } = useContext(UserInfoContext);
+    const { myGeo, setMyGeo, setLocation, pushToken, locationString, setLocationString } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
-    const [clicked, setClicked] = useState(false);
-    const [submit, setSubmit] = useState(false);
+    const [locationPhrase, setLocationPhrase] = useState(locationString);
+    const [searchClicked, setSearchClicked] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
-    //const [timeOutID, setTimeoutID] = useState(null);
+    const [timeoutID, setTimeoutID] = useState(null);
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
     const isFocused = useIsFocused();
-    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
+    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
 
     useEffect(async () => {
         if (searchPhrase === '') {
-            setMyGeo(originalGeo);
-            setLocation(originalLocation);
             await loadMore();
 
-        } else if (submit && searchPhrase !== "") {
-            //********************************************************************
-            // IMPORTANT: this function is using too many Geocoding API request.
-            // Whenever the searchPhrase is not empty string, it requests the API.
-            // And it may exceed the free limits. So I just commented it out.
-            //********************************************************************
-            await getLocationFromSearch();
+        } else {
+
             await searchEvents();
         }
-        
+
 
         setLoading(false);
         setRefresh(false);
-        setSubmit(false);
-    }, [searchPhrase, submit, myGeo, refresh])
+    }, [searchPhrase, myGeo, refresh])
 
-    useEffect(async () => {
+    useEffect(() => {
         setRefresh(true);
     }, [isFocused])
 
@@ -65,6 +60,7 @@ const FeedScreen = () => {
         let replaceData = false;
 
         if (refresh || !lastSnapshot) {
+            setLastSnapshot(null);
             replaceData = true;
             eventQuery = query(allEvents,
                 where("endTime", ">=", new Date()),
@@ -85,14 +81,16 @@ const FeedScreen = () => {
 
         let eventSnaps = await getDocs(eventQuery);
 
-        if (eventSnaps.docs.length === 0) return;
-
-        setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
+        if (eventSnaps.docs.length !== 0) {
+            setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
+        }
 
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
 
-            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+            // Do not render event if it is full
+            if (eventData.attendeeLimit !== '' && eventData.attendees.length >= eventData.attendeeLimit) return;
+
             let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
             events.push({
@@ -120,14 +118,18 @@ const FeedScreen = () => {
 
     const getLocationFromSearch = async () => {
         try {
-            const json = await Geocoder.from(searchPhrase);
+            const json = await Geocoder.from(locationPhrase);
             const newLocation = json.results[0].geometry.location;
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
+
+            setLocationString(json.results[0].formatted_address);
+
 
             setLocation({
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
             })
+            setRefresh(true)
 
         } catch (error) {
             setMyGeo("");
@@ -152,13 +154,13 @@ const FeedScreen = () => {
         eventSnaps.forEach((eventSnap) => {
             let eventData = eventSnap.data();
 
-            if (eventData.attendees.length >= eventData.attendeeLimit) return;
+            if (eventData.attendeeLimit !== '' && eventData.attendees.length >= eventData.attendeeLimit) return;
 
             let eventName = eventData.name.toLowerCase();
             let eventDescription = eventData.description.toLowerCase();
             let eventLocation = eventData.geoLocation;
 
-            if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower) || eventLocation == myGeo) {
+            if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower)) {
                 let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
                 events.push({
                     id: eventSnap.id,
@@ -176,7 +178,6 @@ const FeedScreen = () => {
                 });
             }
         });
-
         setData(events);
     }
 
@@ -248,14 +249,31 @@ const FeedScreen = () => {
     // Home screen GUI
     return (
         <SafeAreaView style={style.container}>
-            <SearchBar
-                searchPhrase={searchPhrase}
-                setSearchPhrase={setSearchPhrase}
-                clicked={clicked}
-                setClicked={setClicked}
-                submit = {submit}
-                setSubmit = {setSubmit}
-            />
+            <View 
+                style={{width: '100%'}}
+                onFocus={() => {
+                    clearTimeout(timeoutID);
+                    setSearchClicked(true);
+                }}
+                onBlur={() => {
+                    setTimeoutID(setTimeout(() => {
+                        setSearchClicked(false);
+                    }, 1))
+                }}
+            >
+                <SearchBar
+                    searchPhrase={searchPhrase}
+                    setSearchPhrase={setSearchPhrase}
+                />
+                {
+                searchClicked &&
+                <LocationBar
+                    initialValue={locationString}
+                    setSearchPhrase={setLocationPhrase}
+                    onSubmit={getLocationFromSearch}
+                />
+                }
+            </View>
             <FlatList
                 style={feedStyle.feed}
                 data={data}
@@ -263,6 +281,7 @@ const FeedScreen = () => {
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (<View style={feedStyle.separator} />)}
                 ListFooterComponent={() => (<View style={feedStyle.footer} />)}
+                ListEmptyComponent={() => (<Text style={feedStyle.empty}>No results</Text>)}
                 refreshing={refresh}
                 onRefresh={() => setRefresh(true)}
                 onEndReached={() => {

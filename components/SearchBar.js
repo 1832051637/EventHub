@@ -1,14 +1,11 @@
 import React from "react";
-import { StyleSheet, TextInput, View, Keyboard, Button, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, TextInput, View, Keyboard, Button } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
-import mapStyle from '../styles/mapStyle';
 
 const SearchBar = (props) => {
   return (
     <View style={styles.container}>
-      <View
-        style={styles.searchBar__clicked}
-      >
+      <View style={styles.searchBar}>
         {/* search Icon */}
         <Feather
           name="search"
@@ -20,31 +17,17 @@ const SearchBar = (props) => {
         <TextInput
           style={styles.input}
           placeholder="Search"
+          returnKeyType="search"
           value={props.searchPhrase}
           onChangeText={props.setSearchPhrase}
-          onFocus={() => {
-            props.setClicked(true);
-          }}
-          onBlur={() => {
-            props.setClicked(!props.clicked);
-          }}
         />
         {/* cross Icon, depending on whether the search bar is clicked or not */}
-        {props.clicked && (
+        {false && (
           <Entypo name="cross" size={20} color="black" style={{ padding: 1 }} onPress={() => {
               props.setSearchPhrase("")
           }}/>
         )}
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          props.setSubmit(true);
-        }}
-        style={[mapStyle.button]}
-      >
-        <Text style={mapStyle.buttonText}>Go!</Text>
-      </TouchableOpacity>
-      
     </View>
   );
 };
@@ -52,24 +35,16 @@ export default SearchBar;
 
 const styles = StyleSheet.create({
   container: {
-    margin: 15,
+    marginVertical: 5,
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
     width: "100%",
   },
-  searchBar__unclicked: {
+  searchBar: {
     padding: 10,
     flexDirection: "row",
     width: "95%",
-    backgroundColor: "#e8e8e8",
-    borderRadius: 15,
-    alignItems: "center",
-  },
-  searchBar__clicked: {
-    padding: 10,
-    flexDirection: "row",
-    width: "75%",
     backgroundColor: "#e8e8e8",
     borderRadius: 15,
     alignItems: "center",
