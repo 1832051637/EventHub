@@ -2,23 +2,20 @@ import React, {useState, useEffect, useContext} from 'react';
 import {
     View,
     Text,
-    Image,
     TouchableOpacity,
     StyleSheet,
-    SafeAreaView,
     TextInput,
     Alert,
     ImageBackground
 } from 'react-native';
 
-import { collection, addDoc, doc, getDocs, updateDoc, arrayUnion, Timestamp, query, where } from 'firebase/firestore';
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { collection, doc, getDocs, updateDoc, query, where } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { auth, db, storage } from '../firebase'
 import style from '../styles/style';
 import * as ImagePicker from 'expo-image-picker';
 import LoadingView from '../components/LoadingView';
 import uuid from "uuid";
-import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { profileValidator, inputValidationAlert } from '../utils/eventUtils';
@@ -151,10 +148,6 @@ const CreateProfileScreen = () => {
             }
             setLoading(false);
         }
-    }
-
-    if (loading) {
-        return (<LoadingView />)
     }
 
     return (

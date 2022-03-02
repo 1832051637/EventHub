@@ -6,7 +6,7 @@ import {
 const EditProfileScreen = () => {
 
     return (
-        <Text>Edit Profile Screen Here</Text>
+        <Text>TBD edit here</Text>
     );
 }
 

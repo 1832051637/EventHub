@@ -6,6 +6,7 @@ import { doc, getDoc} from 'firebase/firestore';
 import { auth, db, storage } from '../firebase'
 import { useNavigation } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
+import LoadingView from '../components/LoadingView';
 
 const VerifyEmailButton = () => {
     const handleVerifyEmail = () => {
@@ -33,9 +34,9 @@ const VerifyEmailButton = () => {
 const SettingsScreen = () => {
     const [username, setUsername] = useState(null);
     const [profilePicture, setProfilePicture] = useState(null);
-    const [profileSet, setProfile] = useState(false);
     const navigation = useNavigation();
     const isFocused = useIsFocused();
+    const [loading, setLoading] = useState(true);
 
     useEffect(async () => {
         try {
@@ -43,13 +44,15 @@ const SettingsScreen = () => {
             const docData = (await getDoc(userRef)).data();
             setUsername(docData.username);
             setProfilePicture(docData.profilePicture);
-            if (username && profilePicture) {
-                setProfile(true);
-            }
+            setLoading(false);
         } catch(e) {
             console.error(e);
         }
     }, [isFocused]);
+
+    if (loading) {
+        return (<LoadingView />)
+    }
 
     return (
         <View style={style.profileContainer}>
@@ -65,7 +68,7 @@ const SettingsScreen = () => {
                 : <Text style={style.profileUsername}>Create a Profile!</Text>
             }
             
-            {profileSet
+            {(profilePicture && username)
                 ?
                 <View style={style.buttonContainer}>
                     <TouchableOpacity
