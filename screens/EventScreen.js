@@ -30,7 +30,7 @@ const EventScreen = ({ route, navigation }) => {
         let hostUserID = docData.host;
         let hostData = (await getDoc(hostUserID)).data();
 
-        if (!hostData.pfp) {
+        if (hostData.pfp == undefined) {
             hostData.pfp = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/defaultProfilePicture.jpg?alt=media&token=acb8706e-8b4a-401d-a29a-85a85add1f53';
         }
         
