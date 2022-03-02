@@ -13,6 +13,15 @@ const eventStyle = StyleSheet.create({
         paddingHorizontal: 20,
         fontSize: 18,
     },
+    hostContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        textAlign: 'center',
+        paddingBottom: 10,
+    },
+    hostText: {
+        fontSize: 14,
+    },
     description: {
         fontSize: 18,
     },
@@ -41,6 +50,11 @@ const eventStyle = StyleSheet.create({
     image: {
         width: '100%',
         height: 200,
+    },
+    pfp: {
+        width: 20,
+        height: 20,
+        borderRadius: 100,
     },
 });
 

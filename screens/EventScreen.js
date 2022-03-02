@@ -19,7 +19,13 @@ const EventScreen = ({ route, navigation }) => {
         const eventRef = doc(db, 'events', eventID);
         const docData = (await getDoc(eventRef)).data();
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+        let hostUserID = docData.host;
+        let hostData = (await getDoc(hostUserID)).data();
 
+        if (!hostData.pfp) {
+            hostData.pfp = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/defaultProfilePicture.jpg?alt=media&token=acb8706e-8b4a-401d-a29a-85a85add1f53';
+        }
+        
         const eventData = {
             name: docData.name,
             image: docData.image,
@@ -28,7 +34,8 @@ const EventScreen = ({ route, navigation }) => {
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
             location: docData.location,
-            host: docData.host,
+            host: hostData.name,
+            pfp: hostData.pfp,
             attendees: docData.attendees,
             attendeeLimit: docData.attendeeLimit,
             isAttending: isAttending
@@ -57,12 +64,26 @@ const EventScreen = ({ route, navigation }) => {
                     <Text style={eventStyle.title}>
                         {event.name}
                     </Text>
+                    <View style={eventStyle.hostContainer}> 
+                        <Image
+                            source={{
+                                uri: event.pfp
+                            }}
+                            style={eventStyle.pfp}
+                            resizeMode={'cover'}
+                        />
+                        <Text style={eventStyle.hostText}>          
+                            {' '}{event.host}
+                        </Text>
+                    </View>
+                    
                     <Text style={eventStyle.description}>
                         {event.description
                             ? event.description
                             : 'This event has no description.'}
                     </Text>
                 </View>
+
                 <View style={eventStyle.separator}></View>
                 <View style={eventStyle.footerContainer}>
                     <Text style={eventStyle.footerText}>
