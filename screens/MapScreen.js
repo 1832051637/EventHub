@@ -69,16 +69,22 @@ const MapScreen = ({ route }) => {
     // Reset the marker based on user entered location
     // ********************************************************
     const handleNewLocation = async () => {
+        if (!locationPhrase) return;
+        let json;
+
         try {
-            const json = await Geocoder.from(locationPhrase)
-                .catch(() => {
-                    alert("Invalid Location. Please enter again!");
-                    return;
-                });
-            const newLocation = json.results[0].geometry.location;
-            const formatted_address = json.results[0].formatted_address;
-            
-            const addressArray = formatted_address.split(", ");
+            json = await Geocoder.from(locationPhrase)
+
+        } catch (error) {
+            alert("Invalid Location. Please enter again!");
+            return;
+        }
+
+        const newLocation = json.results[0].geometry.location;
+        const formatted_address = json.results[0].formatted_address;
+        const addressArray = formatted_address.split(", ");
+
+        try {
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
 
             setLocation({
@@ -95,7 +101,7 @@ const MapScreen = ({ route }) => {
                 regionOrCountry: addressArray[3],
                 fullAddress: formatted_address,
             });
-            
+
         } catch (error) {
             console.log(error);
         }

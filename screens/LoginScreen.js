@@ -13,10 +13,6 @@ const LoginScreen = () => {
 
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
-                const user = userCredentials.user;
-                console.log('User just logged in with:', user.email);
-            })
             .catch(error => alert(error.message))
     }
 

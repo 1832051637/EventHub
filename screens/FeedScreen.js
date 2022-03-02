@@ -24,7 +24,7 @@ const FeedScreen = () => {
     const [data, setData] = useState([]);
     const [lastSnapshot, setLastSnapshot] = useState(null);
     const [searchPhrase, setSearchPhrase] = useState("");
-    const [locationPhrase, setLocationPhrase] = useState(locationString);
+    const [locationPhrase, setLocationPhrase] = useState('');
     const [searchClicked, setSearchClicked] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -117,24 +117,32 @@ const FeedScreen = () => {
     };
 
     const getLocationFromSearch = async () => {
+        if (!locationPhrase) return;
+        let json;
+
         try {
-            const json = await Geocoder.from(locationPhrase);
-            const newLocation = json.results[0].geometry.location;
+            json = await Geocoder.from(locationPhrase)
+
+        } catch (error) {
+            alert("Invalid Location. Please enter again!");
+            return;
+        }
+
+        const newLocation = json.results[0].geometry.location;
+
+        try {
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
-
             setLocationString(json.results[0].formatted_address);
-
-
             setLocation({
                 latitude: newLocation.lat,
                 longitude: newLocation.lng
-            })
-            setRefresh(true)
-
+            });
+            
         } catch (error) {
-            setMyGeo("");
-            console.log("Error in searching by location " + error);
+            console.log(error);
         }
+        
+        setRefresh(true)
     }
 
     const searchEvents = async () => {
