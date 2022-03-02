@@ -62,7 +62,6 @@ export const UserInfoProvider = ({ children }) => {
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    console.log('yeet');
                     const userRef = doc(db, 'users', auth.currentUser.uid);
                     const docRef = (await getDoc(userRef)).data();
                     if (existingStatus !== 'granted' || !docRef.hostToken) {
