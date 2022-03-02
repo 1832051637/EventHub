@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         width: '80%'
     },
-    input: {
+    authInput: {
         backgroundColor: 'white',
         paddingHorizontal: 15,
         paddingVertical: 10,

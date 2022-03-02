@@ -29,7 +29,7 @@ const ForgotPasswordScreen = () => {
                     placeholder='Enter email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={style.input}
+                    style={style.authInput}
 
                 ></TextInput>
             </View>

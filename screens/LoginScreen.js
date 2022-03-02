@@ -44,13 +44,13 @@ const LoginScreen = () => {
                     placeholder='Email'
                     value={email}
                     onChangeText={text => setEmail(text)}
-                    style={style.input}
+                    style={style.authInput}
                 ></TextInput>
                 <TextInput
                     placeholder='Password'
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={style.input}
+                    style={style.authInput}
                     secureTextEntry
                 ></TextInput>
             </View>
