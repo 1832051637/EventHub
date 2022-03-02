@@ -5,6 +5,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { db, auth } from '../firebase';
 import {  updateDoc, doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const UserInfoContext = createContext({});
 
@@ -59,14 +60,18 @@ export const UserInfoProvider = ({ children }) => {
             const token = (await Notifications.getExpoPushTokenAsync()).data;
             setPushToken(token);
 
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-            const docRef = (await getDoc(userRef)).data();
-            if (existingStatus !== 'granted' || !docRef.hostToken) {
-                updateDoc(userRef, {
-                    hostToken: token
-                });
-            }
-
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    console.log('yeet');
+                    const userRef = doc(db, 'users', auth.currentUser.uid);
+                    const docRef = (await getDoc(userRef)).data();
+                    if (existingStatus !== 'granted' || !docRef.hostToken) {
+                        updateDoc(userRef, {
+                            hostToken: token
+                        });
+                    }
+                }
+            });
         } else {
             //alert('Must use physical device for Push Notifications');
         }
