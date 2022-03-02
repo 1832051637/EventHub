@@ -11,7 +11,7 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
         [
             {
                 text: "Cancel",
-                onPress: () => console.log("Cancel Pressed"),
+                onPress: () => {},
                 style: "cancel"
             },
             { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setEventDeleted) }
@@ -61,7 +61,7 @@ const inputValidator = (event) => {
         valid = false;
         errors += "- Event name and description cannot contain profane language!\n";
     }
-    if (!event.attendeeLimit.replace(/\s/g, '').length || Number(event.attendeeLimit) < 2) {
+    if (event.attendeeLimit.replace(/\s/g, '').length && Number(event.attendeeLimit) < 2) {
         valid = false;
         errors += "- Attendee limit must be at least a couple people\n";
     }
@@ -179,6 +179,7 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
 const deleteEvent = async (itemID, tokens, setEventDeleted) => {
     try {
         let eventRef = doc(db, 'events', itemID);
+        const userRef = doc(db, 'users', auth.currentUser.uid);
         let ds = await getDoc(eventRef);
         let imageID = ds.data().imageID;
 
@@ -186,10 +187,13 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
             let imageRef = ref(storage, 'event-images/' + imageID);
             await deleteObject(imageRef);
         }
+
+        updateDoc(userRef, {
+            attending: arrayRemove(eventRef),
+            hosting: arrayRemove(eventRef)
+        });
         
         await deleteDoc(eventRef);
-
-        console.log("Event has been deleted");
 
         if (tokens && tokens.length > 0) {
             let message = eventName + " has been cancelled by the host.";
@@ -204,8 +208,6 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
                     "body": message
                 }),
             });
-
-            console.log(response.status);
         }
 
         setEventDeleted(true);

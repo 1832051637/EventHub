@@ -92,7 +92,6 @@ const CreateScreen = () => {
         }
     }
 
-
     const startDateChange = (event, newDate) => {
         checkDate(newDate);
         setStartDate(newDate);
@@ -135,7 +134,6 @@ const CreateScreen = () => {
                 // Get the coord of event based on user entered address
                 // ********************************************************
                 Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
-                alert(eventLocation);
                 const json = await Geocoder.from(eventLocation);
                 const location = json.results[0].geometry.location;
                 const address = json.results[0].formatted_address;
@@ -182,7 +180,6 @@ const CreateScreen = () => {
                 navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
             } catch (error) {
                 console.log(error);
-                alert(error);
             }
             setLoading(false);
         }
@@ -284,7 +281,7 @@ const CreateScreen = () => {
                             debounce={1500}                     // Search debounce
                             minLength={3}                       // Minimum number of chars to start a search 
                             query={{
-                                key: GOOGLE_PLACES_API_KEY,  // *** Comment this line out if you dont use Autocomplete***
+                                //key: GOOGLE_PLACES_API_KEY,  // *** Comment this line out if you dont use Autocomplete***
                                 language: 'en',
                             }}
                             onPress={(data, details) => {

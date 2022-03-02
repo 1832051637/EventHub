@@ -10,9 +10,8 @@ export const UserInfoContext = createContext({});
 
 export const UserInfoProvider = ({ children }) => {
     const [location, setLocation] = useState([]);
-    const [originalLocation, setOriginalLocation] = useState([]);
+    const [locationString, setLocationString] = useState('');
     const [myGeo, setMyGeo] = useState(null);
-    const [originalGeo, setOriginalGeo] = useState(null);
     const [pushToken, setPushToken] = useState('');
 
     useEffect(() => {
@@ -22,20 +21,19 @@ export const UserInfoProvider = ({ children }) => {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
-                    setOriginalLocation({ longitude: -122.0582, latitude: 36.9881 });
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
                     let userCoords = userLocation.coords;
                     userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                    
                     setLocation(userLocations[0]);
-                    setOriginalLocation(userLocations[0]);
+
                     let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
                     setMyGeo(geoLoc);
-                    setOriginalGeo(geoLoc);
                 }
             }
             catch (error) {
-                console.log("error " + error);
+                console.log(error);
             }
         })();
     }, []);
@@ -52,16 +50,12 @@ export const UserInfoProvider = ({ children }) => {
             if (existingStatus !== 'granted') {
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
-            } else {
-                console.log("Notification permissions already granted");
             }
 
             if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
                 return;
             }
 
-            console.log("Getting token");
             const token = (await Notifications.getExpoPushTokenAsync()).data;
             setPushToken(token);
 
@@ -74,7 +68,7 @@ export const UserInfoProvider = ({ children }) => {
             }
 
         } else {
-            alert('Must use physical device for Push Notifications');
+            //alert('Must use physical device for Push Notifications');
         }
 
         if (Platform.OS === 'android') {
@@ -88,7 +82,7 @@ export const UserInfoProvider = ({ children }) => {
     };
 
     return (
-        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, originalGeo, originalLocation, pushToken, setPushToken }}>
+        <UserInfoContext.Provider value={{location, setLocation, myGeo, setMyGeo, pushToken, setPushToken, locationString, setLocationString }}>
             {children}
         </UserInfoContext.Provider>
     );

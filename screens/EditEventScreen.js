@@ -39,7 +39,6 @@ const EditEventScreen = ( {route, navigation} ) => {
     const eventID = route.params.eventID;
 
     useEffect(async () => {
-        console.log("Event: " + eventID); //Helps you find the event in database
         try {
             const eventRef = doc(db, 'events', eventID);
             const docData = (await getDoc(eventRef)).data();
