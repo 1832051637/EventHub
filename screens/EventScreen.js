@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Image, ScrollView, SafeAreaView, Button } from 'react-native';
+import React, { useState, useEffect, useContext} from 'react';
+import { Text, View, Image, ScrollView, SafeAreaView, Button, TouchableOpacity } from 'react-native';
 import { getDoc, doc } from "firebase/firestore";
 import eventStyle from '../styles/eventStyle';
 import style from '../styles/style.js';
@@ -7,15 +7,23 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
+import { attendEvent, unattendEvent } from '../utils/eventUtils';
+import { UserInfoContext } from '../utils/UserInfoProvider';
+
 
 const EventScreen = ({ route, navigation }) => {
     const [event, setEvent] = useState({});
     const [dateString, setDateString] = useState('');
     const [timeString, setTimeString] = useState('');
     const [loading, setLoading] = useState(true);
+    const [host, setHost] = useState(route.params.host);
+    const [hostToken, setHostToken] = useState(route.params.hostToken);
+    const [eventID, setEventID] = useState(route.params.eventID);
+    const [eventName, setEventName] = useState(route.params.eventName);
+    const [attending, setAttending] = useState(route.params.isAttending);
+    const { pushToken } = useContext(UserInfoContext);
 
     useEffect(async () => {
-        const eventID = route.params.eventID;
         const eventRef = doc(db, 'events', eventID);
         const docData = (await getDoc(eventRef)).data();
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
@@ -40,11 +48,12 @@ const EventScreen = ({ route, navigation }) => {
             attendeeLimit: docData.attendeeLimit,
             isAttending: isAttending
         }
+
         setEvent(eventData);
         setDateString(getDateString(eventData.startTime, eventData.endTime));
         setTimeString(getTimeString(eventData.startTime) + ' - ' + getTimeString(eventData.endTime));
         setLoading(false);
-    }, []);
+    }, [attending]);
 
     if (loading) {
         return (<LoadingView />)
@@ -105,6 +114,28 @@ const EventScreen = ({ route, navigation }) => {
 
                 </View>
             </ScrollView>
+            { !attending && host != auth.currentUser.uid ?
+                <TouchableOpacity 
+                    style={style.attendButton}
+                    onPress={() => {attendEvent(eventID, hostToken, eventName, pushToken, route.params.setData, route.params.data); setAttending(true)}}
+                >
+                    <Text 
+                        style={style.buttonText}
+                    > Attend Event
+                    </Text>
+                </TouchableOpacity> 
+                : attending && host != auth.currentUser.uid ?
+                <TouchableOpacity 
+                    style={style.unAttendButton}
+                    onPress={() => {unattendEvent(eventID, pushToken, route.params.setData, route.params.data); setAttending(false)}}
+                >
+                    <Text 
+                        style={style.unAttendButtonText}
+                    > Cancel
+                    </Text>
+                </TouchableOpacity> : null
+
+            }
         </SafeAreaView>
     );
 };

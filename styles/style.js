@@ -45,6 +45,27 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
+    attendButton: {
+        backgroundColor: '#0782F8',
+        width: '80%',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: '1%'
+    },
+    unAttendButton: {
+        borderWidth: 2,
+        borderColor: '#0782F8',
+        borderRadius: 5,
+        color: '#0782F8',
+        width: '80%',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: '5%'
+    },
     buttonOutline: {
         backgroundColor: 'white',
         marginTop: 5,
@@ -53,6 +74,11 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
+        fontWeight: '700',
+        fontSize: 16,
+    },
+    unAttendButtonText: {
+        color: 'blue',
         fontWeight: '700',
         fontSize: 16,
     },
