@@ -19,6 +19,34 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
     )
 };
 
+const profileValidator = (username) => {
+    let valid = true;
+    var code, len;
+    let errors = "";
+    for (var i = 0, len = username.length; i < len; i++) {
+        code = username.charCodeAt(i);
+        if (!(code > 47 && code < 58) && 
+            !(code > 64 && code < 91) && 
+            !(code > 96 && code < 123)) {
+                valid = false;
+                errors += "- Username cannot have non-alphanumeric characters\n";
+                break;
+        }
+    }
+    var Filter = require('bad-words'),
+    filter = new Filter();
+    filter.removeWords('fart', 'hell', 'poop'); //necessary. Feel free to add/remove any other words @lang.json
+    if (!username.replace(/\s/g, '').length || username.length > 20) {
+        valid = false;
+        errors += "- Username cannot be empty or greater than 20 characters\n";
+    }
+    if (filter.isProfane(username)) {
+        valid = false;
+        errors += "- Username cannot contain profane language!\n";
+    }
+    return {valid: valid, errors: errors};
+};
+
 const inputValidator = (event) => {
     let valid = true;
     let errors = "";
@@ -188,4 +216,4 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
 };
 
 export { attendEvent, unattendEvent, deleteEvent, deleteAlert,
-        inputValidator, inputValidationAlert, sendUpdateNotifications }
+        inputValidator, inputValidationAlert, sendUpdateNotifications, profileValidator }

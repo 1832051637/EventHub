@@ -4,7 +4,7 @@ import Geohash from 'latlon-geohash';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { db, auth } from '../firebase';
-import {  updateDoc, doc } from "firebase/firestore";
+import {  updateDoc, doc, getDoc } from "firebase/firestore";
 
 export const UserInfoContext = createContext({});
 
@@ -65,12 +65,13 @@ export const UserInfoProvider = ({ children }) => {
             const token = (await Notifications.getExpoPushTokenAsync()).data;
             setPushToken(token);
 
-            if (existingStatus !== 'granted') {
-                const userRef = doc(db, 'users', auth.currentUser.uid);
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            const docRef = (await getDoc(userRef)).data();
+            if (existingStatus !== 'granted' || !docRef.hostToken) {
                 updateDoc(userRef, {
                     hostToken: token
                 });
-            } 
+            }
 
         } else {
             alert('Must use physical device for Push Notifications');

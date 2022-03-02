@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import SignOutButton from '../components/SignOutButton';
 import CreateScreen from '../screens/CreateScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import SettingsStack from '../navigation/SettingsStack';
 import MapScreen from '../screens/MapScreen';
 import FeedScreen from '../screens/FeedScreen';
 import MyEventsTabs from './MyEventsTabs';
@@ -41,11 +41,11 @@ AppTabs = () => {
             <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),
         }} />
-        <Tab.Screen name="Settings" component={SettingsScreen} options={{
+        <Tab.Screen name="Settings Stack" component={SettingsStack} options={{
             tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cog" color={color} size={size} />
             ),
-            headerRight: SignOutButton
+            headerShown: false
         }} />
         </Tab.Navigator>
     );

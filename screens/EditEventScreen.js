@@ -210,11 +210,9 @@ const EditEventScreen = ( {route, navigation} ) => {
                     }
                     //Deletes the original image
                     if (changedOriginalImage && originalImageID) {
-                        console.log("Deleting original image");
                         let imageRef = ref(storage, 'event-images/' + originalImageID);
                         await deleteObject(imageRef);
                     }
-                    
                     const eventRef = doc(db, 'events', route.params.eventID);
                     await updateDoc(eventRef, eventData);
                     // Comment the below out if you don't want others to get notifications of changes
@@ -224,10 +222,8 @@ const EditEventScreen = ( {route, navigation} ) => {
                     // Goes to refreshed details page
                     navigation.pop(2);
                     navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
-                    console.log("Event has been updated!");
 
                 } catch (error) {
-                    console.log("Obama");
                     console.log(error);
                 }
                 setLoading(false);
