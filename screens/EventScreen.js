@@ -26,8 +26,8 @@ const EventScreen = ({ route, navigation }) => {
 
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
-        let hostUserID = docData.host;
-        let hostData = (await getDoc(hostUserID)).data();
+        let hostRef = docData.host;
+        let hostData = (await getDoc(hostRef)).data();
         
         const eventData = {
             name: docData.name,
@@ -37,7 +37,7 @@ const EventScreen = ({ route, navigation }) => {
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
             location: docData.location,
-            hostID: hostUserID,
+            hostID: hostRef.id,
             hostName: hostData.name,
             hostToken: docData.hostToken,
             pfp: hostData.profilePicture,
@@ -90,57 +90,61 @@ const EventScreen = ({ route, navigation }) => {
                             : 'This event has no description.'}
                     </Text>
                 </View>
-
                 <View style={eventStyle.separator}></View>
                 <View style={eventStyle.footerContainer}>
-                    <Text style={eventStyle.footerText}>
+                    <View style={eventStyle.footerTextContainer}>
                         <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon} />
-                        {' '}{dateString} at {timeString}
-                    </Text>
-                    <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
-                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon}
-                        />
-                        {' '}{event.address ? event.location + ", " + event.address : 'N/A'}
-                    </Text>
-
-                    <Text style={eventStyle.footerText}>
+                        <Text style={eventStyle.footerText}>
+                            {dateString} at {timeString}
+                        </Text>
+                    </View>
+                    <View style={eventStyle.footerTextContainer}>
+                        <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon}/>
+                        <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
+                            {event.address ? event.location + ", " + event.address : 'N/A'}
+                        </Text>
+                    </View>
+                    <View style={eventStyle.footerTextContainer}>
                         <MaterialCommunityIcons name="account-group-outline" size={20} style={eventStyle.icon} />
-                        {' '}{event.attendees.length}
-                        {event.attendeeLimit && ' out of ' + event.attendeeLimit}
-                        {' '}attending so far
-                    </Text>
-
+                        <Text style={eventStyle.footerText}>
+                            {event.attendees.length}
+                            {event.attendeeLimit && ' out of ' + event.attendeeLimit}
+                            {' '} attending so far
+                        </Text>
+                    </View>
+                </View>
+                <View style={[style.buttonContainer, {alignSelf: 'center'}]}>
+                    { (event.hostID !== auth.currentUser.uid && !attending) &&
+                    <TouchableOpacity 
+                        style={style.button}
+                        onPress={() => {
+                            attendEvent(eventID, event.hostToken, event.name, pushToken); 
+                            setAttending(true)
+                        }}
+                    >
+                        <Text 
+                            style={style.buttonText}
+                        > Attend Event
+                        </Text>
+                    </TouchableOpacity> 
+                    }
+                    {
+                        (event.hostID !== auth.currentUser.uid && attending) &&
+                        <TouchableOpacity 
+                            style={style.button}
+                            onPress={() => {
+                                unattendEvent(eventID, pushToken ); 
+                                setAttending(false)
+                            }}
+                        >
+                            <Text 
+                                style={style.buttonText}
+                            > Unattend Event
+                            </Text>
+                        </TouchableOpacity> 
+                    }
                 </View>
             </ScrollView>
-            { (!attending && event.hostID != auth.currentUser.uid) &&
-                <TouchableOpacity 
-                    style={eventStyle.attendButton}
-                    onPress={() => {
-                        attendEvent(eventID, event.hostToken, event.name, pushToken); 
-                        setAttending(true)
-                    }}
-                >
-                    <Text 
-                        style={style.buttonText}
-                    > Attend Event
-                    </Text>
-                </TouchableOpacity> 
-            }
-            {
-                (attending && event.hostID != auth.currentUser.uid) &&
-                <TouchableOpacity 
-                    style={eventStyle.unattendButton}
-                    onPress={() => {
-                        unattendEvent(eventID, pushToken ); 
-                        setAttending(false)
-                    }}
-                >
-                    <Text 
-                        style={eventStyle.unattendButtonText}
-                    > Cancel
-                    </Text>
-                </TouchableOpacity> 
-            }
         </SafeAreaView>
     );
 };

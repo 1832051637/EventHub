@@ -5,7 +5,7 @@ const eventStyle = StyleSheet.create({
         textAlign: 'center',
         fontSize: 28,
         fontWeight: 'bold',
-        paddingBottom: 15
+        marginBottom: 10
     },
     mainContainer: {
         flex: 5,
@@ -16,29 +16,35 @@ const eventStyle = StyleSheet.create({
     hostContainer: {
         flexDirection: 'row', 
         alignItems: 'center', 
-        textAlign: 'center',
-        paddingBottom: 10,
+        paddingBottom: 15,
     },
     hostText: {
-        fontSize: 16,
+        fontSize: 18,
     },
     description: {
         fontSize: 18,
     },
     footerContainer: {
-        padding: 10
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        marginBottom: 20
+    },
+    footerTextContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8
     },
     footerText: {
         fontSize: 18,
-        marginBottom: 5
     },
     locationText: {
+        flex: 1,
         textDecorationLine: 'underline',
-        fontSize: 18,
-        marginBottom: 5
+        fontSize: 18, 
     },
     icon: {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginRight: 10
     },
     separator: {
         borderColor: 'rgba(200, 200, 200, 1.0)',
@@ -52,35 +58,10 @@ const eventStyle = StyleSheet.create({
         height: 200,
     },
     pfp: {
-        width: 25,
-        height: 25,
+        width: 30,
+        height: 30,
         borderRadius: 100,
-    },
-    attendButton: {
-        backgroundColor: '#0782F8',
-        width: '80%',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        bottom: '1%'
-    },
-    unattendButton: {
-        borderWidth: 2,
-        borderColor: '#0782F8',
-        borderRadius: 5,
-        color: '#0782F8',
-        width: '80%',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        bottom: '5%'
-    },
-    unattendButtonText: {
-        color: 'blue',
-        fontWeight: '700',
-        fontSize: 16,
+        marginRight: 5
     },
 });
 
