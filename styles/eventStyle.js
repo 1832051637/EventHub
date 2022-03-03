@@ -20,7 +20,7 @@ const eventStyle = StyleSheet.create({
         paddingBottom: 10,
     },
     hostText: {
-        fontSize: 14,
+        fontSize: 16,
     },
     description: {
         fontSize: 18,
@@ -52,9 +52,35 @@ const eventStyle = StyleSheet.create({
         height: 200,
     },
     pfp: {
-        width: 20,
-        height: 20,
+        width: 25,
+        height: 25,
         borderRadius: 100,
+    },
+    attendButton: {
+        backgroundColor: '#0782F8',
+        width: '80%',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: '1%'
+    },
+    unattendButton: {
+        borderWidth: 2,
+        borderColor: '#0782F8',
+        borderRadius: 5,
+        color: '#0782F8',
+        width: '80%',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: '5%'
+    },
+    unattendButtonText: {
+        color: 'blue',
+        fontWeight: '700',
+        fontSize: 16,
     },
 });
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         width: '80%'
     },
-    authInput: {
+    input: {
         backgroundColor: 'white',
         paddingHorizontal: 15,
         paddingVertical: 10,
@@ -45,27 +45,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-    attendButton: {
-        backgroundColor: '#0782F8',
-        width: '80%',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        bottom: '1%'
-    },
-    unAttendButton: {
-        borderWidth: 2,
-        borderColor: '#0782F8',
-        borderRadius: 5,
-        color: '#0782F8',
-        width: '80%',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        bottom: '5%'
-    },
     buttonOutline: {
         backgroundColor: 'white',
         marginTop: 5,
@@ -77,50 +56,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
-    unAttendButtonText: {
-        color: 'blue',
-        fontWeight: '700',
-        fontSize: 16,
-    },
     buttonOutlineText: {
         color: '#0782F8',
         fontWeight: '700',
         fontSize: 16,
-    },
-    profilePicture: {
-        height: 150,
-        width: 150,
-        borderRadius: 75,
-        marginBottom: 25
-    },
-    profileContainer: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: 'white',
-        paddingBottom: 100,
-        paddingTop: 25
-    },
-    profileUsername: {
-        fontWeight: '700',
-        fontSize: 20,
-        marginBottom: 50
-    },
-    profileUsernameInput: {
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: 'black',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        marginBottom: 20
-    },
-    input: {
-        flex: 0.5,
-        fontSize: 16,
-        paddingTop: 20,
-        paddingBottom: 0,
-        fontSize: 20,
-    },
+    }
 });
 
 export default styles;

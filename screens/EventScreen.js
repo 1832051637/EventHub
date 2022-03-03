@@ -25,7 +25,7 @@ const EventScreen = ({ route, navigation }) => {
         const docData = (await getDoc(eventRef)).data();
 
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
-        
+
         let hostUserID = docData.host;
         let hostData = (await getDoc(hostUserID)).data();
         
@@ -37,7 +37,7 @@ const EventScreen = ({ route, navigation }) => {
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
             location: docData.location,
-            hostID = hostUserID,
+            hostID: hostUserID,
             hostName: hostData.name,
             hostToken: docData.hostToken,
             pfp: hostData.profilePicture,
@@ -114,7 +114,7 @@ const EventScreen = ({ route, navigation }) => {
             </ScrollView>
             { (!attending && event.hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
-                    style={style.attendButton}
+                    style={eventStyle.attendButton}
                     onPress={() => {
                         attendEvent(eventID, event.hostToken, event.name, pushToken); 
                         setAttending(true)
@@ -129,18 +129,17 @@ const EventScreen = ({ route, navigation }) => {
             {
                 (attending && event.hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
-                    style={style.unAttendButton}
+                    style={eventStyle.unattendButton}
                     onPress={() => {
                         unattendEvent(eventID, pushToken ); 
                         setAttending(false)
                     }}
                 >
                     <Text 
-                        style={style.unAttendButtonText}
+                        style={eventStyle.unattendButtonText}
                     > Cancel
                     </Text>
                 </TouchableOpacity> 
-
             }
         </SafeAreaView>
     );

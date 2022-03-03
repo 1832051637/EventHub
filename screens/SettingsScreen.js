@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, Image, View, Alert, StyleSheet } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
 import style from '../styles/style.js';
+import settingsStyle from '../styles/settingsStyle.js';
 import { sendEmailVerification } from "firebase/auth";
 import { doc, getDoc} from 'firebase/firestore';
 import { auth, db, storage } from '../firebase'
@@ -55,17 +56,14 @@ const SettingsScreen = () => {
     }
 
     return (
-        <View style={style.profileContainer}>
-            <View style={style.buttonContainer}>
-                <VerifyEmailButton />
-            </View>
+        <View style={settingsStyle.profileContainer}>
             {profilePicture 
-                ? <Image style={style.profilePicture} source={{uri: profilePicture}} />
-                : <Image style={style.profilePicture} source={require('../assets/defaultProfilePicture.jpg')} />
+                ? <Image style={settingsStyle.profilePicture} source={{uri: profilePicture}} />
+                : <Image style={settingsStyle.profilePicture} source={require('../assets/defaultProfilePicture.jpg')} />
             }
             {username
-                ? <Text style={style.profileUsername}>@{username}</Text>
-                : <Text style={style.profileUsername}>Create a Profile!</Text>
+                ? <Text style={settingsStyle.profileUsername}>@{username}</Text>
+                : <Text style={settingsStyle.profileUsername}>Create a Profile!</Text>
             }
             
             {(profilePicture && username)
@@ -92,6 +90,9 @@ const SettingsScreen = () => {
                     </TouchableOpacity>
                 </View>
             }
+            <View style={style.buttonContainer}>
+                <VerifyEmailButton />
+            </View>
         </View>
     );
 };
