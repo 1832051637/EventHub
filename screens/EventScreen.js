@@ -13,7 +13,6 @@ import { UserInfoContext } from '../utils/UserInfoProvider';
 
 const EventScreen = ({ route, navigation }) => {
     const eventID = route.params.eventID;
-    const hostID = route.params.host;
     const [event, setEvent] = useState({});
     const [dateString, setDateString] = useState('');
     const [timeString, setTimeString] = useState('');
@@ -24,13 +23,11 @@ const EventScreen = ({ route, navigation }) => {
     useEffect(async () => {
         const eventRef = doc(db, 'events', eventID);
         const docData = (await getDoc(eventRef)).data();
+
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+        
         let hostUserID = docData.host;
         let hostData = (await getDoc(hostUserID)).data();
-
-        if (hostData.pfp == undefined) {
-            hostData.pfp = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/defaultProfilePicture.jpg?alt=media&token=acb8706e-8b4a-401d-a29a-85a85add1f53';
-        }
         
         const eventData = {
             name: docData.name,
@@ -40,9 +37,10 @@ const EventScreen = ({ route, navigation }) => {
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
             location: docData.location,
-            host: hostData.name,
+            hostID = hostUserID,
+            hostName: hostData.name,
             hostToken: docData.hostToken,
-            pfp: hostData.pfp,
+            pfp: hostData.profilePicture,
             attendees: docData.attendees,
             attendeeLimit: docData.attendeeLimit,
             isAttending: isAttending
@@ -82,7 +80,7 @@ const EventScreen = ({ route, navigation }) => {
                             resizeMode={'cover'}
                         />
                         <Text style={eventStyle.hostText}>          
-                            {' '}{event.host}
+                            {' '}{event.hostName}
                         </Text>
                     </View>
                     
@@ -114,7 +112,7 @@ const EventScreen = ({ route, navigation }) => {
 
                 </View>
             </ScrollView>
-            { (!attending && hostID != auth.currentUser.uid) &&
+            { (!attending && event.hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
                     style={style.attendButton}
                     onPress={() => {
@@ -129,7 +127,7 @@ const EventScreen = ({ route, navigation }) => {
                 </TouchableOpacity> 
             }
             {
-                (attending && hostID != auth.currentUser.uid) &&
+                (attending && event.hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
                     style={style.unAttendButton}
                     onPress={() => {
