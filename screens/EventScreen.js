@@ -7,7 +7,7 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
-import { attendEvent, unattendEvent } from '../utils/eventUtils';
+import { attendEvent, unattendEvent } from '../utils/generalUtils';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 
 

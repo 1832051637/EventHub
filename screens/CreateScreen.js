@@ -17,7 +17,7 @@ import uuid from "uuid";
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
-import { inputValidator, inputValidationAlert } from '../utils/eventUtils';
+import { inputValidator, inputValidationAlert } from '../utils/generalUtils';
 
 const CreateScreen = () => {
     const GOOGLE_PLACES_API_KEY = PLACES_API();
@@ -177,11 +177,13 @@ const CreateScreen = () => {
                 });
 
                 resetFields();
+                setLoading(false);
                 navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
             } catch (error) {
+                alert(error);
                 console.log(error);
+                setLoading(false);
             }
-            setLoading(false);
         }
     }
 

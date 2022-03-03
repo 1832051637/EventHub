@@ -5,6 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import style from '../styles/style.js';
 import authStyle from '../styles/authStyle.js';
+import { profileValidator, inputValidationAlert } from '../utils/generalUtils';
 
 const SignupScreen = () => {
     const [email, setEmail] = useState('');
@@ -13,16 +14,22 @@ const SignupScreen = () => {
     const [lastName, setLastName] = useState('');
 
     const handleSignUp = () => {
-        if (firstName === '' || lastName === '') {
-            Alert.alert('Please enter your first and last name');
+        let validation = profileValidator(firstName, lastName);
+        if (!validation.valid) {
+            inputValidationAlert(validation.errors);
             return;
-        }
+        } 
+
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
 
                 return setDoc(doc(db, 'users', user.uid), {
+                    firstName: firstName,
+                    lastName: lastName,
                     name: firstName + " " + lastName,
+                    profilePicture: 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/defaultProfilePicture.jpg?alt=media&token=acb8706e-8b4a-401d-a29a-85a85add1f53',
+                    imageID: '',
                     attending: [],
                     hosting: []
                 })
@@ -34,7 +41,6 @@ const SignupScreen = () => {
     return (
         <KeyboardAvoidingView
             style={style.container}
-            //behavior='padding'
         >
             <View style={authStyle.heading}>
                 <Text style={authStyle.titleEvent}>

@@ -14,7 +14,7 @@ import createStyle from '../styles/createStyle';
 import uuid from "uuid";
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
-import { sendUpdateNotifications, deleteAlert, inputValidator, inputValidationAlert } from '../utils/eventUtils';
+import { sendUpdateNotifications, deleteAlert, inputValidator, inputValidationAlert } from '../utils/generalUtils';
 
 const EditEventScreen = ( {route, navigation} ) => {
     const [eventName, setEventName] = useState('');

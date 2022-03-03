@@ -8,7 +8,7 @@ import { getDateString, getTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
-import { attendEvent, unattendEvent } from '../utils/eventUtils';
+import { attendEvent, unattendEvent } from '../utils/generalUtils';
 import { useIsFocused } from '@react-navigation/native';
 
 const HostingScreen = () => {

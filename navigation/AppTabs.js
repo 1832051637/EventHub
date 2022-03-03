@@ -41,7 +41,7 @@ AppTabs = () => {
             <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),
         }} />
-        <Tab.Screen name="Settings Stack" component={SettingsStack} options={{
+        <Tab.Screen name="Settings" component={SettingsStack} options={{
             tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cog" color={color} size={size} />
             ),

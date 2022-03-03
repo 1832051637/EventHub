@@ -32,18 +32,20 @@ const VerifyEmailButton = () => {
     );
 }
 
-const SettingsScreen = () => {
-    const [username, setUsername] = useState(null);
+const ProfileScreen = () => {
+    const [name, setName] = useState('');
     const [profilePicture, setProfilePicture] = useState(null);
+    const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
     const isFocused = useIsFocused();
-    const [loading, setLoading] = useState(true);
 
     useEffect(async () => {
         try {
+            setLoading(true);
             const userRef = doc(db, 'users', auth.currentUser.uid);
             const docData = (await getDoc(userRef)).data();
-            setUsername(docData.username);
+
+            setName(docData.name);
             setProfilePicture(docData.profilePicture);
             setLoading(false);
         } catch(e) {
@@ -57,44 +59,23 @@ const SettingsScreen = () => {
 
     return (
         <View style={settingsStyle.profileContainer}>
-            {profilePicture 
-                ? <Image style={settingsStyle.profilePicture} source={{uri: profilePicture}} />
-                : <Image style={settingsStyle.profilePicture} source={require('../assets/defaultProfilePicture.jpg')} />
-            }
-            {username
-                ? <Text style={settingsStyle.profileUsername}>@{username}</Text>
-                : <Text style={settingsStyle.profileUsername}>Create a Profile!</Text>
-            }
-            
-            {(profilePicture && username)
-                ?
-                <View style={style.buttonContainer}>
-                    <TouchableOpacity
-                        style={style.button}
-                        onPress={() => navigation.push('Edit Profile')}
-                    >
-                        <Text
-                            style={style.buttonText}
-                        >Edit Profile</Text>
-                    </TouchableOpacity>
-                </View>
-                :
-                <View style={style.buttonContainer}>
-                    <TouchableOpacity
-                        style={style.button}
-                        onPress={() => navigation.push('Create Profile')}
-                    >
-                        <Text
-                            style={style.buttonText}
-                        >Create Profile</Text>
-                    </TouchableOpacity>
-                </View>
-            }
+            <Image style={settingsStyle.profilePicture} source={{uri: profilePicture}} />
+            <Text style={settingsStyle.profileUsername}>{name}</Text>
             <View style={style.buttonContainer}>
+                <TouchableOpacity
+                    style={style.button}
+                    onPress={() => navigation.push('Edit Profile')}
+                >
+                    <Text
+                        style={style.buttonText}
+                    >Edit Profile</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={[style.buttonContainer, {marginTop: 30}]}>
                 <VerifyEmailButton />
             </View>
         </View>
     );
 };
 
-export default SettingsScreen;
+export default ProfileScreen;
