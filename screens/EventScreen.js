@@ -29,10 +29,6 @@ const EventScreen = ({ route, navigation }) => {
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
         let hostUserID = docData.host;
         let hostData = (await getDoc(hostUserID)).data();
-
-        if (hostData.pfp == undefined) {
-            hostData.pfp = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/defaultProfilePicture.jpg?alt=media&token=acb8706e-8b4a-401d-a29a-85a85add1f53';
-        }
         
         const eventData = {
             name: docData.name,
@@ -43,7 +39,7 @@ const EventScreen = ({ route, navigation }) => {
             address: docData.address,
             location: docData.location,
             host: hostData.name,
-            pfp: hostData.pfp,
+            pfp: hostData.profilePicture,
             attendees: docData.attendees,
             attendeeLimit: docData.attendeeLimit,
             isAttending: isAttending
