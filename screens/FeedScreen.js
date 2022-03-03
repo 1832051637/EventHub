@@ -197,7 +197,7 @@ const FeedScreen = () => {
             <TouchableOpacity
                 style={feedStyle.card}
                 onPress={() => {
-                    navigation.push("Event Details", { eventID: item.id, host: item.host.id, eventName: item.name, isAttending: item.isAttending, hostToken: item.hostToken, setData: setData, data: data })
+                    navigation.push("Event Details", { eventID: item.id, host: item.host.id })
                 }}
             >
                 {feedStyle.image && <Image

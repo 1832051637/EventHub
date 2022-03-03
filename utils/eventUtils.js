@@ -140,16 +140,19 @@ const attendEvent = (eventId, hostToken, eventName, pushToken, setData, data) =>
         attending: arrayUnion(eventRef)
     });
 
-    const newData = data.map(item => {
-        if (item.id === eventId) {
-            item.isAttending = true;
-            return item
-        }
-        return item;
-    });
+    if (data) {
+        const newData = data.map(item => {
+            if (item.id === eventId) {
+                item.isAttending = true;
+                return item
+            }
+            return item;
+        });
+
+        setData(newData);
+    }
 
     sendNotifications(hostToken, eventName);
-    setData(newData);
 }
 
 const unattendEvent = (eventId, pushToken, setData, data) => {
@@ -165,14 +168,16 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
         attending: arrayRemove(eventRef)
     });
 
-    const newData = data.map(item => {
-        if (item.id === eventId) {
-            item.isAttending = false;
-            return item
-        }
-        return item;
-    })
-    setData(newData);
+    if (data) {
+        const newData = data.map(item => {
+            if (item.id === eventId) {
+                item.isAttending = false;
+                return item
+            }
+            return item;
+        })
+        setData(newData);
+    }
 }
 
 //Deletes event and notifys guests

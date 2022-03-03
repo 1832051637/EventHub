@@ -12,15 +12,13 @@ import { UserInfoContext } from '../utils/UserInfoProvider';
 
 
 const EventScreen = ({ route, navigation }) => {
+    const eventID = route.params.eventID;
+    const hostID = route.params.host;
     const [event, setEvent] = useState({});
     const [dateString, setDateString] = useState('');
     const [timeString, setTimeString] = useState('');
     const [loading, setLoading] = useState(true);
-    const [host, setHost] = useState(route.params.host);
-    const [hostToken, setHostToken] = useState(route.params.hostToken);
-    const [eventID, setEventID] = useState(route.params.eventID);
-    const [eventName, setEventName] = useState(route.params.eventName);
-    const [attending, setAttending] = useState(route.params.isAttending);
+    const [attending, setAttending] = useState(false);
     const { pushToken } = useContext(UserInfoContext);
 
     useEffect(async () => {
@@ -43,6 +41,7 @@ const EventScreen = ({ route, navigation }) => {
             address: docData.address,
             location: docData.location,
             host: hostData.name,
+            hostToken: docData.hostToken,
             pfp: hostData.pfp,
             attendees: docData.attendees,
             attendeeLimit: docData.attendeeLimit,
@@ -50,10 +49,11 @@ const EventScreen = ({ route, navigation }) => {
         }
 
         setEvent(eventData);
+        setAttending(isAttending);
         setDateString(getDateString(eventData.startTime, eventData.endTime));
         setTimeString(getTimeString(eventData.startTime) + ' - ' + getTimeString(eventData.endTime));
         setLoading(false);
-    }, [attending]);
+    }, []);
 
     if (loading) {
         return (<LoadingView />)
@@ -114,26 +114,34 @@ const EventScreen = ({ route, navigation }) => {
 
                 </View>
             </ScrollView>
-            { !attending && host != auth.currentUser.uid ?
+            { (!attending && hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
                     style={style.attendButton}
-                    onPress={() => {attendEvent(eventID, hostToken, eventName, pushToken, route.params.setData, route.params.data); setAttending(true)}}
+                    onPress={() => {
+                        attendEvent(eventID, event.hostToken, event.name, pushToken); 
+                        setAttending(true)
+                    }}
                 >
                     <Text 
                         style={style.buttonText}
                     > Attend Event
                     </Text>
                 </TouchableOpacity> 
-                : attending && host != auth.currentUser.uid ?
+            }
+            {
+                (attending && hostID != auth.currentUser.uid) &&
                 <TouchableOpacity 
                     style={style.unAttendButton}
-                    onPress={() => {unattendEvent(eventID, pushToken, route.params.setData, route.params.data); setAttending(false)}}
+                    onPress={() => {
+                        unattendEvent(eventID, pushToken ); 
+                        setAttending(false)
+                    }}
                 >
                     <Text 
                         style={style.unAttendButtonText}
                     > Cancel
                     </Text>
-                </TouchableOpacity> : null
+                </TouchableOpacity> 
 
             }
         </SafeAreaView>
