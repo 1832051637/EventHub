@@ -18,6 +18,7 @@ import { UserInfoContext } from '../utils/UserInfoProvider';
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
 import { inputValidator, inputValidationAlert } from '../utils/generalUtils';
+import VerifyEmailButton from '../components/VerifyEmailButton';
 
 const CreateScreen = () => {
     const GOOGLE_PLACES_API_KEY = PLACES_API();
@@ -195,6 +196,17 @@ const CreateScreen = () => {
         setSelectedImage(null);
         setStartDate(new Date());
         setEndDate(new Date());
+    }
+
+    if (!auth.currentUser.emailVerified) {
+        return (
+            <View style={style.container}>
+                <Text style={createStyle.verifyText}>Please verify your email address before creating an event.</Text>
+                <View style={style.buttonContainer}>
+                    <VerifyEmailButton />
+                </View>
+            </View>
+        )
     }
 
     if (loading) {

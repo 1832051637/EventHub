@@ -75,7 +75,6 @@ const createStyle = StyleSheet.create({
         borderRadius: 5,
     },
     deleteButton: {
-        //padding: 5,
         flexDirection: 'row',
         justifyContent: 'center'
     },
@@ -86,6 +85,11 @@ const createStyle = StyleSheet.create({
     autoComplete: {
         alignItems: "center"
     },
+    verifyText: {
+        textAlign: 'center',
+        fontSize: 18,
+        marginBottom: 40
+    }
 });
 
 export default createStyle;
