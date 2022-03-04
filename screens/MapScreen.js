@@ -190,16 +190,18 @@ const MapScreen = ({ route }) => {
                                 title={event.name}
                             >
                                 <Callout>
-                                    <View style={mapStyle.callOutContainer}>
-                                        <Text>{event.name}</Text>
-                                        <Text>Distance: {event.distance} miles</Text>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
-                                            }}
-                                        >
-                                            <Text style={mapStyle.detailText}>View Details...</Text>
-                                        </TouchableOpacity>
+                                    <View style={mapStyle.calloutContainer}>
+                                        <Text style={mapStyle.calloutTitle}>{event.name}</Text>
+                                        <View style={mapStyle.calloutBody}>
+                                            <Text style={mapStyle.calloutDistance}>{event.distance} mi</Text>
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    navigation.navigate("Event Details", { eventID: event.id, host: event.host.id })
+                                                }}
+                                            >
+                                                <Text style={mapStyle.detailText}>View details...</Text>
+                                            </TouchableOpacity>
+                                            </View>
                                     </View>
                                 </Callout>
                             </Marker>
@@ -211,8 +213,8 @@ const MapScreen = ({ route }) => {
                         pinColor={userColor}
                     >
                         <Callout>
-                            <View style={mapStyle.callOutContainer}>
-                                <Text>You are here: {address.fullAddress}</Text>
+                            <View style={mapStyle.calloutContainer}>
+                                <Text style={{fontWeight: 'bold'}}>You are here</Text>
                             </View>
                         </Callout>
                     </Marker>

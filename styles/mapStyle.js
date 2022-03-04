@@ -14,13 +14,29 @@ const mapStyle = StyleSheet.create({
         height: Dimensions.get('window').height * 0.8,
         marginTop: '2%'
     },
-    callOutContainer: {
+    calloutContainer: {
         flex: 1,
-        alignItems: "flex-start",
-        maxWidth: 250
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxWidth: 200,
+        padding: 5
     },
-
+    calloutTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10
+    },
+    calloutBody: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap'
+    },
+    calloutDistance: {
+        fontSize: 14,
+        marginRight: 20
+    },
     detailText: {
+        fontSize: 14,
         color: '#0782F8',
     }
 });
