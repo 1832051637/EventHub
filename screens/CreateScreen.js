@@ -129,13 +129,22 @@ const CreateScreen = () => {
         if (!validation.valid) {
             inputValidationAlert(validation.errors)
         } else {
-            setLoading(true);
             try {
                 // ********************************************************
                 // Get the coord of event based on user entered address
                 // ********************************************************
-                Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
-                const json = await Geocoder.from(eventLocation);
+                let json;
+                try {
+                    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
+                    json = await Geocoder.from(eventLocation);
+
+                } catch (error) {
+                    alert("Invalid Location. Please enter again!");
+                    return;
+                }
+
+                setLoading(true);
+                
                 const location = json.results[0].geometry.location;
                 const address = json.results[0].formatted_address;
 
@@ -181,7 +190,6 @@ const CreateScreen = () => {
                 setLoading(false);
                 navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
             } catch (error) {
-                alert(error);
                 console.log(error);
                 setLoading(false);
             }
