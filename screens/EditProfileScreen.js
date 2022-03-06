@@ -87,6 +87,7 @@ const EditProfileScreen = () => {
     
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
+            quality: 0.5,
         });
     
         if (!result.cancelled) {

@@ -11,8 +11,7 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
         [
             {
                 text: "Cancel",
-                onPress: () => {},
-                style: "cancel"
+                style: "cancel",
             },
             { text: "Delete", onPress: () => deleteEvent(itemID, attendeeTokens, setEventDeleted) }
         ]
@@ -22,21 +21,8 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
 const profileValidator = (firstName, lastName) => {
     let valid = true;
     let errors = "";
-    /*
-    for (var i = 0, len = username.length; i < len; i++) {
-        code = username.charCodeAt(i);
-        if (!(code > 47 && code < 58) && 
-            !(code > 64 && code < 91) && 
-            !(code > 96 && code < 123)) {
-                valid = false;
-                errors += "- Username cannot have non-alphanumeric characters\n";
-                break;
-        }
-    }
-    */
     let Filter = require('bad-words'),
     filter = new Filter();
-    filter.removeWords('fart', 'hell', 'poop'); //necessary. Feel free to add/remove any other words @lang.json
     if (!firstName.replace(/\s/g, '').length || firstName.length > 20) {
         valid = false;
         errors += "- First name must be between 1 and 20 characters\n";
@@ -47,7 +33,7 @@ const profileValidator = (firstName, lastName) => {
     }
     if (filter.isProfane(firstName) || filter.isProfane(lastName)) {
         valid = false;
-        errors += "- Username cannot contain profane language!\n";
+        errors += "- Name cannot contain profane language!\n";
     }
     return {valid: valid, errors: errors};
 };

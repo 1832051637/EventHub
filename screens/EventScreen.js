@@ -101,7 +101,7 @@ const EventScreen = ({ route, navigation }) => {
                     <View style={eventStyle.footerTextContainer}>
                         <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon}/>
                         <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
-                            {event.address ? event.location + ", " + event.address : 'N/A'}
+                            {event.address ? event.address : 'N/A'}
                         </Text>
                     </View>
                     <View style={eventStyle.footerTextContainer}>
