@@ -7,7 +7,6 @@ import * as ImagePicker from 'expo-image-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geocoder from 'react-native-geocoding';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { PLACES_API, GEOCODING_API } from '../utils/API_KEYS';
 import { collection, addDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Geohash from 'latlon-geohash';
@@ -19,10 +18,9 @@ import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
 import { inputValidator, inputValidationAlert } from '../utils/generalUtils';
 import VerifyEmailButton from '../components/VerifyEmailButton';
+import { GOOGLE_MAPS_API_KEY } from '@env';
 
 const CreateScreen = () => {
-    const GOOGLE_PLACES_API_KEY = PLACES_API();
-    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const { pushToken } = useContext(UserInfoContext);
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
@@ -135,7 +133,7 @@ const CreateScreen = () => {
                 // ********************************************************
                 let json;
                 try {
-                    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
+                    Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
                     json = await Geocoder.from(eventLocation);
 
                 } catch (error) {
@@ -303,7 +301,7 @@ const CreateScreen = () => {
                             debounce={1500}                     // Search debounce
                             minLength={3}                       // Minimum number of chars to start a search 
                             query={{
-                                //key: GOOGLE_PLACES_API_KEY,  // *** Comment this line out if you dont use Autocomplete***
+                                //key: `${GOOGLE_MAPS_API_KEY}`,  // *** Comment this line out if you dont use Autocomplete***
                                 language: 'en',
                             }}
                             onPress={(data, details) => {

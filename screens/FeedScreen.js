@@ -15,10 +15,9 @@ import LoadingView from '../components/LoadingView';
 import { useIsFocused } from '@react-navigation/native';
 import Geocoder from "react-native-geocoding";
 import Geohash from 'latlon-geohash';
-import { GEOCODING_API } from '../utils/API_KEYS';
+import { GOOGLE_MAPS_API_KEY } from '@env';
 
 const FeedScreen = () => {
-    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
     const navigation = useNavigation();
     const { myGeo, setMyGeo, setLocation, pushToken, locationString, setLocationString } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
@@ -32,7 +31,7 @@ const FeedScreen = () => {
     const defaultGeo = '9q9';
     const eventsToLoad = 3;
     const isFocused = useIsFocused();
-    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
+    Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
 
     useEffect(async () => {
         if (searchPhrase === '') {

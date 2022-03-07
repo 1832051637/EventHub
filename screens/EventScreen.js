@@ -109,7 +109,7 @@ const EventScreen = ({ route, navigation }) => {
                         <Text style={eventStyle.footerText}>
                             {event.attendees.length}
                             {event.attendeeLimit && ' out of ' + event.attendeeLimit}
-                            {' '} attending so far
+                            {' '}attending so far
                         </Text>
                     </View>
                 </View>

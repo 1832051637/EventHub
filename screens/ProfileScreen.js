@@ -7,7 +7,7 @@ import { auth, db } from '../firebase';
 import { useNavigation } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
-import VerifyEmailButton from '../components/VerifyEmailButton'
+import VerifyEmailButton from '../components/VerifyEmailButton';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');

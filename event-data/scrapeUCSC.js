@@ -54,7 +54,7 @@ async function getEvent(url, events) {
         event.description += ($(el).text());
 
         if (index !== descriptionParagraphs.length - 1) {
-            event.description += '\n';
+            event.description += '\n\n';
         } 
     });
     
@@ -148,6 +148,10 @@ async function main() {
     events.concat(await getPage(2022, 4));
     events.concat(await getPage(2022, 5));
 
+    events = events.filter((event) => {
+        return (event.name && event.description && event.startDate && event.endDate && event.location && event.imageUrl);
+    });
+
     fs.writeFile('eventData.txt', JSON.stringify(events), function (err, data) {
         if (err) {
             console.log(error);
@@ -155,4 +159,4 @@ async function main() {
     });
 }
 
-//main();
+main();

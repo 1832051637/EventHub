@@ -84,73 +84,6 @@ const EditEventScreen = ( {route, navigation} ) => {
         }
     }, [eventDeleted])
 
-    const openImagePickerAsync = async () => {
-        let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (permissionResult.granted === false) {
-            alert('Permission to access camera roll is required!');
-            return;
-        }
-
-        let pickerResult = await ImagePicker.launchImageLibraryAsync();
-        if (pickerResult.cancelled === true) {
-            return;
-        }
-
-        setSelectedImage({ localUri: pickerResult.uri });
-        setChangedImage(true);
-        setChangedOriginalImage(true);
-    };
-
-    async function uploadImageAsync(uri, id) {
-        try {
-            const blob = await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.onload = function () {
-                    resolve(xhr.response);
-                };
-                xhr.onerror = function (e) {
-                    console.log(e);
-                    reject(new TypeError("Network request failed"));
-                };
-                xhr.responseType = "blob";
-                xhr.open("GET", uri, true);
-                xhr.send(null);
-            });
-
-            const fileRef = ref(storage, 'event-images/' + id);
-            await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
-            await uploadBytes(fileRef, blob);
-            blob.close();
-            return await getDownloadURL(fileRef);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-      
-
-    const startDateChange = (event, newDate) => {
-        setStartDate(newDate);
-    }
-
-    const endDateChange = (event, newDate) => {
-        setEndDate(newDate);
-    }
-
-    const startTimeChange = (event, newTime) => {
-        newTime.setFullYear(startDate.getFullYear());
-        newTime.setMonth(startDate.getMonth());
-        newTime.setDate(startDate.getDate());
-        setStartTime(newTime);
-    }
-
-    const endTimeChange = (event, newTime) => {
-        newTime.setFullYear(endDate.getFullYear());
-        newTime.setMonth(endDate.getMonth());
-        newTime.setDate(endDate.getDate());
-        setEndTime(newTime);
-    }
-
     //Updates the event
     useEffect(async () => {
         if (update === true) {
@@ -228,7 +161,74 @@ const EditEventScreen = ( {route, navigation} ) => {
                 setLoading(false);
             }
         }
-    }, [update])   
+    }, [update])
+
+    const openImagePickerAsync = async () => {
+        let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            alert('Permission to access camera roll is required!');
+            return;
+        }
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync();
+        if (pickerResult.cancelled === true) {
+            return;
+        }
+
+        setSelectedImage({ localUri: pickerResult.uri });
+        setChangedImage(true);
+        setChangedOriginalImage(true);
+    };
+
+    async function uploadImageAsync(uri, id) {
+        try {
+            const blob = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    resolve(xhr.response);
+                };
+                xhr.onerror = function (e) {
+                    console.log(e);
+                    reject(new TypeError("Network request failed"));
+                };
+                xhr.responseType = "blob";
+                xhr.open("GET", uri, true);
+                xhr.send(null);
+            });
+
+            const fileRef = ref(storage, 'event-images/' + id);
+            await new Promise(r => setTimeout(r, 1000)); // Hack to keep expo app from crashing on phone
+            await uploadBytes(fileRef, blob);
+            blob.close();
+            return await getDownloadURL(fileRef);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+      
+
+    const startDateChange = (event, newDate) => {
+        setStartDate(newDate);
+    }
+
+    const endDateChange = (event, newDate) => {
+        setEndDate(newDate);
+    }
+
+    const startTimeChange = (event, newTime) => {
+        newTime.setFullYear(startDate.getFullYear());
+        newTime.setMonth(startDate.getMonth());
+        newTime.setDate(startDate.getDate());
+        setStartTime(newTime);
+    }
+
+    const endTimeChange = (event, newTime) => {
+        newTime.setFullYear(endDate.getFullYear());
+        newTime.setMonth(endDate.getMonth());
+        newTime.setDate(endDate.getDate());
+        setEndTime(newTime);
+    }
 
     if (loading) {
         return (<LoadingView />)

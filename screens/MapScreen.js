@@ -7,16 +7,12 @@ import Geohash from 'latlon-geohash';
 import { useNavigation } from '@react-navigation/native';
 import { collection, getDocs } from "firebase/firestore";
 import { db, auth } from '../firebase';
-import { MAP_KEY, PLACES_API, GEOCODING_API } from '../utils/API_KEYS';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 import LocationBar from "../components/LocationBar";
 import { getDistance } from 'geolib';
+import { GOOGLE_MAPS_API_KEY, MAP_API_KEY } from '@env';
 
 const MapScreen = ({ route }) => {
-    const GOOGLE_PLACES_API_KEY = PLACES_API();
-    const GOOGLE_GEOCODING_API_KEY = GEOCODING_API();
-    const API_KEY = MAP_KEY();
-
     const navigation = useNavigation();
     const { location, setLocation, setMyGeo, locationString, setLocationString } = useContext(UserInfoContext);
     const [address, setAddress] = React.useState({
@@ -30,12 +26,12 @@ const MapScreen = ({ route }) => {
     const [searchRadius, setRadius] = useState(2000);
     const userColor = 'red';
     const eventColor = '#ffe01a';
-    Geocoder.init(GOOGLE_GEOCODING_API_KEY, { language: "en" });
+    Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
 
     const searchInitial = () => {
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
         let gc_end = ".json?country=US&access_token=";
-        let geocoding_request = gc_start.concat(location.longitude, ',', location.latitude, gc_end, API_KEY);
+        let geocoding_request = gc_start.concat(location.longitude, ',', location.latitude, gc_end, `${MAP_API_KEY}`);
 
         fetch(geocoding_request).then(function (response) {
             if (response.ok) {
