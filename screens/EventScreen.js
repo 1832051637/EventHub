@@ -8,7 +8,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
 import { attendEvent, unattendEvent } from '../utils/generalUtils';
+import MapView, { Callout, Circle, Marker } from 'react-native-maps';
+import mapStyle from '../styles/mapStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
+
+const eventColor = 'red';
 
 
 const EventScreen = ({ route, navigation }) => {
@@ -19,6 +23,7 @@ const EventScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
     const [attending, setAttending] = useState(false);
     const { pushToken } = useContext(UserInfoContext);
+    const { location } = useContext(UserInfoContext);
 
     useEffect(async () => {
         const eventRef = doc(db, 'events', eventID);
@@ -37,6 +42,8 @@ const EventScreen = ({ route, navigation }) => {
             endTime: new Date(docData.endTime.seconds * 1000),
             address: docData.address,
             location: docData.location,
+            latitude: docData.lat,
+            longitude: docData.lon,
             hostID: hostRef.id,
             hostName: hostData.name,
             hostToken: docData.hostToken,
@@ -113,6 +120,21 @@ const EventScreen = ({ route, navigation }) => {
                         </Text>
                     </View>
                 </View>
+                <SafeAreaView style={mapStyle.container}>
+                    <MapView style={mapStyle.mapEvent} 
+                        region={{
+                            latitude: event.latitude,
+                            longitude: event.longitude,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }}
+                    >
+                        <Marker 
+                            coordinate={{latitude: event.latitude, longitude: event.longitude}}
+                            pinColor={eventColor}>
+                        </Marker>
+                    </MapView>
+                </SafeAreaView>
                 <View style={[style.buttonContainer, {alignSelf: 'center'}]}>
                     { (event.hostID !== auth.currentUser.uid && !attending) &&
                     <TouchableOpacity 
