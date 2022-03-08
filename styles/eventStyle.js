@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 const eventStyle = StyleSheet.create({
     title: {
@@ -27,7 +27,7 @@ const eventStyle = StyleSheet.create({
     footerContainer: {
         paddingVertical: 10,
         paddingHorizontal: 20,
-        marginBottom: 20
+        marginBottom: 10
     },
     footerTextContainer: {
         flexDirection: 'row',
@@ -62,6 +62,17 @@ const eventStyle = StyleSheet.create({
         height: 30,
         borderRadius: 100,
         marginRight: 5
+    },
+    mapContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    map: {
+        flex: 1,
+        width: Dimensions.get('window').width * 0.9,
+        height: Dimensions.get('window').width * 0.9,
+        borderRadius: 10
     },
 });
 

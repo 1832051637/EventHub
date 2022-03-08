@@ -120,8 +120,8 @@ const EventScreen = ({ route, navigation }) => {
                         </Text>
                     </View>
                 </View>
-                <SafeAreaView style={mapStyle.container}>
-                    <MapView style={mapStyle.mapEvent} 
+                <View style={eventStyle.mapContainer}>
+                    <MapView style={eventStyle.map} 
                         region={{
                             latitude: event.latitude,
                             longitude: event.longitude,
@@ -134,7 +134,7 @@ const EventScreen = ({ route, navigation }) => {
                             pinColor={eventColor}>
                         </Marker>
                     </MapView>
-                </SafeAreaView>
+                </View>
                 <View style={[style.buttonContainer, {alignSelf: 'center'}]}>
                     { (event.hostID !== auth.currentUser.uid && !attending) &&
                     <TouchableOpacity 

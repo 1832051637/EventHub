@@ -14,13 +14,6 @@ const mapStyle = StyleSheet.create({
         height: Dimensions.get('window').height * 0.8,
         marginTop: '2%'
     },
-    mapEvent: {
-        flex: 1,
-        width: Dimensions.get('window').width * 0.8,
-        height: Dimensions.get('window').height * 0.4,
-        marginTop: '2%',
-        marginBottom: '2%'
-    },
     calloutContainer: {
         flex: 1,
         alignItems: 'center',

@@ -53,7 +53,7 @@ const EditEventScreen = ( {route, navigation} ) => {
             setStartTime(start);
             setEndTime(end);
             setStartDate(start);
-            setStartDate(end);
+            setEndDate(end);
             setOriginalImage(docData.image);
             setOriginalImageID(docData.imageID);
             if (auth.currentUser.uid === docData.host.id) {
@@ -84,7 +84,7 @@ const EditEventScreen = ( {route, navigation} ) => {
         }
     }, [eventDeleted])
 
-    //Updates the event
+    // Updates the event
     useEffect(async () => {
         if (update === true) {
             setUpdate(false);
@@ -93,7 +93,9 @@ const EditEventScreen = ( {route, navigation} ) => {
                 name: eventName,
                 description: eventDescription,
                 attendeeLimit: attendeeLimit,
-                location: eventLocation
+                location: eventLocation,
+                startTime: startTime,
+                endTime: endTime
             }
             let validation = inputValidator(eventCheck);
             if (!validation.valid) {
@@ -104,7 +106,6 @@ const EditEventScreen = ( {route, navigation} ) => {
                     // ********************************************************
                     // Get the coord of event based on user entered address
                     // ********************************************************
-                    
 
                     Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
                     const json = await Geocoder.from(eventLocation);
@@ -140,17 +141,14 @@ const EditEventScreen = ( {route, navigation} ) => {
                         eventData.imageID = imageID;
                         eventData.image = downloadURL;
                     }
-                    //Deletes the original image
+                    // Deletes the original image
                     if (changedOriginalImage && originalImageID) {
                         let imageRef = ref(storage, 'event-images/' + originalImageID);
                         await deleteObject(imageRef);
                     }
                     const eventRef = doc(db, 'events', route.params.eventID);
                     await updateDoc(eventRef, eventData);
-                    // Comment the below out if you don't want others to get notifications of changes
-                    // if (attendeeTokens.length > 0) {
-                    //     sendUpdateNotifications(attendeeTokens, eventName);
-                    // }
+
                     // Goes to refreshed details page
                     navigation.pop(2);
                     navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
@@ -266,7 +264,6 @@ const EditEventScreen = ( {route, navigation} ) => {
                         <RNDateTimePicker
                             display="default"
                             style={createStyle.datePicker}
-                            minimumDate={new Date()}
                             value={startDate}
                             onChange={startDateChange}
                         />

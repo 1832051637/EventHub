@@ -64,6 +64,10 @@ const inputValidator = (event) => {
         valid = false;
         errors += "- Location cannot be empty or invalid";
     }
+    if (event.endTime < event.startTime) {
+        valid = false;
+        errors += "- The end time must be after the start time";
+    }
     return {valid: valid, errors: errors};
 };
 

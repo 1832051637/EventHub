@@ -121,7 +121,9 @@ const CreateScreen = () => {
             name: eventName,
             description: eventDescription,
             attendeeLimit: attendeeLimit,
-            location: eventLocation
+            location: eventLocation,
+            startTime: startTime,
+            endTime: endTime
         }
         let validation = inputValidator(eventCheck);
         if (!validation.valid) {
