@@ -14,16 +14,19 @@ const SignupScreen = () => {
     const [lastName, setLastName] = useState('');
 
     const handleSignUp = () => {
+        // Validates sign up info
         let validation = profileValidator(firstName, lastName);
         if (!validation.valid) {
             inputValidationAlert(validation.errors);
             return;
         } 
 
+        // Creates a user with the given email/password
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
 
+                // Sets a corresponding user doc in firebase with the inputted name
                 return setDoc(doc(db, 'users', user.uid), {
                     firstName: firstName,
                     lastName: lastName,

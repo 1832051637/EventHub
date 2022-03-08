@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 export const UserInfoContext = createContext({});
 
+// Context for tracking location and notification information
 export const UserInfoProvider = ({ children }) => {
     const [location, setLocation] = useState([]);
     const [locationString, setLocationString] = useState('');
@@ -16,6 +17,7 @@ export const UserInfoProvider = ({ children }) => {
     const [pushToken, setPushToken] = useState('');
 
     useEffect(() => {
+        // Gets the user's current location
         (async () => {
             try {
                 let userLocations = [];
@@ -39,10 +41,12 @@ export const UserInfoProvider = ({ children }) => {
         })();
     }, []);
 
+    // Registers the user for push notifications
     useEffect(() => {
         registerForPushNotificationsAsync();
     }, []);
 
+    // Asks for push notifications permissions if not already granted
     const registerForPushNotificationsAsync = async () => {
         if (Device.isDevice) {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -60,6 +64,7 @@ export const UserInfoProvider = ({ children }) => {
             const token = (await Notifications.getExpoPushTokenAsync()).data;
             setPushToken(token);
 
+            // Adds the host token to the user doc in the database
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -71,10 +76,9 @@ export const UserInfoProvider = ({ children }) => {
                     }
                 }
             });
-        } else {
-            //alert('Must use physical device for Push Notifications');
         }
 
+        // Android push notifications
         if (Platform.OS === 'android') {
             Notifications.setNotificationChannelAsync('default', {
                 name: 'default',

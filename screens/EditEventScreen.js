@@ -1,20 +1,21 @@
-import { Text, View, TextInput, TouchableOpacity, Alert, Image, Button, SafeAreaView } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import { Text, View, TextInput, TouchableOpacity, Image, Button, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { auth, db, storage } from '../firebase'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geocoder from 'react-native-geocoding';
-import { collection, addDoc, doc, getDoc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Geohash from 'latlon-geohash';
-import style from '../styles/style'
 import createStyle from '../styles/createStyle';
 import uuid from "uuid";
 import { useNavigation } from '@react-navigation/native';
 import LoadingView from '../components/LoadingView';
-import { sendUpdateNotifications, deleteAlert, inputValidator, inputValidationAlert } from '../utils/generalUtils';
+import { deleteAlert, inputValidator, inputValidationAlert } from '../utils/generalUtils';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { GOOGLE_MAPS_API_KEY } from '@env';
 
 const EditEventScreen = ( {route, navigation} ) => {
     const [eventName, setEventName] = useState('');
@@ -38,24 +39,30 @@ const EditEventScreen = ( {route, navigation} ) => {
     const {setOptions} = useNavigation();
     const eventID = route.params.eventID;
 
+    // Fills edit form in with event info from database
     useEffect(async () => {
         try {
             const eventRef = doc(db, 'events', eventID);
             const docData = (await getDoc(eventRef)).data();
+
             setEventName(docData.name);
             setEventDescription(docData.description);
             setAttendeeLimit(docData.attendeeLimit);
             setEventLocation(docData.location);
             setHost(docData.host);
             setAttendeeTokens(docData.attendeeTokens);
+
             const start = docData.startTime.toDate();
             const end = docData.endTime.toDate();
+
             setStartTime(start);
             setEndTime(end);
             setStartDate(start);
             setEndDate(end);
             setOriginalImage(docData.image);
             setOriginalImageID(docData.imageID);
+
+            // Render save button if user is the event host
             if (auth.currentUser.uid === docData.host.id) {
                 setOptions({
                     headerRight: () => {
@@ -78,6 +85,7 @@ const EditEventScreen = ( {route, navigation} ) => {
         endTimeChange(null, endTime);
     }, [endDate]);
 
+    // Navigate back if the event is deleted
     useEffect(() => {
         if (eventDeleted) {
             navigation.popToTop();
@@ -97,25 +105,34 @@ const EditEventScreen = ( {route, navigation} ) => {
                 startTime: startTime,
                 endTime: endTime
             }
+
+            // Checks that the event fields are valid
             let validation = inputValidator(eventCheck);
             if (!validation.valid) {
                 inputValidationAlert(validation.errors)
+                
             } else {
-                setLoading(true);
                 try {
-                    // ********************************************************
-                    // Get the coord of event based on user entered address
-                    // ********************************************************
-
-                    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-                    const json = await Geocoder.from(eventLocation);
+                    // Get the location information from the inputted address
+                    let json;
+                    try {
+                        Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
+                        json = await Geocoder.from(eventLocation);
+    
+                    } catch (error) {
+                        alert("Invalid Location. Please enter again!");
+                        return;
+                    }
+    
+                    setLoading(true);
+                    
                     const location = json.results[0].geometry.location;
                     const address = json.results[0].formatted_address;
 
                     
                     const userRef = doc(db, 'users', auth.currentUser.uid);
 
-                    // Initialize eventdatas
+                    // Initialize event data
                     const eventData = {
                         name: eventName,
                         description: eventDescription,
@@ -124,14 +141,14 @@ const EditEventScreen = ( {route, navigation} ) => {
                         startTime: startTime,
                         endTime: endTime,
                         geoLocation: Geohash.encode(location.lat, location.lng, [3]),
-                        
                         lat: location.lat,
                         lon: location.lng,
                         address: address,
                     }
 
-                    let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
+                    // Upload the new image to firestore if it was changed
                     if (changedImage) {
+                        let downloadURL;
                         const imageID = uuid.v4();
 
                         if (selectedImage !== null) {
@@ -141,11 +158,14 @@ const EditEventScreen = ( {route, navigation} ) => {
                         eventData.imageID = imageID;
                         eventData.image = downloadURL;
                     }
+
                     // Deletes the original image
                     if (changedOriginalImage && originalImageID) {
                         let imageRef = ref(storage, 'event-images/' + originalImageID);
                         await deleteObject(imageRef);
                     }
+
+                    // Update the event with the new data
                     const eventRef = doc(db, 'events', route.params.eventID);
                     await updateDoc(eventRef, eventData);
 
@@ -161,6 +181,7 @@ const EditEventScreen = ( {route, navigation} ) => {
         }
     }, [update])
 
+    // Sets the selected image to an image from the user's library
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -179,6 +200,7 @@ const EditEventScreen = ( {route, navigation} ) => {
         setChangedOriginalImage(true);
     };
 
+    // Uploads an event image to firestore with id as the file name
     async function uploadImageAsync(uri, id) {
         try {
             const blob = await new Promise((resolve, reject) => {
@@ -204,7 +226,6 @@ const EditEventScreen = ( {route, navigation} ) => {
             console.log(error);
         }
     }
-      
 
     const startDateChange = (event, newDate) => {
         setStartDate(newDate);
@@ -228,13 +249,18 @@ const EditEventScreen = ( {route, navigation} ) => {
         setEndTime(newTime);
     }
 
+    // Render loading view if in loading state
     if (loading) {
         return (<LoadingView />)
     }
 
+    // Edit event screen
     return (
         <SafeAreaView style={createStyle.container}>
-            <KeyboardAwareScrollView contentContainerStyle={createStyle.scroll}>
+            <KeyboardAwareScrollView 
+                contentContainerStyle={createStyle.scroll} 
+                keyboardShouldPersistTaps="always"
+            >
                 <View style={createStyle.inputContainer}>
                     <View style={createStyle.inputItem}>
                         <TextInput
@@ -298,13 +324,35 @@ const EditEventScreen = ( {route, navigation} ) => {
                     </View>
                     <View style={createStyle.inputItem}>
                         <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-                        <TextInput
-                            placeholder='Location'
-                            value={eventLocation}
-                            onChangeText={text => setEventLocation(text)}
-                            style={createStyle.input}
-                            multiline={true}
-                            scrollEnabled={false}
+                        {/* Google Autocomplete API 
+                        To reduce number of requests, please comment key out to use original textinput
+                        */}
+                        <GooglePlacesAutocomplete
+                            fetchDetails={false}                // We don't need details
+                            debounce={1500}                     // Search debounce
+                            minLength={3}                       // Minimum number of chars to start a search 
+                            query={{
+                                //key: `${GOOGLE_MAPS_API_KEY}`,  // *** Comment this line out if you dont use Autocomplete***
+                                language: 'en',
+                            }}
+                            onPress={(data, details) => {
+                                setEventLocation(data.structured_formatting.main_text);
+                            }}
+                            textInputProps={{
+                                InputComp: TextInput,
+                                leftIcon: { type: 'font-awesome', name: 'chevron-left' },
+                                errorStyle: { color: 'red' },
+                                placeholder: 'Location',
+                                value: eventLocation,
+                                onChangeText: text => {
+                                    setEventLocation(text);
+                                },
+                                style: createStyle.input,
+                                multiline: true,
+                                scrollEnabled: false,
+                            }}
+                            disableScroll={true}
+                            listViewDisplayed={false}
                         />
                     </View>
                     <View style={createStyle.inputItem}>

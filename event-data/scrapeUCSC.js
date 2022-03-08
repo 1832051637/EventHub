@@ -4,6 +4,7 @@ const cheerio = require('cheerio');
 const fetch = require('node-fetch');
 const fs = require('fs');
 
+// Loops through all events in a month
 async function getPage(yearNum = 2022, monthNum = 3) {
     let events = [];
     const url = `https://calendar.ucsc.edu/calendar/month/${yearNum}/${monthNum}`;
@@ -13,6 +14,7 @@ async function getPage(yearNum = 2022, monthNum = 3) {
     const $ = cheerio.load(html);
     let eventAnchors = $('.event_item > a');
 
+    // Loop through event links
     for (let i = 0; i < eventAnchors.length; i++) {
         const url = $(eventAnchors[i]).attr('href');
         if (!events.some((value) => {return url === value.url})) {
@@ -23,6 +25,7 @@ async function getPage(yearNum = 2022, monthNum = 3) {
     return events;
 }
 
+// Scrapes a specific event page
 async function getEvent(url, events) {
     const result = await fetch(url);
     const html =  await result.text();
@@ -71,6 +74,8 @@ async function getEvent(url, events) {
         event.endDate = new Date(endDateEl);
     } else {
         event.endDate = new Date(event.startDate.getTime());
+
+        // Set end date to the end of the same day if it's missing
         event.endDate.setHours(23);
         event.endDate.setMinutes(59);
     }
@@ -79,6 +84,7 @@ async function getEvent(url, events) {
 
     let allDates = $('#x-all-dates > .dateright');
 
+    // Add new events for the rest of the dates in the date list
     if (allDates) {
         allDates.each((index, el) => {
             let eventObj = {
@@ -93,10 +99,12 @@ async function getEvent(url, events) {
             const dateArray = $(el).text().split(' at ');
             const date = dateArray[0];
 
+            // If there is a time
             if (dateArray.length > 1) {
                 let time = dateArray[1];
                 let timeArray = time.split(' to ');
 
+                // Format start time
                 let startTime;
                 if (timeArray[0].includes('am')) {
                     startTime = timeArray[0].slice(0, timeArray[0].indexOf('am'));
@@ -116,6 +124,7 @@ async function getEvent(url, events) {
                 if (timeArray.length > 1) {
                     let endTime;
 
+                    // Formate end time
                     if (timeArray[1].includes('am')) {
                         endTime = timeArray[1].slice(0, timeArray[1].indexOf('am'));
 
@@ -132,6 +141,7 @@ async function getEvent(url, events) {
                     eventObj.endDate = new Date(date + ' 2022 ' + endTime);
                 }
             } else {
+                // Set end date to the end of the same day if it's missing
                 eventObj.startDate = new Date(date + ' 2022');
                 eventObj.endDate = new Date(eventObj.startDate.getTime());
                 eventObj.endDate.setHours(23);
@@ -148,6 +158,7 @@ async function main() {
     events.concat(await getPage(2022, 4));
     events.concat(await getPage(2022, 5));
 
+    // Filter out events with missing fields
     events = events.filter((event) => {
         return (event.name && event.description && event.startDate && event.endDate && event.location && event.imageUrl);
     });

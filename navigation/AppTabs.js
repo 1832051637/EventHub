@@ -1,7 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import SignOutButton from '../components/SignOutButton';
 import CreateScreen from '../screens/CreateScreen';
 import SettingsStack from '../navigation/SettingsStack';
 import MapScreen from '../screens/MapScreen';

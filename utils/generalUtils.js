@@ -2,8 +2,8 @@ import { Alert } from 'react-native';
 import { arrayUnion, arrayRemove, updateDoc, doc, deleteDoc, getDoc } from "firebase/firestore";
 import { db, storage, auth } from '../firebase';
 import { deleteObject, ref } from 'firebase/storage';
-import { isProfane } from 'bad-words';
 
+// Asks user if they want to delete an event
 const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
     Alert.alert(
         "Deleting \"" + itemName + "\"",
@@ -18,6 +18,7 @@ const deleteAlert = (itemID, itemName, attendeeTokens, setEventDeleted) => {
     )
 };
 
+// Validates information to create profile
 const profileValidator = (firstName, lastName) => {
     let valid = true;
     let errors = "";
@@ -38,6 +39,7 @@ const profileValidator = (firstName, lastName) => {
     return {valid: valid, errors: errors};
 };
 
+// Validates information to create event
 const inputValidator = (event) => {
     let valid = true;
     let errors = "";
@@ -71,6 +73,7 @@ const inputValidator = (event) => {
     return {valid: valid, errors: errors};
 };
 
+// Alerts user of invalid information
 const inputValidationAlert = (errors) => {
     Alert.alert(
         "Please fix the following errors:",
@@ -84,6 +87,7 @@ const inputValidationAlert = (errors) => {
     )
 };
 
+// Sends notification to host when someone attends an event
 const sendNotifications = async (token, eventName) => {
     let message = "Someone has joined your event: " + eventName + "!";
 
@@ -102,6 +106,8 @@ const sendNotifications = async (token, eventName) => {
     });
 }
 
+
+// Sends notififcations to attendees when an event is updated
 const sendUpdateNotifications = async (tokens, eventName) => {
     if (tokens.length > 0) {
         let message =  "Log in to see the new details!";
@@ -122,19 +128,23 @@ const sendUpdateNotifications = async (tokens, eventName) => {
     }
 }
 
+// Updates an event and user doc to show that the user is attending the event
 const attendEvent = (eventId, hostToken, eventName, pushToken, setData, data) => {
     const eventRef = doc(db, 'events', eventId);
     const userRef = doc(db, 'users', auth.currentUser.uid);
 
+    // Add user to event attendees
     updateDoc(eventRef, {
         attendees: arrayUnion(userRef),
         attendeeTokens: arrayUnion(pushToken),
     });
 
+    // Add event to user's attending array
     updateDoc(userRef, {
         attending: arrayUnion(eventRef)
     });
 
+    // Update data array with new attending info if data array exists
     if (data) {
         const newData = data.map(item => {
             if (item.id === eventId) {
@@ -147,22 +157,27 @@ const attendEvent = (eventId, hostToken, eventName, pushToken, setData, data) =>
         setData(newData);
     }
 
+    // Send notification to event host
     sendNotifications(hostToken, eventName);
 }
 
+// Updates an event and user doc to show that the user is no longer attending the event
 const unattendEvent = (eventId, pushToken, setData, data) => {
     const eventRef = doc(db, 'events', eventId);
     const userRef = doc(db, 'users', auth.currentUser.uid);
 
+    // Remove user from event attendees
     updateDoc(eventRef, {
         attendees: arrayRemove(userRef),
         attendeeTokens: arrayRemove(pushToken),
     });
 
+    // Remove event from user's attending array
     updateDoc(userRef, {
         attending: arrayRemove(eventRef)
     });
 
+    // Update data array with new attending info if data array exists
     if (data) {
         const newData = data.map(item => {
             if (item.id === eventId) {
@@ -175,7 +190,7 @@ const unattendEvent = (eventId, pushToken, setData, data) => {
     }
 }
 
-//Deletes event and notifys guests
+// Deletes event and notifies guests
 const deleteEvent = async (itemID, tokens, setEventDeleted) => {
     try {
         let eventRef = doc(db, 'events', itemID);
@@ -183,18 +198,22 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
         let ds = await getDoc(eventRef);
         let imageID = ds.data().imageID;
 
+        // Delete event image from storage
         if (imageID) {
             let imageRef = ref(storage, 'event-images/' + imageID);
             await deleteObject(imageRef);
         }
 
+        // Remove event from user's attending and hosting arrays
         updateDoc(userRef, {
             attending: arrayRemove(eventRef),
             hosting: arrayRemove(eventRef)
         });
         
+        // Delete the event
         await deleteDoc(eventRef);
 
+        // Notify attendees that the event was deleted
         if (tokens && tokens.length > 0) {
             let message = eventName + " has been cancelled by the host.";
             let response = await fetch("https://exp.host/--/api/v2/push/send", {

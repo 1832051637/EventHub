@@ -6,7 +6,7 @@ import { collection, getDocs, query, where, orderBy, limit, startAfter } from "f
 import { db, auth } from '../firebase';
 import SearchBar from "../components/SearchBar";
 import LocationBar from "../components/LocationBar";
-import { getDateString, getTimeString } from '../utils/timestampFormatting';
+import { getDateTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
@@ -33,24 +33,27 @@ const FeedScreen = () => {
     const isFocused = useIsFocused();
     Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
 
+    // Fills data array with the events to display
     useEffect(async () => {
+        // Load more events if the search bar is empty
         if (searchPhrase === '') {
             await loadMore();
 
+        // Search events if the search bar is not empty
         } else {
-
             await searchEvents();
         }
-
 
         setLoading(false);
         setRefresh(false);
     }, [searchPhrase, myGeo, refresh])
 
+    // Refresh the screen when it is focussed
     useEffect(() => {
         setRefresh(true);
     }, [isFocused])
 
+    // Loads the next page of events into the data array
     const loadMore = async () => {
         let allEvents = collection(db, "events");
         let events = [];
@@ -58,6 +61,7 @@ const FeedScreen = () => {
         let eventQuery;
         let replaceData = false;
 
+        // Replace data with the first page on refresh
         if (refresh || !lastSnapshot) {
             setLastSnapshot(null);
             replaceData = true;
@@ -67,7 +71,8 @@ const FeedScreen = () => {
                 orderBy("endTime"),
                 orderBy("startTime"),
                 limit(eventsToLoad));
-
+        
+        // Else get the next page
         } else {
             eventQuery = query(allEvents,
                 where("endTime", ">=", new Date()),
@@ -80,6 +85,7 @@ const FeedScreen = () => {
 
         let eventSnaps = await getDocs(eventQuery);
 
+        // Set the last snapshot move page cursor
         if (eventSnaps.docs.length !== 0) {
             setLastSnapshot(eventSnaps.docs[eventSnaps.docs.length - 1]);
         }
@@ -108,6 +114,7 @@ const FeedScreen = () => {
             });
         });
 
+        // Replace current data on refresh
         if (replaceData) {
             setData(events);
         } else {
@@ -115,6 +122,7 @@ const FeedScreen = () => {
         }
     };
 
+    // Sets the location context variables when a new location is inputted
     const getLocationFromSearch = async () => {
         if (!locationPhrase) return;
         let json;
@@ -144,6 +152,7 @@ const FeedScreen = () => {
         setRefresh(true)
     }
 
+    // Sets the events to render to a filtered search based on keyword
     const searchEvents = async () => {
         setLastSnapshot(null);
         let searchPhraseLower = searchPhrase.toLowerCase();
@@ -165,8 +174,8 @@ const FeedScreen = () => {
 
             let eventName = eventData.name.toLowerCase();
             let eventDescription = eventData.description.toLowerCase();
-            let eventLocation = eventData.geoLocation;
 
+            // Push event to array if it contains the search keywords
             if (eventName.includes(searchPhraseLower) || eventDescription.includes(searchPhraseLower)) {
                 let isAttending = eventData.attendees.some((value) => { return value.id === auth.currentUser.uid });
                 events.push({
@@ -188,10 +197,8 @@ const FeedScreen = () => {
         setData(events);
     }
 
+    // Component for individual event in the feed
     const EventCard = ({ item }) => {
-        const displayDate = getDateString(item.startTime, item.endTime);
-        const displayTime = getTimeString(item.startTime) + ' - ' + getTimeString(item.endTime);
-
         return (
             <TouchableOpacity
                 style={feedStyle.card}
@@ -237,7 +244,7 @@ const FeedScreen = () => {
                     </View>
                     <Text style={feedStyle.timestamp}>
                         <MaterialCommunityIcons name="clock-outline" size={16} />
-                        {' '}{displayDate} at {displayTime}
+                        {' '}{getDateTimeString(item.startTime, item.endTime)}
                     </Text>
                     {item.address && <Text style={feedStyle.location}>
                         <MaterialCommunityIcons name="map-marker-outline" size={16} />
@@ -249,11 +256,12 @@ const FeedScreen = () => {
         );
     }
 
+    // Render loading view if in loading state
     if (loading) {
         return (<LoadingView />)
     }
 
-    // Home screen GUI
+    // Event feed screen
     return (
         <SafeAreaView style={style.container}>
             <View 
