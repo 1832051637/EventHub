@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-.DS_Store
-.env
+*.env
 node_modules
-=======
-node_modules/
 .expo/
 dist/
 npm-debug.*
@@ -14,7 +10,8 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+eventData.txt
+eventData.js
 
 # macOS
 .DS_Store
->>>>>>> d1e955d69abda276232c898c8767098663018468

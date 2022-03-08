@@ -53,7 +53,7 @@ const EditEventScreen = ( {route, navigation} ) => {
             setStartTime(start);
             setEndTime(end);
             setStartDate(start);
-            setStartDate(end);
+            setEndDate(end);
             setOriginalImage(docData.image);
             setOriginalImageID(docData.imageID);
             if (auth.currentUser.uid === docData.host.id) {
@@ -83,6 +83,84 @@ const EditEventScreen = ( {route, navigation} ) => {
             navigation.popToTop();
         }
     }, [eventDeleted])
+
+    // Updates the event
+    useEffect(async () => {
+        if (update === true) {
+            setUpdate(false);
+
+            const eventCheck = {
+                name: eventName,
+                description: eventDescription,
+                attendeeLimit: attendeeLimit,
+                location: eventLocation,
+                numCurrentAttendees: attendeeTokens.length,
+                startTime: startTime,
+                endTime: endTime
+            }
+            let validation = inputValidator(eventCheck);
+            if (!validation.valid) {
+                inputValidationAlert(validation.errors)
+            } else {
+                setLoading(true);
+                try {
+                    // ********************************************************
+                    // Get the coord of event based on user entered address
+                    // ********************************************************
+
+                    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
+                    const json = await Geocoder.from(eventLocation);
+                    const location = json.results[0].geometry.location;
+                    const address = json.results[0].formatted_address;
+
+                    
+                    const userRef = doc(db, 'users', auth.currentUser.uid);
+
+                    // Initialize eventdatas
+                    const eventData = {
+                        name: eventName,
+                        description: eventDescription,
+                        attendeeLimit: attendeeLimit,
+                        location: eventLocation,
+                        startTime: startTime,
+                        endTime: endTime,
+                        geoLocation: Geohash.encode(location.lat, location.lng, [3]),
+                        
+                        lat: location.lat,
+                        lon: location.lng,
+                        address: address,
+                    }
+
+                    let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
+                    if (changedImage) {
+                        const imageID = uuid.v4();
+
+                        if (selectedImage !== null) {
+                            downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
+                        }
+                        
+                        eventData.imageID = imageID;
+                        eventData.image = downloadURL;
+                    }
+                    // Deletes the original image
+                    if (changedOriginalImage && originalImageID) {
+                        let imageRef = ref(storage, 'event-images/' + originalImageID);
+                        await deleteObject(imageRef);
+                    }
+                    const eventRef = doc(db, 'events', route.params.eventID);
+                    await updateDoc(eventRef, eventData);
+
+                    // Goes to refreshed details page
+                    navigation.pop(2);
+                    navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
+
+                } catch (error) {
+                    console.log(error);
+                }
+                setLoading(false);
+            }
+        }
+    }, [update])
 
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -151,85 +229,6 @@ const EditEventScreen = ( {route, navigation} ) => {
         setEndTime(newTime);
     }
 
-    //Updates the event
-    useEffect(async () => {
-        if (update === true) {
-            setUpdate(false);
-
-            const eventCheck = {
-                name: eventName,
-                description: eventDescription,
-                attendeeLimit: attendeeLimit,
-                location: eventLocation
-            }
-            let validation = inputValidator(eventCheck);
-            if (!validation.valid) {
-                inputValidationAlert(validation.errors)
-            } else {
-                setLoading(true);
-                try {
-                    // ********************************************************
-                    // Get the coord of event based on user entered address
-                    // ********************************************************
-                    
-
-                    Geocoder.init("AIzaSyAKuGciNBsh0rJiuXAvza2LKTl5JWyxUbA", { language: "en" });
-                    const json = await Geocoder.from(eventLocation);
-                    const location = json.results[0].geometry.location;
-                    const address = json.results[0].formatted_address;
-
-                    
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-
-                    // Initialize eventdatas
-                    const eventData = {
-                        name: eventName,
-                        description: eventDescription,
-                        attendeeLimit: attendeeLimit,
-                        location: eventLocation,
-                        startTime: startTime,
-                        endTime: endTime,
-                        geoLocation: Geohash.encode(location.lat, location.lng, [3]),
-                        
-                        lat: location.lat,
-                        lon: location.lng,
-                        address: address,
-                    }
-
-                    let downloadURL = 'gs://event-hub-29d5a.appspot.com/IMG_7486.jpg';
-                    if (changedImage) {
-                        const imageID = uuid.v4();
-
-                        if (selectedImage !== null) {
-                            downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
-                        }
-                        
-                        eventData.imageID = imageID;
-                        eventData.image = downloadURL;
-                    }
-                    //Deletes the original image
-                    if (changedOriginalImage && originalImageID) {
-                        let imageRef = ref(storage, 'event-images/' + originalImageID);
-                        await deleteObject(imageRef);
-                    }
-                    const eventRef = doc(db, 'events', route.params.eventID);
-                    await updateDoc(eventRef, eventData);
-                    // Comment the below out if you don't want others to get notifications of changes
-                    // if (attendeeTokens.length > 0) {
-                    //     sendUpdateNotifications(attendeeTokens, eventName);
-                    // }
-                    // Goes to refreshed details page
-                    navigation.pop(2);
-                    navigation.push("Event Details", {eventID: route.params.eventID, host: host.id})
-
-                } catch (error) {
-                    console.log(error);
-                }
-                setLoading(false);
-            }
-        }
-    }, [update])   
-
     if (loading) {
         return (<LoadingView />)
     }
@@ -266,7 +265,6 @@ const EditEventScreen = ( {route, navigation} ) => {
                         <RNDateTimePicker
                             display="default"
                             style={createStyle.datePicker}
-                            minimumDate={new Date()}
                             value={startDate}
                             onChange={startDateChange}
                         />

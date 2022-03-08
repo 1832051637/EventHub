@@ -56,6 +56,10 @@ const inputValidator = (event) => {
         valid = false;
         errors += "- Attendee limit must be at least a couple people\n";
     }
+    if (event.attendeeLimit < event.numCurrentAttendees) {
+        valid = false;
+        errors += "- Attendee limit cannot be less than number of current attendees!\n";
+    }
     if (Number(event.attendeeLimit) > 1000000) {
         valid = false;
         errors += "- Attendee limit must be realistic\n";
@@ -63,6 +67,10 @@ const inputValidator = (event) => {
     if (!event.location.replace(/\s/g, '').length) {
         valid = false;
         errors += "- Location cannot be empty or invalid";
+    }
+    if (event.endTime < event.startTime) {
+        valid = false;
+        errors += "- The end time must be after the start time";
     }
     return {valid: valid, errors: errors};
 };

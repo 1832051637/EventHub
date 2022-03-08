@@ -107,7 +107,8 @@ const EventScreen = ({ route, navigation }) => {
                     </View>
                     <View style={eventStyle.footerTextContainer}>
                         <MaterialCommunityIcons name="map-marker-outline" size={20} style={eventStyle.icon}/>
-                        <Text style={eventStyle.locationText} onPress={() => navigation.push('Map Screen')}>
+                        <Text style={eventStyle.locationText} 
+                            onPress={() => navigation.push('Map Screen', {location: {lat: event.latitude, lng: event.longitude}})}>
                             {event.address ? event.address : 'N/A'}
                         </Text>
                     </View>
@@ -116,12 +117,12 @@ const EventScreen = ({ route, navigation }) => {
                         <Text style={eventStyle.footerText}>
                             {event.attendees.length}
                             {event.attendeeLimit && ' out of ' + event.attendeeLimit}
-                            {' '} attending so far
+                            {' '}attending so far
                         </Text>
                     </View>
                 </View>
-                <SafeAreaView style={mapStyle.container}>
-                    <MapView style={mapStyle.mapEvent} 
+                <View style={eventStyle.mapContainer}>
+                    <MapView style={eventStyle.map} 
                         region={{
                             latitude: event.latitude,
                             longitude: event.longitude,
@@ -134,7 +135,7 @@ const EventScreen = ({ route, navigation }) => {
                             pinColor={eventColor}>
                         </Marker>
                     </MapView>
-                </SafeAreaView>
+                </View>
                 <View style={[style.buttonContainer, {alignSelf: 'center'}]}>
                     { (event.hostID !== auth.currentUser.uid && !attending) &&
                     <TouchableOpacity 

@@ -1,7 +1,8 @@
 import React from "react";
 import { StyleSheet, TextInput, View, Keyboard, Button, TouchableOpacity, Text } from "react-native";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
+import { GOOGLE_MAPS_API_KEY } from '@env';
 
 const LocationBar = (props) => {
   let placeholder = props.initialValue ? props.initialValue : 'Enter a new location...';
@@ -20,7 +21,7 @@ const LocationBar = (props) => {
           debounce={1500}                     // Search debounce
           minLength={3}                       // Minimum number of chars to start a search 
           query={{
-              // key: GOOGLE_PLACES_API_KEY,  // *** Comment this line out if you dont use Autocomplete***
+              // key: `${GOOGLE_MAPS_API_KEY}`,  // *** Comment this line out if you dont use Autocomplete***
               language: 'en',
           }}
           onPress={(data, details) => {
