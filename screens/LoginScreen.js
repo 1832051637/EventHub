@@ -23,7 +23,16 @@ const LoginScreen = () => {
             behavior='padding'
         >
             <View style={authStyle.heading}>
-                <Image style={{flex: 0.8, resizeMode: 'contain'}} source={require('../assets/EventHubLogo.png')} />
+                <Text style={authStyle.titleEvent}>
+                    Event
+                </Text>
+                <View style={authStyle.hub}>
+                    <Text style={authStyle.titleHub}>
+                        hub
+                    </Text>
+                </View>
+                
+                {/* <Image style={{flex: 0.8, resizeMode: 'contain'}} source={require('../assets/EventHubLogo.png')} /> */}
             </View>
             <View style={style.buttonContainer}>
                 <TouchableOpacity

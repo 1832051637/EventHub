@@ -43,7 +43,14 @@ const SignupScreen = () => {
             style={style.container}
         >
             <View style={authStyle.heading}>
-                <Image style={{flex: 0.8, resizeMode: 'contain'}} source={require('../assets/EventHubLogo.png')} />
+                <Text style={authStyle.titleEvent}>
+                    Event
+                </Text>
+                <View style={authStyle.hub}>
+                    <Text style={authStyle.titleHub}>
+                        hub
+                    </Text>
+                </View>
             </View>
             <View style={style.inputContainer}>
                 <TextInput
