@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getDoc, doc } from "firebase/firestore";
 import { db, auth } from '../firebase';
-import { getDateString, getTimeString } from '../utils/timestampFormatting';
+import { getDateTimeString } from '../utils/timestampFormatting';
 import style from '../styles/style.js';
 import feedStyle from '../styles/feedStyle';
 import { UserInfoContext } from '../utils/UserInfoProvider';
@@ -14,18 +14,21 @@ import { useIsFocused } from '@react-navigation/native';
 const HostingScreen = () => {
     const { pushToken } = useContext(UserInfoContext);
     const [data, setData] = useState([]);
-    const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(true);
     const isFocused = useIsFocused();
+    const navigation = useNavigation();
 
+     // Fills data array with hosting events to display
     useEffect(async () => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
         let userData = (await getDoc(userRef)).data();
 
+        // Waits for attending event data
         let events = await Promise.all(userData.hosting.map(async (eventRef) => {
             let eventData = (await getDoc(eventRef)).data();
 
+            // Skip event if it doesn't exist or is in the past
             if (!eventData) return null;
             if (new Date() > new Date(eventData.endTime.seconds * 1000)) return null;
 
@@ -50,15 +53,14 @@ const HostingScreen = () => {
         // Filter out null events
         events = events.filter((event) => event);
 
+        // Save events in data array
         setData(events.sort((a,b) => (a.startTime > b.startTime) ? 1 : -1));
         setLoading(false);
         setRefresh(false);
     }, [isFocused, refresh]);
     
+    // Component for individual event in the feed
     const EventCard = ({ item }) => {
-        const displayDate = getDateString(item.startTime, item.endTime);
-        const displayTime = getTimeString(item.startTime) + ' - ' + getTimeString(item.endTime);
-    
         return (
             <TouchableOpacity 
                 style={feedStyle.card}
@@ -102,7 +104,7 @@ const HostingScreen = () => {
                     </View>
                     <Text style={feedStyle.timestamp}>
                         <MaterialCommunityIcons name="clock-outline" size={16}/>
-                        {' '}{displayDate} at {displayTime}
+                        {' '}{getDateTimeString(item.startTime, item.endTime)}
                     </Text> 
                     {item.address && <Text style={feedStyle.location}>
                             <MaterialCommunityIcons name="map-marker-outline" size={16} />
@@ -114,11 +116,12 @@ const HostingScreen = () => {
         );
     }
 
+    // Return loading view if in loading state
     if (loading) {
         return (<LoadingView />)
     }
     
-    // MyEvent screen GUI
+    // Hosting feed screen
     return (
         <SafeAreaView style={style.container}>
             <FlatList 

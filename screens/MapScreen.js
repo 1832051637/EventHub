@@ -29,6 +29,7 @@ const MapScreen = ({ route }) => {
     const eventColor = '#ffe01a';
     Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
 
+    // Finds the address corresponding the set location
     const searchInitial = () => {
         let gc_start = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
         let gc_end = ".json?country=US&access_token=";
@@ -56,7 +57,7 @@ const MapScreen = ({ route }) => {
         });
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         searchInitial();
         loadEvents();
     }, [location])
@@ -87,6 +88,7 @@ const MapScreen = ({ route }) => {
         const formatted_address = json.results[0].formatted_address;
         const addressArray = formatted_address.split(", ");
 
+        // Update context and state variables with new location
         try {
             setMyGeo(Geohash.encode(newLocation.lat, newLocation.lng, [3]));
 
@@ -120,9 +122,6 @@ const MapScreen = ({ route }) => {
 
         eventQuery = viewEvents;
 
-        // if (myGeo) {
-        //     eventQuery = query(viewEvents, where("geoLocation", "==", myGeo));
-        // }
         getDocs(eventQuery).then(docs => {
             let events = [];
             docs.forEach((doc) => {
@@ -133,15 +132,16 @@ const MapScreen = ({ route }) => {
                 if (docData.attendees.length >= docData.attendeeLimit) return;
                 if (!docData.lat || !docData.lon) return;
 
-                // const gsReference = ref(storage, docData.image);
                 let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
+
+                // Compute event distance from user
                 let distance = +((getDistance(
                     { latitude: location.latitude, longitude: location.longitude },
                     { latitude: docData.lat, longitude: docData.lon },
                 ) / 1600).toFixed(2));
+                
                 let event = {
                     id: doc.id,
-                    // image: docData.image,
                     name: docData.name,
                     description: docData.description,
                     startTime: new Date(docData.startTime.seconds * 1000),
@@ -158,11 +158,13 @@ const MapScreen = ({ route }) => {
                 };
                 events.push(event);
             });
-            setEventsArray(events.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1));
 
+            // Set events to the loaded events
+            setEventsArray(events.sort((a, b) => (a.startTime > b.startTime) ? 1 : -1));
         })
     }
 
+    // Map screen
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <SafeAreaView style={mapStyle.container}>

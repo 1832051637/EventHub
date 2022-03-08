@@ -16,6 +16,7 @@ const ProfileScreen = () => {
     const navigation = useNavigation();
     const isFocused = useIsFocused();
 
+    // Loads name and profile pic from database for the user
     useEffect(async () => {
         try {
             setLoading(true);
@@ -30,10 +31,12 @@ const ProfileScreen = () => {
         }
     }, [isFocused]);
 
+    // Render loading screen if in loading state
     if (loading) {
         return (<LoadingView />)
     }
 
+    // User profile screen
     return (
         <View style={settingsStyle.profileContainer}>
             <Image style={settingsStyle.profilePicture} source={{uri: profilePicture}} />

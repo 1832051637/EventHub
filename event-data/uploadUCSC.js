@@ -5,10 +5,13 @@ import { db } from '../firebase';
 import events from './eventData';
 import { GOOGLE_MAPS_API_KEY } from '@env';
 
+// Uploads events from eventData.js to database
 async function uploadEvents() {
+    // Ref to the UCSC Events org
     const ucscRef = doc(db, 'organizations', 'xq9c1fJ6pOsJuIgoMl8x');
 
     events.forEach(async (event, index) => {
+        // Get location info for event
         let json;
         try {
             Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
@@ -18,7 +21,7 @@ async function uploadEvents() {
             console.log(error);
             return;
         }
-
+    
         const location = json.results[0].geometry.location;
         const address = json.results[0].formatted_address;
 
@@ -41,6 +44,7 @@ async function uploadEvents() {
             geoLocation: Geohash.encode(location.lat, location.lng, 3),
         }
 
+        // Upload event
         ref = await addDoc(collection(db, "events"), eventData);
         console.log(ref.id);
     })

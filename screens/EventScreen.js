@@ -1,36 +1,34 @@
 import React, { useState, useEffect, useContext} from 'react';
-import { Text, View, Image, ScrollView, SafeAreaView, Button, TouchableOpacity } from 'react-native';
+import { Text, View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { getDoc, doc } from "firebase/firestore";
 import eventStyle from '../styles/eventStyle';
 import style from '../styles/style.js';
-import { getDateString, getTimeString } from '../utils/timestampFormatting';
+import { getDateTimeString } from '../utils/timestampFormatting';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../firebase';
 import LoadingView from '../components/LoadingView';
 import { attendEvent, unattendEvent } from '../utils/generalUtils';
-import MapView, { Callout, Circle, Marker } from 'react-native-maps';
-import mapStyle from '../styles/mapStyle';
+import MapView, { Marker } from 'react-native-maps';
 import { UserInfoContext } from '../utils/UserInfoProvider';
 
 const eventColor = 'red';
 
-
 const EventScreen = ({ route, navigation }) => {
     const eventID = route.params.eventID;
     const [event, setEvent] = useState({});
-    const [dateString, setDateString] = useState('');
-    const [timeString, setTimeString] = useState('');
     const [loading, setLoading] = useState(true);
     const [attending, setAttending] = useState(false);
     const { pushToken } = useContext(UserInfoContext);
-    const { location } = useContext(UserInfoContext);
 
+    // Get the event data from the database
     useEffect(async () => {
+        // Search for the event passed in as a param
         const eventRef = doc(db, 'events', eventID);
         const docData = (await getDoc(eventRef)).data();
 
         let isAttending = docData.attendees.some((value) => { return value.id === auth.currentUser.uid });
 
+        // Get the data from the event host
         let hostRef = docData.host;
         let hostData = (await getDoc(hostRef)).data();
         
@@ -55,15 +53,15 @@ const EventScreen = ({ route, navigation }) => {
 
         setEvent(eventData);
         setAttending(isAttending);
-        setDateString(getDateString(eventData.startTime, eventData.endTime));
-        setTimeString(getTimeString(eventData.startTime) + ' - ' + getTimeString(eventData.endTime));
         setLoading(false);
     }, []);
 
+    // Render loading screen if in loading state
     if (loading) {
         return (<LoadingView />)
     }
 
+    // Event details screen
     return (
         <SafeAreaView style={style.container}>
             <ScrollView style={{ width: '100%' }} contentContainerStyle={{ alignItems: 'stretch' }}>
@@ -102,7 +100,7 @@ const EventScreen = ({ route, navigation }) => {
                     <View style={eventStyle.footerTextContainer}>
                         <MaterialCommunityIcons name="clock-outline" size={20} style={eventStyle.icon} />
                         <Text style={eventStyle.footerText}>
-                            {dateString} at {timeString}
+                            {getDateTimeString(event.startTime, event.endTime)}
                         </Text>
                     </View>
                     <View style={eventStyle.footerTextContainer}>

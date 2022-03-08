@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet, TextInput, View, Keyboard, Button, TouchableOpacity, Text } from "react-native";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { StyleSheet, TextInput, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import { GOOGLE_MAPS_API_KEY } from '@env';
 

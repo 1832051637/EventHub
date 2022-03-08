@@ -9,6 +9,7 @@ const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
     const [email, setEmail] = useState('');
 
+    // Sends reset password email to user
     const handleSendEmail = () => {
         sendPasswordResetEmail(auth, email)
         .then(() => {

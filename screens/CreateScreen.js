@@ -1,4 +1,4 @@
-import { Text, View, TextInput, TouchableOpacity, Alert, Image, SafeAreaView, } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, SafeAreaView, } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { auth, db, storage } from '../firebase'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -42,6 +42,7 @@ const CreateScreen = () => {
         endTimeChange(null, endTime);
     }, [endDate]);
 
+    // Sets the selected image to an image from the user's library
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -58,6 +59,7 @@ const CreateScreen = () => {
         setSelectedImage({ localUri: pickerResult.uri });
     };
 
+    // Uploads an event image to firestore with id as the file name
     async function uploadImageAsync(uri, id) {
         try {
             const blob = await new Promise((resolve, reject) => {
@@ -116,6 +118,7 @@ const CreateScreen = () => {
         setEndTime(newTime);
     }
 
+    // Uploads event to the database
     const addEvent = async () => {
         const eventCheck = {
             name: eventName,
@@ -125,14 +128,15 @@ const CreateScreen = () => {
             startTime: startTime,
             endTime: endTime
         }
+
+        // Checks that the event fields are valid
         let validation = inputValidator(eventCheck);
         if (!validation.valid) {
             inputValidationAlert(validation.errors)
+
         } else {
             try {
-                // ********************************************************
-                // Get the coord of event based on user entered address
-                // ********************************************************
+                // Get the location information from the inputted address
                 let json;
                 try {
                     Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
@@ -148,9 +152,11 @@ const CreateScreen = () => {
                 const location = json.results[0].geometry.location;
                 const address = json.results[0].formatted_address;
 
+                // Default image url for event
                 let downloadURL = 'https://firebasestorage.googleapis.com/v0/b/event-hub-29d5a.appspot.com/o/IMG_7486.jpg?alt=media&token=34b9f8bc-23a2-42e6-8a77-f0cfdfd33a6a';
                 let imageID = '';
 
+                // Upload selected image to firestore
                 if (selectedImage !== null) {
                     imageID = uuid.v4();
                     downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
@@ -178,9 +184,10 @@ const CreateScreen = () => {
                     image: downloadURL
                 }
 
-                // Push to firebase Database
+                // Upload event to firebase
                 const eventRef = await addDoc(collection(db, "events"), eventData);
 
+                // Add event id to user's hosting and attending arrays
                 await updateDoc(userRef, {
                     hosting: arrayUnion(eventRef),
                     attending: arrayUnion(eventRef),
@@ -188,6 +195,8 @@ const CreateScreen = () => {
 
                 resetFields();
                 setLoading(false);
+
+                // Go to event details page
                 navigation.push("Event Details", { eventID: eventRef.id, host: auth.currentUser.uid });
             } catch (error) {
                 console.log(error);
@@ -196,6 +205,7 @@ const CreateScreen = () => {
         }
     }
 
+    // Resets the input fields of the screen
     const resetFields = () => {
         setEventName('');
         setEventDescription('');
@@ -206,6 +216,7 @@ const CreateScreen = () => {
         setEndDate(new Date());
     }
 
+    // Renders verify email button if user's email is not verified
     if (!auth.currentUser.emailVerified) {
         return (
             <View style={style.container}>
@@ -217,10 +228,12 @@ const CreateScreen = () => {
         )
     }
 
+    // Render loading view if in loading state
     if (loading) {
         return (<LoadingView />)
     }
 
+    // Event creation screen
     return (
         <SafeAreaView style={createStyle.container}>
             <KeyboardAwareScrollView
@@ -294,7 +307,6 @@ const CreateScreen = () => {
                     </View>
                     <View style={createStyle.inputItem}>
                         <MaterialCommunityIcons name="map-marker" size={20} style={createStyle.icon} color='rgb(100, 100, 100)' />
-
                         {/* Google Autocomplete API 
                         To reduce number of requests, please comment key out to use original textinput
                         */}

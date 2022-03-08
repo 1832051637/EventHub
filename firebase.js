@@ -6,14 +6,14 @@ import { getStorage } from "firebase/storage";
 import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID } from '@env';
 
 
-// Your web app's Firebase configuration
+// The app's Firebase configuration
 const firebaseConfig = {
-    apiKey: `${API_KEY}`,
-    authDomain: `${AUTH_DOMAIN}`,
-    projectId: `${PROJECT_ID}`,
-    storageBucket: `${STORAGE_BUCKET}`,
-    messagingSenderId: `${MESSAGING_SENDER_ID}`,
-    appId: `${APP_ID}`
+    apiKey: "AIzaSyA3wSOhQpvy9yDpb0cZXLidft2dNL-4LQ8",
+    authDomain: "event-hub-29d5a.firebaseapp.com",
+    projectId: "event-hub-29d5a",
+    storageBucket: "event-hub-29d5a.appspot.com",
+    messagingSenderId: "403196717477",
+    appId: "1:403196717477:web:bf2f17aca70f8e7c52e04c"
 };
 
 // Initialize Firebase (using firebase v.9.0+ syntax)
@@ -24,6 +24,7 @@ if (getApps().length == 0) {
     app = getApps();
 }
 
+// Get auth, database, and storage
 const auth = getAuth();
 const db = getFirestore();
 const storage = getStorage()

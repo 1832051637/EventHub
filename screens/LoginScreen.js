@@ -11,6 +11,7 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
+    // Logs in the user from the inputted email/password
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .catch(error => alert(error.message))

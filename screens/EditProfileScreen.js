@@ -23,6 +23,7 @@ const EditProfileScreen = () => {
     const navigation = useNavigation();
     const isFocused = useIsFocused();
 
+    // Loads the current profile information
     useEffect(async () => {
         setLoading(true);
         const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -35,6 +36,7 @@ const EditProfileScreen = () => {
         setLoading(false);
     }, [isFocused])
 
+    // Sets the selected image to an image from the user's library
     const openImagePickerAsync = async () => {
         let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -51,6 +53,7 @@ const EditProfileScreen = () => {
         setSelectedImage({ localUri: pickerResult.uri });
     };
 
+    // Uploads an event image to firestore with id as the file name
     async function uploadImageAsync(uri, id) {
         try {
             const blob = await new Promise((resolve, reject) => {
@@ -77,6 +80,7 @@ const EditProfileScreen = () => {
         }
     }
 
+    // Opens user's camera to take a picture
     const openCamera = async () => {
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     
@@ -95,6 +99,7 @@ const EditProfileScreen = () => {
         }
     }
 
+    // Asks the user to select and image or take a picture
     const selectImage = () => {
         Alert.alert(
             "Profile Picture",
@@ -115,9 +120,11 @@ const EditProfileScreen = () => {
         )
     };
 
+    // Updates the profile information
     const saveProfile = async () => {
         setLoading(true);
 
+        // Checks if the new profile info is valid
         let validation = profileValidator(firstName, lastName);
         if (!validation.valid) {
             inputValidationAlert(validation.errors);
@@ -125,14 +132,15 @@ const EditProfileScreen = () => {
         } 
 
         try {
-
             let downloadURL = originalImage;
             let imageID = originalImageID;
 
+            // Upload the new image if a new image was selected
             if (selectedImage !== null) {
                 imageID = uuid.v4();
                 downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
 
+                // Delet the original image
                 if (originalImageID) {
                     let imageRef = ref(storage, 'profile-pics/' + originalImageID);
                     await deleteObject(imageRef);
@@ -141,6 +149,7 @@ const EditProfileScreen = () => {
 
             const userRef = doc(db, 'users', auth.currentUser.uid);
 
+            // Update the user doc with the new profile info
             await updateDoc(userRef, {
                 firstName: firstName,
                 lastName: lastName,
@@ -150,6 +159,8 @@ const EditProfileScreen = () => {
             });
 
             setLoading(false);
+
+            // Go back to the profile page
             navigation.pop();
         } catch (error) {
             console.log(error);
@@ -158,10 +169,12 @@ const EditProfileScreen = () => {
         }
     }
 
+    // Render loading screen if in loading state
     if (loading) {
         return (<LoadingView />);
     }
 
+    // Edit profile screen
     return (
         <View style={settingsStyle.profileContainer}>
             <View>
