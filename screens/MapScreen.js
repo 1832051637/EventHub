@@ -73,6 +73,7 @@ const MapScreen = ({ route }) => {
             json = await Geocoder.from(locationPhrase)
 
         } catch (error) {
+            console.log(error);
             alert("Invalid Location. Please enter again!");
             return;
         }

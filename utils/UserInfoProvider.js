@@ -11,9 +11,9 @@ export const UserInfoContext = createContext({});
 
 // Context for tracking location and notification information
 export const UserInfoProvider = ({ children }) => {
-    const [location, setLocation] = useState([]);
+    const [location, setLocation] = useState({ longitude: -122.0582, latitude: 36.9881 });
     const [locationString, setLocationString] = useState('');
-    const [myGeo, setMyGeo] = useState(null);
+    const [myGeo, setMyGeo] = useState('9q9');
     const [pushToken, setPushToken] = useState('');
 
     useEffect(() => {
@@ -26,20 +26,14 @@ export const UserInfoProvider = ({ children }) => {
                     setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
-                        if (userLocation) {
-                            let userCoords = userLocation.coords;
-                            userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
-                            setLocation(userLocations[0]);
+                    if (userLocation) {
+                        let userCoords = userLocation.coords;
+                        userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                        setLocation(userLocations[0]);
 
-                            let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
-                            setMyGeo(geoLoc);
-
-                        } else {
-                            setLocation({ longitude: -122.0582, latitude: 36.9881 });
-                            setMyGeo('9q9');
-                        }
-                    
-                    setLocation(userLocations[0]);
+                        let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
+                        setMyGeo(geoLoc);
+                    }
                 }
             }
             catch (error) {
