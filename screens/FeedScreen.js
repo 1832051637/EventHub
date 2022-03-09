@@ -46,7 +46,7 @@ const FeedScreen = () => {
 
         setLoading(false);
         setRefresh(false);
-    }, [searchPhrase, myGeo, refresh])
+    }, [searchPhrase, refresh])
 
     // Refresh the screen when it is focussed
     useEffect(() => {

@@ -21,7 +21,7 @@ const LocationBar = (props) => {
           debounce={1500}                     // Search debounce
           minLength={3}                       // Minimum number of chars to start a search 
           query={{
-              // key: `${GOOGLE_MAPS_API_KEY}`,  // *** Comment this line out if you dont use Autocomplete***
+              //key: `${GOOGLE_MAPS_API_KEY}`,  // *** Comment this line out if you dont use Autocomplete***
               language: 'en',
           }}
           onPress={(data, details) => {
