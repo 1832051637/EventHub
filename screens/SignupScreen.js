@@ -1,5 +1,5 @@
 import React, {  useState } from 'react';
-import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore"; 
 import { auth, db } from '../firebase';
@@ -49,9 +49,11 @@ const SignupScreen = () => {
                 <Text style={authStyle.titleEvent}>
                     Event
                 </Text>
-                <Text style={authStyle.titleHub}>
-                    Hub
-                </Text>
+                <View style={authStyle.hub}>
+                    <Text style={authStyle.titleHub}>
+                        hub
+                    </Text>
+                </View>
             </View>
             <View style={style.inputContainer}>
                 <TextInput

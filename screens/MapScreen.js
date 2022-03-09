@@ -24,6 +24,7 @@ const MapScreen = ({ route }) => {
     const [locationPhrase, setLocationPhrase] = useState('');
     const [eventsArray, setEventsArray] = useState([]);
     const [searchRadius, setRadius] = useState(2000);
+    const [eventLocation, setEventLocation] = useState(null);
     const userColor = 'red';
     const eventColor = '#ffe01a';
     Geocoder.init(`${GOOGLE_MAPS_API_KEY}`, { language: "en" });
@@ -60,6 +61,13 @@ const MapScreen = ({ route }) => {
         searchInitial();
         loadEvents();
     }, [location])
+
+    //Sets the initial location to selected event if came from event details page
+    React.useEffect(() => {
+        if (route.params) {
+            setEventLocation(route.params.location);
+        }
+    }, [])
 
 
     // ********************************************************
@@ -168,13 +176,23 @@ const MapScreen = ({ route }) => {
                     onSubmit={handleNewLocation}
                 />
                 <MapView style={mapStyle.map}
-                    // The initial Location is set to user's location or UCSC if not given permission
-                    region={{
-                        latitude: location.latitude,
-                        longitude: location.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    }}
+                    // The initial location is set to user's location or UCSC if not given permission
+                    // If came from event details, then go to the event's location
+                    region={
+                        eventLocation ?
+                        {
+                            latitude: eventLocation.lat,
+                            longitude: eventLocation.lng,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        } :   
+                        {
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }
+                    }
                 >
                     { // Display loaded events from firebase
                         eventsArray[0] != null && eventsArray.map((event, index) => (

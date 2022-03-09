@@ -1,6 +1,6 @@
 import React, {  useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAvoidingView, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../firebase';
 import style from '../styles/style.js';
@@ -27,9 +27,13 @@ const LoginScreen = () => {
                 <Text style={authStyle.titleEvent}>
                     Event
                 </Text>
-                <Text style={authStyle.titleHub}>
-                    Hub
-                </Text>
+                <View style={authStyle.hub}>
+                    <Text style={authStyle.titleHub}>
+                        hub
+                    </Text>
+                </View>
+                
+                {/* <Image style={{flex: 0.8, resizeMode: 'contain'}} source={require('../assets/EventHubLogo.png')} /> */}
             </View>
             <View style={style.buttonContainer}>
                 <TouchableOpacity

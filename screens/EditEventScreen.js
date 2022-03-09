@@ -102,6 +102,7 @@ const EditEventScreen = ( {route, navigation} ) => {
                 description: eventDescription,
                 attendeeLimit: attendeeLimit,
                 location: eventLocation,
+                numCurrentAttendees: attendeeTokens.length,
                 startTime: startTime,
                 endTime: endTime
             }

@@ -140,7 +140,7 @@ const EditProfileScreen = () => {
                 imageID = uuid.v4();
                 downloadURL = await uploadImageAsync(selectedImage.localUri, imageID);
 
-                // Delet the original image
+                // Delete the original image
                 if (originalImageID) {
                     let imageRef = ref(storage, 'profile-pics/' + originalImageID);
                     await deleteObject(imageRef);
