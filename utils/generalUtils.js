@@ -200,7 +200,9 @@ const deleteEvent = async (itemID, tokens, setEventDeleted) => {
         let eventRef = doc(db, 'events', itemID);
         const userRef = doc(db, 'users', auth.currentUser.uid);
         let ds = await getDoc(eventRef);
-        let imageID = ds.data().imageID;
+        let event = ds.data();
+        let imageID = event.imageID;
+        let eventName = event.name;
 
         // Delete event image from storage
         if (imageID) {
