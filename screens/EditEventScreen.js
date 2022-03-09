@@ -121,6 +121,7 @@ const EditEventScreen = ( {route, navigation} ) => {
                         json = await Geocoder.from(eventLocation);
     
                     } catch (error) {
+                        console.log(error);
                         alert("Invalid Location. Please enter again!");
                         return;
                     }

@@ -27,10 +27,16 @@ const profileValidator = (firstName, lastName) => {
     if (!firstName.replace(/\s/g, '').length || firstName.length > 20) {
         valid = false;
         errors += "- First name must be between 1 and 20 characters\n";
+    } else if (!/[^a-zA-Z-]/.test(firstName)) {
+        valid = false;
+        errors += "- First name must only contain letters and dashes\n";
     }
     if (!lastName.replace(/\s/g, '').length || firstName.length > 20) {
         valid = false;
         errors += "- Last name must be between 1 and 20 characters\n";
+    } else if (!/[^a-zA-Z-]/.test(lastName)) {
+        valid = false;
+        errors += "- Last name must only contain letters and dashes\n";
     }
     if (filter.isProfane(firstName) || filter.isProfane(lastName)) {
         valid = false;
@@ -54,6 +60,10 @@ const inputValidator = (event) => {
         valid = false;
         errors += "- Event name and description cannot contain profane language!\n";
     }
+    if (event.description.length > 300) {
+        valid = false;
+        errors += "- Event description cannot exceed 300 characters!\n";
+    }
     if (event.attendeeLimit.replace(/\s/g, '').length && Number(event.attendeeLimit) < 2) {
         valid = false;
         errors += "- Attendee limit must be at least a couple people\n";
@@ -68,7 +78,7 @@ const inputValidator = (event) => {
     }
     if (!event.location.replace(/\s/g, '').length) {
         valid = false;
-        errors += "- Location cannot be empty or invalid";
+        errors += "- Location cannot be empty or invalid\n";
     }
     if (event.endTime < event.startTime) {
         valid = false;
@@ -93,21 +103,23 @@ const inputValidationAlert = (errors) => {
 
 // Sends notification to host when someone attends an event
 const sendNotifications = async (token, eventName) => {
-    let message = "Someone has joined your event: " + eventName + "!";
+    if (token.length) {
+        let message = "Someone has joined your event: " + eventName + "!";
 
-    await fetch("https://exp.host/--/api/v2/push/send", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            "to": token,
-            "title": "A New Attendee",
-            "body": message
-        }),
-    }).then((response) => {
-        console.log(response.status);
-    });
+        await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "to": token,
+                "title": "A New Attendee",
+                "body": message
+            }),
+        }).then((response) => {
+            console.log(response.status);
+        });
+    }
 }
 
 

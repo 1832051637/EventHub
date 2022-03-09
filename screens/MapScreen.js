@@ -62,6 +62,7 @@ const MapScreen = ({ route }) => {
         loadEvents();
     }, [location])
 
+    //Sets the initial location to selected event if came from event details page
     React.useEffect(() => {
         if (route.params) {
             setEventLocation(route.params.location);
@@ -174,8 +175,8 @@ const MapScreen = ({ route }) => {
                     onSubmit={handleNewLocation}
                 />
                 <MapView style={mapStyle.map}
-                    // The initial Location is set to user's location or UCSC if not given permission
-                    // If came from event details, then go to event location
+                    // The initial location is set to user's location or UCSC if not given permission
+                    // If came from event details, then go to the event's location
                     region={
                         eventLocation ?
                         {
