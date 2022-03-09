@@ -27,14 +27,16 @@ const profileValidator = (firstName, lastName) => {
     if (!firstName.replace(/\s/g, '').length || firstName.length > 20) {
         valid = false;
         errors += "- First name must be between 1 and 20 characters\n";
-    } else if (!/[^a-zA-Z-]/.test(firstName)) {
+    } 
+    if (/[^a-zA-Z-]/.test(firstName)) {
         valid = false;
         errors += "- First name must only contain letters and dashes\n";
     }
-    if (!lastName.replace(/\s/g, '').length || firstName.length > 20) {
+    if (!lastName.replace(/\s/g, '').length || lastName.length > 20) {
         valid = false;
         errors += "- Last name must be between 1 and 20 characters\n";
-    } else if (!/[^a-zA-Z-]/.test(lastName)) {
+    }
+    if (/[^a-zA-Z-]/.test(lastName)) {
         valid = false;
         errors += "- Last name must only contain letters and dashes\n";
     }
