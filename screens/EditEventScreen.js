@@ -120,6 +120,7 @@ const EditEventScreen = ( {route, navigation} ) => {
                         json = await Geocoder.from(eventLocation);
     
                     } catch (error) {
+                        console.log(error);
                         alert("Invalid Location. Please enter again!");
                         return;
                     }
@@ -129,7 +130,6 @@ const EditEventScreen = ( {route, navigation} ) => {
                     const location = json.results[0].geometry.location;
                     const address = json.results[0].formatted_address;
 
-                    
                     const userRef = doc(db, 'users', auth.currentUser.uid);
 
                     // Initialize event data

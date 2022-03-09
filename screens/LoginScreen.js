@@ -14,7 +14,7 @@ const LoginScreen = () => {
     // Logs in the user from the inputted email/password
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
-            .catch(error => alert(error.message))
+            .catch(error => alert("Invalid username or password"))
     }
 
     // Login Screen GUI

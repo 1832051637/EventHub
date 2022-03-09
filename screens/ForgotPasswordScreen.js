@@ -16,7 +16,7 @@ const ForgotPasswordScreen = () => {
             Alert.alert("An email to reset your password has been sent!");
             navigation.replace("Login");
         })
-        .catch(error => alert(error.message));
+        .catch(error => alert("Invalid email address"));
     }
 
     // Forgot Password GUI

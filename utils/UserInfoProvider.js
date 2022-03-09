@@ -26,13 +26,20 @@ export const UserInfoProvider = ({ children }) => {
                     setLocation({ longitude: -122.0582, latitude: 36.9881 }); // Set to UCSC as default
                 } else {
                     let userLocation = await Location.getLastKnownPositionAsync();
-                    let userCoords = userLocation.coords;
-                    userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                        if (userLocation) {
+                            let userCoords = userLocation.coords;
+                            userLocations.push({ longitude: userCoords.longitude, latitude: userCoords.latitude });
+                            setLocation(userLocations[0]);
+
+                            let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
+                            setMyGeo(geoLoc);
+
+                        } else {
+                            setLocation({ longitude: -122.0582, latitude: 36.9881 });
+                            setMyGeo('9q9');
+                        }
                     
                     setLocation(userLocations[0]);
-
-                    let geoLoc = Geohash.encode(userCoords.latitude, userCoords.longitude, [3]);
-                    setMyGeo(geoLoc);
                 }
             }
             catch (error) {
