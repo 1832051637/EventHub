@@ -1,3 +1,5 @@
 # EventHub
 
-Make sure to check package.json to have all required dependecies installed OR Watch the first 5 mins of this video: https://www.youtube.com/watch?v=ql4J6SpLXZA (assuming Expo already installed)
+Make sure to check package.json to have all required dependecies installed
+
+This is the backup repo for CSE 115A Group EventHub. 
